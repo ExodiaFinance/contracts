@@ -134,7 +134,10 @@ const testNetOperaContract: IExodiaContractsRegistry = {
         version(SOlympus__factory.connect, "0x055B72A75c77a27d576f47A0821DBD198EBafdc3"),
     ]),
     OHMCirculatingSupplyContract: new ContractVersions([
-        version(OHMCirculatingSupplyContract__factory.connect),
+        version(
+            OHMCirculatingSupplyContract__factory.connect,
+            "0x3fB1B92239835F0413E028f591A7AF1a4D02a03c"
+        ),
     ]),
     OlympusStaking: new ContractVersions([
         version(
@@ -142,7 +145,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
             "0xD107b5E9cFCb4FD3aae8D139C814F19ed2547940"
         ),
     ]),
-    DAI: new ContractVersions<DAI>([version(DAI__factory.connect)]),
+    DAI: new ContractVersions<DAI>([
+        version(DAI__factory.connect, "0xEF6834b5a29D75a883406B19f3eEefbF87b5031A"),
+    ]),
     OlympusTreasury: new ContractVersions([
         version(
             OlympusTreasury__factory.connect,
