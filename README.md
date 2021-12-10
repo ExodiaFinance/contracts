@@ -23,7 +23,9 @@ https://hardhat.org/guides/shorthand.html
 
 ## Usage
 
-Run `npm install` and then:
+1. Run `npm install`
+2. Copy `.env.example` to `.env`
+3. Update `.env` with your credentials.
 
 - `hh compile` - to compile smart contract and generate typechain ts bindings
 - `hh test` - to run tests
