@@ -6,6 +6,7 @@ import {
     OlympusERC20Token__factory,
     OlympusTreasury__factory,
 } from "../typechain";
+import { DAI_DID } from "./00_deployDai";
 
 import { OHM_DID } from "./01_deployOhm";
 
@@ -26,4 +27,4 @@ const treasuryDeployment: IExtendedDeployFunction<IExodiaContractsRegistry> = as
 export default treasuryDeployment;
 treasuryDeployment.id = TREASURY_DID;
 treasuryDeployment.tags = ["local", "test", TREASURY_DID];
-treasuryDeployment.dependencies = [OHM_DID];
+treasuryDeployment.dependencies = [OHM_DID, DAI_DID];

@@ -2,6 +2,7 @@ import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
 import { OlympusERC20Token__factory, OlympusTreasury__factory } from "../typechain";
+import { OHM_DID } from "./01_deployOhm";
 
 import { SOHM_DID } from "./02_deploysOhm";
 import { TREASURY_DID } from "./03_deployTreasury";
@@ -16,9 +17,11 @@ const ohmSetVault: IExtendedDeployFunction<IExodiaContractsRegistry> = async ({
     const ohmVault = await ohm.vault();
     if (ohmVault !== treasury.address) {
         await ohm.setVault(treasury.address);
+        console.log("Updated OHM vault", ohmVault, "->", treasury.address);
     }
 };
 export default ohmSetVault;
 ohmSetVault.id = OHM_SET_VAULT_DID;
-ohmSetVault.tags = ["local", "test", OHM_SET_VAULT_DID];
-ohmSetVault.dependencies = [SOHM_DID, TREASURY_DID];
+ohmSetVault.tags = ["local", "test", TREASURY_DID, OHM_SET_VAULT_DID];
+ohmSetVault.dependencies = [OHM_DID];
+ohmSetVault.runAtTheEnd = true;

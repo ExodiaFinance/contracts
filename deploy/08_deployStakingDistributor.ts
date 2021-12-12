@@ -36,5 +36,6 @@ const deployDistributor: IExtendedDeployFunction<IExodiaContractsRegistry> = asy
 };
 export default deployDistributor;
 deployDistributor.id = STAKING_DISTRIBUTOR_DID;
-deployDistributor.tags = ["local", "test", STAKING_DISTRIBUTOR_DID];
-deployDistributor.dependencies = [STAKING_DID, OHM_DID, TREASURY_DID];
+deployDistributor.tags = ["local", "test", STAKING_DISTRIBUTOR_DID, STAKING_DID];
+deployDistributor.dependencies = [OHM_DID, TREASURY_DID];
+deployDistributor.runAtTheEnd = true;

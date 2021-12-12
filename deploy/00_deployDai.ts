@@ -10,10 +10,11 @@ const daiDeployment: IExtendedDeployFunction<IExodiaContractsRegistry> = async (
     network,
 }: IExtendedHRE<IExodiaContractsRegistry>) => {
     const { deployer } = await getNamedAccounts();
-    await deployments.deploy("DAI", {
+    const deployment = await deployments.deploy("DAI", {
         from: deployer,
         args: [network.config.chainId || 31337],
     });
+    console.log("DAI", deployment.address);
 };
 export default daiDeployment;
 daiDeployment.id = DAI_DID;

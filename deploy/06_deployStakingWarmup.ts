@@ -2,13 +2,11 @@ import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
 import {
-    OlympusERC20Token__factory,
     OlympusStaking__factory,
     SOlympus__factory,
     StakingWarmup__factory,
 } from "../typechain";
 
-import { OHM_DID } from "./01_deployOhm";
 import { SOHM_DID } from "./02_deploysOhm";
 import { STAKING_DID } from "./05_deployStaking";
 
@@ -31,5 +29,6 @@ const deployStakingWarmup: IExtendedDeployFunction<IExodiaContractsRegistry> = a
 };
 export default deployStakingWarmup;
 deployStakingWarmup.id = WARMUP_STAKING_DID;
-deployStakingWarmup.tags = ["local", "test", WARMUP_STAKING_DID];
-deployStakingWarmup.dependencies = [SOHM_DID, STAKING_DID];
+deployStakingWarmup.tags = ["local", "test", WARMUP_STAKING_DID, STAKING_DID];
+deployStakingWarmup.dependencies = [SOHM_DID];
+deployStakingWarmup.runAtTheEnd = true;

@@ -26,5 +26,6 @@ const deployStakingHelper: IExtendedDeployFunction<IExodiaContractsRegistry> = a
 };
 export default deployStakingHelper;
 deployStakingHelper.id = STAKING_HELPER_DID;
-deployStakingHelper.tags = ["local", "test", STAKING_HELPER_DID];
-deployStakingHelper.dependencies = [STAKING_DID, OHM_DID];
+deployStakingHelper.tags = ["local", "test", STAKING_HELPER_DID, STAKING_DID];
+deployStakingHelper.dependencies = [OHM_DID];
+deployStakingHelper.runAtTheEnd = true;

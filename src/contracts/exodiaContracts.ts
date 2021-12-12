@@ -193,5 +193,37 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     ]),
 };
 
+const hardhatContracts: IExodiaContractsRegistry = {
+    OlympusERC20Token: new ContractVersions([
+        version(OlympusERC20Token__factory.connect),
+    ]),
+    sOlympus: new ContractVersions([version(SOlympus__factory.connect)]),
+    OHMCirculatingSupplyContract: new ContractVersions([
+        version(OHMCirculatingSupplyContract__factory.connect),
+    ]),
+    OlympusStaking: new ContractVersions([version(OlympusStaking__factory.connect)]),
+    DAI: new ContractVersions<DAI>([version(DAI__factory.connect)]),
+    OlympusTreasury: new ContractVersions([version(OlympusTreasury__factory.connect)]),
+    StakingWarmup: new ContractVersions<StakingWarmup>([
+        version(StakingWarmup__factory.connect),
+    ]),
+    StakingHelper: new ContractVersions<StakingHelper>([]),
+    StakingHelperV2: new ContractVersions<StakingHelperV2>([
+        version(StakingHelperV2__factory.connect),
+    ]),
+    Distributor: new ContractVersions<Distributor>([
+        version(Distributor__factory.connect),
+    ]),
+    OlympusBondingCalculator: new ContractVersions<OlympusBondingCalculator>([
+        version(OlympusBondingCalculator__factory.connect),
+    ]),
+    RedeemHelper: new ContractVersions<RedeemHelper>([
+        version(RedeemHelper__factory.connect),
+    ]),
+    DAIBondDepository: new ContractVersions<OlympusBondDepository>([
+        version(OlympusBondDepository__factory.connect),
+    ]),
+};
+
 contracts.addNetwork(Network.OPERA_MAIN_NET, mainOperaContract);
 contracts.addNetwork(Network.OPERA_TEST_NET, testNetOperaContract);

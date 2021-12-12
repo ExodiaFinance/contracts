@@ -22,39 +22,35 @@ export class ContractFactory<T> {
         this.contracts = contractsRegistry;
     }
 
-    public forNetwork(nid: Network) {
-        return new NetworkContractFactory<T>(nid, this.providers, this.contracts);
+    public forNetwork(nid: Network, provider?: Provider | Signer | null) {
+        if (!this.providers.networkAvailable(nid) && !provider) {
+            throw Error(`Network ${nid} is not available`);
+        }
+        const networkProvider = provider || this.providers.forNetwork(nid);
+        return new NetworkContractFactory<T>(
+            networkProvider,
+            this.contracts.forNetwork(nid)
+        );
     }
 }
 
 export class NetworkContractFactory<T> {
-    private readonly network: Network;
-    private readonly networkProvider: JsonRpcProvider | Wallet;
-    private providers: ProvidersRegistry;
-    private contracts: NetworksContractsRegistry<IContractsRegistry>;
+    private readonly networkProvider: Provider | Signer;
+    private readonly contracts: IContractsRegistry;
 
-    constructor(
-        network: Network,
-        providersRegistry: ProvidersRegistry,
-        contractsRegistry: NetworksContractsRegistry<IContractsRegistry>
-    ) {
-        this.providers = providersRegistry;
+    constructor(provider: Provider | Signer, contractsRegistry: IContractsRegistry) {
+        this.networkProvider = provider;
         this.contracts = contractsRegistry;
-        this.network = network;
-        if (!this.providers.networkAvailable(this.network)) {
-            throw Error(`Network ${network} is not available`);
-        }
-        this.networkProvider = this.providers.forNetwork(network);
     }
 
     public getContractVersions(contractName: keyof T): ContractVersions<any> {
         const key = contractName as string;
-        return this.contracts.forNetwork(this.network)[key];
+        return this.contracts[key];
     }
 
     public getContractAtBlock(contractName: keyof T, atBlock: number) {
         const key = contractName as string;
-        return this.contracts.forNetwork(this.network)[key].atBlock(atBlock);
+        return this.contracts[key].atBlock(atBlock);
     }
 
     public getContract(contractName: keyof T, version: number) {

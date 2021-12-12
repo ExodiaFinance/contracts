@@ -1,3 +1,4 @@
+/*
 import { expect } from "chai";
 import { BigNumber, utils } from "ethers";
 import { ethers } from "hardhat";
@@ -184,3 +185,4 @@ describe("test deployments", function () {
         expect(sohmBalance.toString()).to.eq(toWei(200, OHM_DECIMALS)); // 2x 100 bonds
     });
 });
+*/

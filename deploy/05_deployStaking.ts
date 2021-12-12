@@ -20,10 +20,13 @@ const deployStaking: IExtendedDeployFunction<IExodiaContractsRegistry> = async (
 }: IExtendedHRE<IExodiaContractsRegistry>) => {
     const { contract: ohm } = await get<OlympusERC20Token__factory>("OlympusERC20Token");
     const { contract: sohm } = await get<SOlympus__factory>("sOlympus");
-    const { contract: staking } = await deploy<OlympusStaking__factory>(
+    const { contract: staking, deployment } = await deploy<OlympusStaking__factory>(
         "OlympusStaking",
         [ohm.address, sohm.address, STAKING_EPOCH_LENGTH, 0, 0]
     );
+    if (deployment.newlyDeployed) {
+        await sohm.initialize(staking.address);
+    }
 
     console.log("Staking:", staking.address);
 };
