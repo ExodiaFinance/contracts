@@ -1,4 +1,6 @@
 import {
+    BalancerPoolCreator,
+    BalancerPoolCreator__factory,
     DAI,
     DAI__factory,
     Distributor,
@@ -25,6 +27,8 @@ import {
     StakingHelperV2__factory,
     StakingWarmup,
     StakingWarmup__factory,
+    WOHM,
+    WOHM__factory,
 } from "../../typechain";
 
 import { ContractVersions, NetworksContractsRegistry, version } from "./contractRegistry";
@@ -44,6 +48,8 @@ export interface IExodiaContractsRegistry {
     OlympusBondingCalculator: ContractVersions<OlympusBondingCalculator>;
     RedeemHelper: ContractVersions<RedeemHelper>;
     DAIBondDepository: ContractVersions<OlympusBondDepository>;
+    BalancerPoolCreator: ContractVersions<BalancerPoolCreator>;
+    wOHM: ContractVersions<WOHM>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -121,6 +127,10 @@ const mainOperaContract: IExodiaContractsRegistry = {
             "0xC43Db16Ed7b57597170b76D3afF29708bc608483"
         ),
     ]),
+    BalancerPoolCreator: new ContractVersions<BalancerPoolCreator>([
+        version(BalancerPoolCreator__factory.connect),
+    ]),
+    wOHM: new ContractVersions<WOHM>([version(WOHM__factory.connect)]),
 };
 
 const testNetOperaContract: IExodiaContractsRegistry = {
@@ -191,6 +201,10 @@ const testNetOperaContract: IExodiaContractsRegistry = {
             "0x1B6F86BC319e3B363aC5299c045Ae29D95d7A623"
         ),
     ]),
+    BalancerPoolCreator: new ContractVersions<BalancerPoolCreator>([
+        version(BalancerPoolCreator__factory.connect),
+    ]),
+    wOHM: new ContractVersions<WOHM>([version(WOHM__factory.connect)]),
 };
 
 const hardhatContracts: IExodiaContractsRegistry = {
@@ -223,7 +237,12 @@ const hardhatContracts: IExodiaContractsRegistry = {
     DAIBondDepository: new ContractVersions<OlympusBondDepository>([
         version(OlympusBondDepository__factory.connect),
     ]),
+    BalancerPoolCreator: new ContractVersions<BalancerPoolCreator>([
+        version(BalancerPoolCreator__factory.connect),
+    ]),
+    wOHM: new ContractVersions<WOHM>([version(WOHM__factory.connect)]),
 };
 
 contracts.addNetwork(Network.OPERA_MAIN_NET, mainOperaContract);
 contracts.addNetwork(Network.OPERA_TEST_NET, testNetOperaContract);
+contracts.addNetwork(Network.HARDHAT, hardhatContracts);

@@ -28,9 +28,9 @@ module.exports = {
     networks: {
         hardhat: {
             // // If you want to do some forking, uncomment this
-            // forking: {
-            //   url: MAINNET_RPC_URL
-            // }
+            forking: {
+                url: providers.getUrl(Network.OPERA_MAIN_NET),
+            },
         },
         localhost: {},
         ganache: {
@@ -71,6 +71,9 @@ module.exports = {
         compilers: [
             {
                 version: "0.7.5",
+            },
+            {
+                version: "0.8.0",
             },
         ],
     },

@@ -1,6 +1,7 @@
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
+import { log } from "../src/utils";
 import {
     OHMCirculatingSupplyContract__factory,
     OlympusERC20Token__factory,
@@ -24,7 +25,7 @@ const ohmCirculatingSupplyDeployment: IExtendedDeployFunction<IExodiaContractsRe
         if (deployment.newlyDeployed) {
             await contract.initialize(ohm.address);
         }
-        console.log("OHMCirculatinSupply", contract.address);
+        log("OHMCirculatinSupply", contract.address);
     };
 export default ohmCirculatingSupplyDeployment;
 ohmCirculatingSupplyDeployment.id = OHM_CIRCULATING_SUPPLY_DID;

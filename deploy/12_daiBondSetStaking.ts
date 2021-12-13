@@ -1,6 +1,7 @@
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
+import { log } from "../src/utils";
 import { OlympusBondDepository__factory, StakingHelperV2__factory } from "../typechain";
 
 import { STAKING_HELPER_DID } from "./07_deployStakingHelper";
@@ -20,7 +21,7 @@ const setStakingDaiBond: IExtendedDeployFunction<IExodiaContractsRegistry> = asy
     const bondStakingHelperAddress = await bond.stakingHelper();
     if (stakingHelper.address !== bondStakingHelperAddress) {
         await bond.setStaking(stakingHelper.address, true);
-        console.log(
+        log(
             "Dai bond StakingHelper address updated:",
             bondStakingHelperAddress,
             " -> ",

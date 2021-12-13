@@ -1,6 +1,7 @@
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
+import { log } from "../src/utils";
 import {
     OlympusBondingCalculator__factory,
     OlympusERC20Token__factory,
@@ -19,7 +20,7 @@ const deployStakingHelper: IExtendedDeployFunction<IExodiaContractsRegistry> = a
         "OlympusBondingCalculator",
         [ohm.address]
     );
-    console.log("Bonding Calculator:", contract.address);
+    log("Bonding Calculator:", contract.address);
 };
 export default deployStakingHelper;
 deployStakingHelper.id = BONDING_CALCULATOR_DID;

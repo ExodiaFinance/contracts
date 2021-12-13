@@ -2,6 +2,7 @@ import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
 import toggleRights, { MANAGING } from "../src/subdeploy/toggleRights";
+import { log } from "../src/utils";
 import {
     Distributor__factory,
     OlympusERC20Token__factory,
@@ -32,7 +33,7 @@ const deployDistributor: IExtendedDeployFunction<IExodiaContractsRegistry> = asy
     if (!(await treasury.isRewardManager(distributor.address))) {
         toggleRights(treasury, MANAGING.REWARDMANAGER, distributor.address);
     }
-    console.log("Distributor:", distributor.address);
+    log("Distributor:", distributor.address);
 };
 export default deployDistributor;
 deployDistributor.id = STAKING_DISTRIBUTOR_DID;

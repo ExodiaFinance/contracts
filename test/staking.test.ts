@@ -43,7 +43,6 @@ describe("test staking", function () {
             "OlympusTreasury"
         );
         const { contract: dai } = await get<DAI__factory>("DAI");
-        await toggleRights(treasury, MANAGING.RESERVEDEPOSITOR, deployer);
         await mint(deployer, treasury, dai, toWei(1, DAI_DECIMALS));
 
         const ohmBalance = await ohm.balanceOf(deployer);

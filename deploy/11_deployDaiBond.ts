@@ -2,6 +2,7 @@ import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
 import { zeroAddress } from "../src/subdeploy/deployBasics";
+import { log } from "../src/utils";
 import {
     DAI__factory,
     OlympusBondDepository__factory,
@@ -38,7 +39,7 @@ const deployDaiBond: IExtendedDeployFunction<IExodiaContractsRegistry> = async (
         );
         await redeemHelper.addBondContract(bond.address);
     }
-    console.log("DAI Bond ", bond.address);
+    log("DAI Bond ", bond.address);
 };
 export default deployDaiBond;
 deployDaiBond.id = DAI_BOND_DID;

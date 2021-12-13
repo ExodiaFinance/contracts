@@ -1,6 +1,7 @@
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
+import { log } from "../src/utils";
 import {
     OlympusERC20Token__factory,
     OlympusStaking__factory,
@@ -28,7 +29,7 @@ const deployStaking: IExtendedDeployFunction<IExodiaContractsRegistry> = async (
         await sohm.initialize(staking.address);
     }
 
-    console.log("Staking:", staking.address);
+    log("Staking:", staking.address);
 };
 export default deployStaking;
 deployStaking.id = STAKING_DID;

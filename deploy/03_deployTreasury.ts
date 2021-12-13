@@ -1,6 +1,7 @@
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
+import { log } from "../src/utils";
 import {
     DAI__factory,
     OlympusERC20Token__factory,
@@ -22,7 +23,7 @@ const treasuryDeployment: IExtendedDeployFunction<IExodiaContractsRegistry> = as
         "OlympusTreasury",
         [ohm.address, dai.address, 0]
     );
-    console.log("Treasury", contract.address);
+    log("Treasury", contract.address);
 };
 export default treasuryDeployment;
 treasuryDeployment.id = TREASURY_DID;

@@ -1,6 +1,7 @@
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
+import { log } from "../src/utils";
 import {
     OlympusStaking__factory,
     SOlympus__factory,
@@ -25,7 +26,7 @@ const deployStakingWarmup: IExtendedDeployFunction<IExodiaContractsRegistry> = a
     if (deployment.newlyDeployed) {
         await staking.setContract(1, warmup.address);
     }
-    console.log("StakingWarmup:", warmup.address);
+    log("StakingWarmup:", warmup.address);
 };
 export default deployStakingWarmup;
 deployStakingWarmup.id = WARMUP_STAKING_DID;

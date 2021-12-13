@@ -740,8 +740,10 @@ library SafeERC20 {
 interface IStaking {
     function stake( uint _amount, address _recipient ) external returns ( bool );
 
-    function unstake( uint _amount, address _recipient ) external returns ( bool );
+    function unstake( uint _amount, bool _trigger ) external;
 
+    function claim(address _staker) external;
+    
     function index() external view returns ( uint );
 }
 
@@ -773,7 +775,7 @@ contract wOHM is ERC20 {
 
         IERC20( OHM ).approve( staking, _amount ); // stake OHM for sOHM
         IStaking( staking ).stake( _amount, address(this) );
-
+        IStaking(staking).claim( address(this) );
         uint value = wOHMValue( _amount );
         _mint( msg.sender, value );
         return value;
@@ -789,7 +791,7 @@ contract wOHM is ERC20 {
         
         uint value = sOHMValue( _amount );
         IERC20( sOHM ).approve( staking, value ); // unstake sOHM for OHM
-        IStaking( staking ).unstake( value, address(this) );
+        IStaking( staking ).unstake( value, true );
 
         IERC20( OHM ).transfer( msg.sender, value );
         return value;

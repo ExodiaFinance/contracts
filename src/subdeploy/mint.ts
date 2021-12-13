@@ -1,5 +1,5 @@
-import { HardhatEthersHelpers } from "@nomiclabs/hardhat-ethers/dist/src/types";
 import { DAI, OlympusTreasury } from "../../typechain";
+import toggleRights, { MANAGING } from "./toggleRights";
 
 export default async function (
     minter: string,
@@ -8,6 +8,9 @@ export default async function (
     amount: string,
     profit = "0"
 ) {
+    if (!(await treasury.isReserveDepositor(minter))) {
+        await toggleRights(treasury, MANAGING.RESERVEDEPOSITOR, minter);
+    }
     await dai.mint(minter, amount);
     await dai.approve(treasury.address, amount);
     await treasury.deposit(amount, dai.address, profit);

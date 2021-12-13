@@ -2,6 +2,7 @@ import { BigNumber } from "ethers";
 
 export const DAI_DECIMALS = 18;
 export const OHM_DECIMALS = 9;
+export const WOHM_DECIMALS = 18;
 
 export function toWei(qt: number, decimals: number) {
     return String(qt * 10 ** decimals);
@@ -9,4 +10,10 @@ export function toWei(qt: number, decimals: number) {
 
 export function toBN(qt: number, decimals: number) {
     return BigNumber.from(toWei(qt, decimals));
+}
+
+export function log(...args: string[]) {
+    if (process.env.NODE_ENV !== "test") {
+        console.log(args.join(" "));
+    }
 }
