@@ -7,8 +7,8 @@ import {
     OlympusBondDepository__factory,
     OlympusTreasury__factory,
 } from "../typechain";
-import { DAI_DID } from "./00_deployDai";
 
+import { DAI_DID } from "./00_deployDai";
 import { TREASURY_DID } from "./03_deployTreasury";
 import { DAI_BOND_DID } from "./11_deployDaiBond";
 

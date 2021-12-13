@@ -7,14 +7,14 @@ import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-solhint";
 import "@typechain/hardhat";
 import "dotenv/config";
+import { ethers } from "ethers";
 import "hardhat-abi-exporter";
 import "hardhat-deploy";
 import "solidity-coverage";
-import { ethers } from "ethers";
 
-import { providers } from "./src/contracts";
 // import "hardhat-watcher";
 import { Network } from "./src/contracts/Network";
+import { providers } from "./src/contracts/providers";
 import "./src/HardhatRegistryExtension";
 import "./tasks/accounts";
 import "./tasks/balance";

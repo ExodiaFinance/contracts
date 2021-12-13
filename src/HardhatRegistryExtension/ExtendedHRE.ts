@@ -19,7 +19,7 @@ type PromiseReturnType<T> = T extends Promise<infer Return> ? Return : T;
 
 export interface DeployedContract<K> {
     contract: PromiseReturnType<K>;
-    deployment: DeployResult;
+    deployment: DeployResult | null;
 }
 
 export interface IHRERegistryExtension<T> {

@@ -25,7 +25,7 @@ const deployStaking: IExtendedDeployFunction<IExodiaContractsRegistry> = async (
         "OlympusStaking",
         [ohm.address, sohm.address, STAKING_EPOCH_LENGTH, 0, 0]
     );
-    if (deployment.newlyDeployed) {
+    if (deployment?.newlyDeployed) {
         await sohm.initialize(staking.address);
     }
 

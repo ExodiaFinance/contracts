@@ -33,7 +33,7 @@ const deployDaiBond: IExtendedDeployFunction<IExodiaContractsRegistry> = async (
         "DAIBondDepository",
         [ohm.address, dai.address, treasury.address, DAO, zeroAddress]
     );
-    if (deployment.newlyDeployed) {
+    if (deployment?.newlyDeployed) {
         const { contract: redeemHelper } = await get<RedeemHelper__factory>(
             "RedeemHelper"
         );

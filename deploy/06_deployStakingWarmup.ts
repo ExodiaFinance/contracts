@@ -23,7 +23,7 @@ const deployStakingWarmup: IExtendedDeployFunction<IExodiaContractsRegistry> = a
         "StakingWarmup",
         [staking.address, sohm.address]
     );
-    if (deployment.newlyDeployed) {
+    if (deployment?.newlyDeployed) {
         await staking.setContract(1, warmup.address);
     }
     log("StakingWarmup:", warmup.address);

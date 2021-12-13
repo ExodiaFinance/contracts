@@ -130,7 +130,9 @@ const mainOperaContract: IExodiaContractsRegistry = {
     BalancerPoolCreator: new ContractVersions<BalancerPoolCreator>([
         version(BalancerPoolCreator__factory.connect),
     ]),
-    wOHM: new ContractVersions<WOHM>([version(WOHM__factory.connect)]),
+    wOHM: new ContractVersions<WOHM>([
+        version(WOHM__factory.connect, "0xe992C5Abddb05d86095B18a158251834D616f0D1"),
+    ]),
 };
 
 const testNetOperaContract: IExodiaContractsRegistry = {
@@ -204,7 +206,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     BalancerPoolCreator: new ContractVersions<BalancerPoolCreator>([
         version(BalancerPoolCreator__factory.connect),
     ]),
-    wOHM: new ContractVersions<WOHM>([version(WOHM__factory.connect)]),
+    wOHM: new ContractVersions<WOHM>([
+        version(WOHM__factory.connect, "0x133f6D7d457377bfA6a43933127498fA40ef11CF"),
+    ]),
 };
 
 const hardhatContracts: IExodiaContractsRegistry = {

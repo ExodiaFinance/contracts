@@ -27,7 +27,7 @@ const deployDistributor: IExtendedDeployFunction<IExodiaContractsRegistry> = asy
         "Distributor",
         [treasury.address, ohm.address, STAKING_EPOCH_LENGTH, STAKING_EPOCH_LENGTH]
     );
-    if (deployment.newlyDeployed) {
+    if (deployment?.newlyDeployed) {
         await staking.setContract(0, distributor.address);
     }
     if (!(await treasury.isRewardManager(distributor.address))) {

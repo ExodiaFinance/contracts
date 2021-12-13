@@ -5,6 +5,7 @@
     "scripts": {
         "compile": "hardhat compile",
         "test": "cross-env NODE_ENV=test hardhat test",
+        "deploy-mainnet": "cross-env NODE_ENV=prod hardhat deploy --network ftm_mainnet",
         "deploy": "hardhat deploy",
         "node": "hardhat node",
         "lint:fix": "prettier --write 'scripts/**/*.{js,ts}' 'test/**/*.{js,ts}' 'tasks/**/*.{js,ts}' && tslint --fix --config tslint.json --project tsconfig.json && solhint contracts/**/*.sol",

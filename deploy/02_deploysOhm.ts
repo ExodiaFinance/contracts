@@ -11,7 +11,7 @@ const sohmDeployment: IExtendedDeployFunction<IExodiaContractsRegistry> = async 
 }: IExtendedHRE<IExodiaContractsRegistry>) => {
     const { contract, deployment } = await deploy<SOlympus__factory>("sOlympus", []);
     log("sOHM ", contract.address);
-    if (deployment.newlyDeployed) {
+    if (deployment?.newlyDeployed) {
         await contract.setIndex(toWei(1, OHM_DECIMALS));
     }
 };

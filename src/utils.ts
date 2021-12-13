@@ -17,3 +17,10 @@ export function log(...args: string[]) {
         console.log(args.join(" "));
     }
 }
+
+export function ifNotProd(dependencies: string[]) {
+    if (process.env.NODE_ENV === "prod") {
+        return [];
+    }
+    return dependencies;
+}

@@ -1,7 +1,7 @@
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import { log } from "../src/utils";
+import { ifNotProd, log } from "../src/utils";
 import {
     OlympusERC20Token__factory,
     OlympusStaking__factory,
@@ -35,4 +35,4 @@ const deployWOHM: IExtendedDeployFunction<IExodiaContractsRegistry> = async ({
 export default deployWOHM;
 deployWOHM.id = WOHM_DID;
 deployWOHM.tags = ["local", "test", WOHM_DID];
-deployWOHM.dependencies = [STAKING_DID, SOHM_DID, OHM_DID];
+deployWOHM.dependencies = ifNotProd([STAKING_DID, SOHM_DID, OHM_DID]);

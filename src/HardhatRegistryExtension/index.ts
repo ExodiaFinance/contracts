@@ -71,10 +71,26 @@ const deploy = async (
 };
 
 const get = async (xhre: IExtendedHRE<any>, contractName: string) => {
-    const deployment = (await xhre.deployments.get(contractName)) as DeployResult;
-    deployment.newlyDeployed = false;
-    const contract = await getContractInstance(contractName, xhre, deployment.address);
+    const deployment = (await xhre.deployments.getOrNull(contractName)) as DeployResult;
+    let deployedAddress = deployment?.address;
+    if (deployment) {
+        deployment.newlyDeployed = false;
+    }
+    if (!deployedAddress) {
+        const contractDeployed = await getContractFromRegistry(contractName, xhre);
+        deployedAddress = contractDeployed?.address || "no address found";
+    }
+    const contract = await getContractInstance(contractName, xhre, deployedAddress);
+
     return { contract, deployment };
+};
+
+const getContractFromRegistry = async (contractName: string, xhre: IExtendedHRE<any>) => {
+    const chainId = Number(await xhre.getChainId());
+    const blockNumber = await xhre.ethers.provider.getBlockNumber();
+    return xhre.contractFactory
+        .forNetwork(chainId)
+        .getContractAtBlock(contractName, blockNumber);
 };
 
 const getContractInstance = async (
@@ -82,13 +98,9 @@ const getContractInstance = async (
     xhre: IExtendedHRE<any>,
     address: string
 ) => {
-    const chainId = Number(await xhre.getChainId());
     const { deployer } = await xhre.getNamedAccounts();
     const signer = await xhre.ethers.getSigner(deployer);
-    const blockNumber = await xhre.ethers.provider.getBlockNumber();
-    const contract = xhre.contractFactory
-        .forNetwork(chainId, signer)
-        .getContractAtBlock(contractName, blockNumber);
+    const contract = await getContractFromRegistry(contractName, xhre);
     if (!contract) {
         throw new Error("Couldn't find typing");
     }

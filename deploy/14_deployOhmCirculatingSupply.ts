@@ -22,7 +22,7 @@ const ohmCirculatingSupplyDeployment: IExtendedDeployFunction<IExodiaContractsRe
                 "OHMCirculatingSupplyContract",
                 [deployer]
             );
-        if (deployment.newlyDeployed) {
+        if (deployment?.newlyDeployed) {
             await contract.initialize(ohm.address);
         }
         log("OHMCirculatinSupply", contract.address);

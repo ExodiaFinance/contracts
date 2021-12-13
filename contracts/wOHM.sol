@@ -756,7 +756,7 @@ contract wOHM is ERC20 {
     address public immutable OHM;
     address public immutable sOHM;
 
-    constructor( address _staking, address _OHM, address _sOHM ) ERC20( 'Wrapped sOHM', 'wsOHM' ) {
+    constructor( address _staking, address _OHM, address _sOHM ) ERC20( 'Wrapped sEXOD', 'wsEXOD' ) {
         require( _staking != address(0) );
         staking = _staking;
         require( _OHM != address(0) );
@@ -764,9 +764,9 @@ contract wOHM is ERC20 {
         require( _sOHM != address(0) );
         sOHM = _sOHM;
     }
-
-        /**
-        @notice stakes OHM and wraps sOHM
+    
+    /**
+@notice stakes OHM and wraps sOHM
         @param _amount uint
         @return uint
      */
@@ -822,7 +822,7 @@ contract wOHM is ERC20 {
         IERC20( sOHM ).transfer( msg.sender, value );
         return value;
     }
-
+    
     /**
         @notice converts wOHM amount to sOHM
         @param _amount uint
