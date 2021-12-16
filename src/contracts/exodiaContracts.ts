@@ -1,6 +1,4 @@
 import {
-    BalancerPoolCreator,
-    BalancerPoolCreator__factory,
     DAI,
     DAI__factory,
     Distributor,
@@ -19,6 +17,8 @@ import {
     OlympusTreasury__factory,
     RedeemHelper,
     RedeemHelper__factory,
+    RemoveUniLp,
+    RemoveUniLp__factory,
     SOlympus,
     SOlympus__factory,
     StakingHelper,
@@ -48,8 +48,8 @@ export interface IExodiaContractsRegistry {
     OlympusBondingCalculator: ContractVersions<OlympusBondingCalculator>;
     RedeemHelper: ContractVersions<RedeemHelper>;
     DAIBondDepository: ContractVersions<OlympusBondDepository>;
-    BalancerPoolCreator: ContractVersions<BalancerPoolCreator>;
     wOHM: ContractVersions<WOHM>;
+    RemoveUniLp: ContractVersions<RemoveUniLp>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -127,11 +127,11 @@ const mainOperaContract: IExodiaContractsRegistry = {
             "0xC43Db16Ed7b57597170b76D3afF29708bc608483"
         ),
     ]),
-    BalancerPoolCreator: new ContractVersions<BalancerPoolCreator>([
-        version(BalancerPoolCreator__factory.connect),
-    ]),
     wOHM: new ContractVersions<WOHM>([
         version(WOHM__factory.connect, "0xe992C5Abddb05d86095B18a158251834D616f0D1"),
+    ]),
+    RemoveUniLp: new ContractVersions<RemoveUniLp>([
+        version(RemoveUniLp__factory.connect),
     ]),
 };
 
@@ -203,11 +203,11 @@ const testNetOperaContract: IExodiaContractsRegistry = {
             "0x1B6F86BC319e3B363aC5299c045Ae29D95d7A623"
         ),
     ]),
-    BalancerPoolCreator: new ContractVersions<BalancerPoolCreator>([
-        version(BalancerPoolCreator__factory.connect),
-    ]),
     wOHM: new ContractVersions<WOHM>([
         version(WOHM__factory.connect, "0x133f6D7d457377bfA6a43933127498fA40ef11CF"),
+    ]),
+    RemoveUniLp: new ContractVersions<RemoveUniLp>([
+        version(RemoveUniLp__factory.connect),
     ]),
 };
 
@@ -241,10 +241,10 @@ const hardhatContracts: IExodiaContractsRegistry = {
     DAIBondDepository: new ContractVersions<OlympusBondDepository>([
         version(OlympusBondDepository__factory.connect),
     ]),
-    BalancerPoolCreator: new ContractVersions<BalancerPoolCreator>([
-        version(BalancerPoolCreator__factory.connect),
-    ]),
     wOHM: new ContractVersions<WOHM>([version(WOHM__factory.connect)]),
+    RemoveUniLp: new ContractVersions<RemoveUniLp>([
+        version(RemoveUniLp__factory.connect),
+    ]),
 };
 
 contracts.addNetwork(Network.OPERA_MAIN_NET, mainOperaContract);

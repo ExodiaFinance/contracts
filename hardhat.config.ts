@@ -67,6 +67,9 @@ module.exports = {
             [Network.OPERA_TEST_NET]: "0x723BF24e952ac47C52bB6df19DE16294b027Cd3E",
         },
     },
+    typechain: {
+        externalArtifacts: ["./node_modules/@hovoh/spookyswap-core/build/*.json"],
+    },
     solidity: {
         compilers: [
             {

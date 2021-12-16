@@ -26,6 +26,8 @@ extendEnvironment((hre) => {
     xhre.deploy = (contract: string, constructor: any[], opt: any) =>
         deploy(xhre, contract, constructor, opt);
     xhre.get = (contractName: string) => get(xhre, contractName);
+    xhre.getContractFromRegistry = (contractName: string) =>
+        getContractInstance(contractName, xhre);
 });
 
 const createContractFactory = (networks: NetworksConfig) => {
@@ -96,7 +98,7 @@ const getContractFromRegistry = async (contractName: string, xhre: IExtendedHRE<
 const getContractInstance = async (
     contractName: string,
     xhre: IExtendedHRE<any>,
-    address: string
+    address?: string
 ) => {
     const { deployer } = await xhre.getNamedAccounts();
     const signer = await xhre.ethers.getSigner(deployer);
@@ -104,5 +106,5 @@ const getContractInstance = async (
     if (!contract) {
         throw new Error("Couldn't find typing");
     }
-    return contract.factory(address, signer);
+    return contract.factory(address || contract.address, signer);
 };

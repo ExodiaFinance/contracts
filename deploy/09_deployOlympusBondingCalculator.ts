@@ -5,6 +5,7 @@ import { log } from "../src/utils";
 import {
     OlympusBondingCalculator__factory,
     OlympusERC20Token__factory,
+    OlympusTreasury__factory,
 } from "../typechain";
 
 import { OHM_DID } from "./01_deployOhm";
@@ -20,6 +21,7 @@ const deployStakingHelper: IExtendedDeployFunction<IExodiaContractsRegistry> = a
         "OlympusBondingCalculator",
         [ohm.address]
     );
+    const { contract: treasury } = await get<OlympusTreasury__factory>("OlympusTreasury");
     log("Bonding Calculator:", contract.address);
 };
 export default deployStakingHelper;

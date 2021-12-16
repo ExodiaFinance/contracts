@@ -23,6 +23,5 @@ const ohmSetVault: IExtendedDeployFunction<IExodiaContractsRegistry> = async ({
 };
 export default ohmSetVault;
 ohmSetVault.id = OHM_SET_VAULT_DID;
-ohmSetVault.tags = ["local", "test", TREASURY_DID, OHM_SET_VAULT_DID];
-ohmSetVault.dependencies = [OHM_DID];
-ohmSetVault.runAtTheEnd = true;
+ohmSetVault.tags = ["local", "test", TREASURY_DID];
+ohmSetVault.dependencies = [OHM_DID, OHM_SET_VAULT_DID];

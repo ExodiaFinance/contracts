@@ -36,6 +36,9 @@ export interface IHRERegistryExtension<T> {
     get<K extends IDeployable>(
         contractName: keyof T
     ): Promise<DeployedContract<ReturnType<K["deploy"]>>>;
+    getContractFromRegistry<K extends IDeployable>(
+        contractName: keyof T
+    ): Promise<ReturnType<K["deploy"]>>;
 }
 
 export interface IExtendedHRE<T>

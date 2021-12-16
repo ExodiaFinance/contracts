@@ -11,7 +11,8 @@
         "lint:fix": "prettier --write 'scripts/**/*.{js,ts}' 'test/**/*.{js,ts}' 'tasks/**/*.{js,ts}' && tslint --fix --config tslint.json --project tsconfig.json && solhint contracts/**/*.sol",
         "lint": "tslint --config tslint.json --project tsconfig.json && solhint contracts/**/*.sol",
         "format": "prettier --check \"**/*.{ts,js,sol}\"",
-        "format:fix": "prettier --write \"**/*.{ts,js,sol}\""
+        "format:fix": "prettier --write \"**/*.{ts,js,sol}\"",
+        "typechain:spookyswap": "typechain --target ethers-v5 --out-dir typechain/spookyswap './node_modules/@hovoh/spookyswap-core/build/*.json'"
     },
     "files": [
         "dist/src/",
@@ -34,6 +35,7 @@
         "@types/chai": "4.2.22",
         "@types/mocha": "9.0.0",
         "@types/node": "16.4.10",
+        "@uniswap/v2-core": "^1.0.1",
         "babel-eslint": "10.1.0",
         "chai": "4.3.4",
         "chai-bignumber": "3.0.0",
@@ -70,6 +72,9 @@
         "@balancer-labs/v2-vault": "^2.0.0",
         "@defi-wonderland/smock": "^2.0.7",
         "@ethersproject/providers": "^5.5.1",
-        "hardhat-abi-exporter": "^2.3.1"
+        "@hovoh/spookyswap-core": "^1.1.0",
+        "hardhat-abi-exporter": "^2.3.1",
+        "i": "^0.3.7",
+        "npm": "^8.3.0"
     }
 }
