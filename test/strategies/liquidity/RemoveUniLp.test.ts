@@ -1,7 +1,5 @@
 import { expect } from "chai";
 import hre from "hardhat";
-import { DAI_DID } from "../../../deploy/00_deployDai";
-import { OHM_DID } from "../../../deploy/01_deployOhm";
 
 import { TREASURY_DID } from "../../../deploy/03_deployTreasury";
 import { OHM_SET_VAULT_DID } from "../../../deploy/04_setVault";
@@ -91,6 +89,7 @@ describe("test treasury", function () {
     });
 
     it("removes lp and deposit the assets", async function () {
+        /*OHM is trading at 1DAI in this test*/
         await dai.mint(deployer, toWei(999, DAI_DECIMALS));
         await dai.approve(treasury.address, toWei(999, DAI_DECIMALS));
         await treasury.deposit(
@@ -126,7 +125,11 @@ describe("test treasury", function () {
         // Mare sure the DAI deposited goes toward the excess reserve
         const excessReserve = await treasury.excessReserves();
         const diffExcessReserve = excessReserve.sub(preExcessReserve);
-        expect(preExcessReserve.lt(excessReserve)).true;
+        console.log(preExcessReserve.toString(), excessReserve.toString());
+        // Because we have 1 DAI==1 OHM, excess reserve from LP reduces from OHM taken out of LP
+        expect(preExcessReserve.sub(ohmOut).div(1e5).toString()).eq(
+            excessReserve.div(1e5).toString()
+        );
         expect(diffExcessReserve.sub(daiOut.div(1e9)).toNumber()).to.lt(1e6);
     });
 });

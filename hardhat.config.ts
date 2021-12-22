@@ -79,6 +79,11 @@ module.exports = {
                 version: "0.8.0",
             },
         ],
+        outputSelection: {
+            "*": {
+                "*": ["storageLayout"],
+            },
+        },
     },
     mocha: {
         timeout: 100000,

@@ -3,6 +3,10 @@ import {
     DAI__factory,
     Distributor,
     Distributor__factory,
+    GOHMBondDepository,
+    GOHMBondDepository__factory,
+    GOHMSpotPriceOracle,
+    GOHMSpotPriceOracle__factory,
     OHMCirculatingSupplyContract,
     OHMCirculatingSupplyContract__factory,
     OlympusBondDepository,
@@ -50,6 +54,8 @@ export interface IExodiaContractsRegistry {
     DAIBondDepository: ContractVersions<OlympusBondDepository>;
     wOHM: ContractVersions<WOHM>;
     RemoveUniLp: ContractVersions<RemoveUniLp>;
+    GOHMBondDepository: ContractVersions<GOHMBondDepository>;
+    GOHMSpotPriceOracle: ContractVersions<GOHMSpotPriceOracle>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -133,6 +139,12 @@ const mainOperaContract: IExodiaContractsRegistry = {
     RemoveUniLp: new ContractVersions<RemoveUniLp>([
         version(RemoveUniLp__factory.connect),
     ]),
+    GOHMSpotPriceOracle: new ContractVersions<GOHMSpotPriceOracle>([
+        version(GOHMSpotPriceOracle__factory.connect),
+    ]),
+    GOHMBondDepository: new ContractVersions<GOHMBondDepository>([
+        version(GOHMBondDepository__factory.connect),
+    ]),
 };
 
 const testNetOperaContract: IExodiaContractsRegistry = {
@@ -209,6 +221,12 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     RemoveUniLp: new ContractVersions<RemoveUniLp>([
         version(RemoveUniLp__factory.connect),
     ]),
+    GOHMSpotPriceOracle: new ContractVersions<GOHMSpotPriceOracle>([
+        version(GOHMSpotPriceOracle__factory.connect),
+    ]),
+    GOHMBondDepository: new ContractVersions<GOHMBondDepository>([
+        version(GOHMBondDepository__factory.connect),
+    ]),
 };
 
 const hardhatContracts: IExodiaContractsRegistry = {
@@ -244,6 +262,12 @@ const hardhatContracts: IExodiaContractsRegistry = {
     wOHM: new ContractVersions<WOHM>([version(WOHM__factory.connect)]),
     RemoveUniLp: new ContractVersions<RemoveUniLp>([
         version(RemoveUniLp__factory.connect),
+    ]),
+    GOHMSpotPriceOracle: new ContractVersions<GOHMSpotPriceOracle>([
+        version(GOHMSpotPriceOracle__factory.connect),
+    ]),
+    GOHMBondDepository: new ContractVersions<GOHMBondDepository>([
+        version(GOHMBondDepository__factory.connect),
     ]),
 };
 

@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity 0.7.5;
+pragma solidity ^0.7.5;
+
+import "hardhat/console.sol";
 
 interface IOwnable {
   function policy() external view returns (address);
@@ -991,7 +993,7 @@ contract wETHOlympusBondDepository is Ownable {
     uint256 _maxDebt,
     uint256 _initialDebt
   ) external onlyPolicy {
-    require(currentDebt() == 0, "Debt must be 0 for initialization");
+    require(terms.controlVariable == 0, "Debt must be 0 for initialization");
     terms = Terms({
       controlVariable: _controlVariable,
       vestingTerm: _vestingTerm,
@@ -1102,7 +1104,6 @@ contract wETHOlympusBondDepository is Ownable {
 
     uint256 value = ITreasury(treasury).valueOf(principle, _amount);
     uint256 payout = payoutFor(value); // payout to bonder is computed
-
     require(payout >= 10000000, "Bond too small"); // must be > 0.01 OHM ( underflow protection )
     require(payout <= maxPayout(), "Bond too large"); // size protection because there is no slippage
 

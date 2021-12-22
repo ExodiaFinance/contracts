@@ -2,11 +2,9 @@ import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
 import mint from "../src/subdeploy/mint";
-import toggleRights, { MANAGING } from "../src/subdeploy/toggleRights";
 import { DAI_DECIMALS, OHM_DECIMALS, toWei } from "../src/utils";
 import {
     DAI__factory,
-    IUniswapRouterV2__factory,
     OlympusERC20Token__factory,
     OlympusTreasury__factory,
     UniswapV2Router02__factory,

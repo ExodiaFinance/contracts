@@ -2,17 +2,10 @@ import { expect } from "chai";
 import hre from "hardhat";
 
 import { TREASURY_DID } from "../deploy/03_deployTreasury";
-import { OHM_SET_VAULT_DID } from "../deploy/04_setVault";
 import { STAKING_DID } from "../deploy/05_deployStaking";
-import { WARMUP_STAKING_DID } from "../deploy/06_deployStakingWarmup";
-import { STAKING_HELPER_DID } from "../deploy/07_deployStakingHelper";
-import { STAKING_DISTRIBUTOR_DID } from "../deploy/08_deployStakingDistributor";
-import { MINT_DAI_DID } from "../deploy/15_mintDai";
-import { MINT_OHM_DID } from "../deploy/16_mintOHM";
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
 import mint from "../src/subdeploy/mint";
-import toggleRights, { MANAGING } from "../src/subdeploy/toggleRights";
 import { DAI_DECIMALS, OHM_DECIMALS, toWei } from "../src/utils";
 import {
     DAI__factory,

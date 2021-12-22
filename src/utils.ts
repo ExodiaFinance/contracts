@@ -4,6 +4,8 @@ export const DAI_DECIMALS = 18;
 export const OHM_DECIMALS = 9;
 export const WOHM_DECIMALS = 18;
 
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
 export function toWei(qt: number, decimals: number) {
     return String(qt * 10 ** decimals);
 }

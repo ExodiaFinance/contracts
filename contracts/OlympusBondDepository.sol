@@ -721,12 +721,12 @@ contract OlympusBondDepository is Ownable {
     ) external onlyPolicy() {
         require( terms.controlVariable == 0, "Bonds must be initialized from 0" );
         terms = Terms ({
-        controlVariable: _controlVariable,
-        vestingTerm: _vestingTerm,
-        minimumPrice: _minimumPrice,
-        maxPayout: _maxPayout,
-        fee: _fee,
-        maxDebt: _maxDebt
+            controlVariable: _controlVariable,
+            vestingTerm: _vestingTerm,
+            minimumPrice: _minimumPrice,
+            maxPayout: _maxPayout,
+            fee: _fee,
+            maxDebt: _maxDebt
         });
         totalDebt = _initialDebt;
         lastDecay = block.number;

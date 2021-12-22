@@ -2,7 +2,6 @@ import { expect } from "chai";
 import hre from "hardhat";
 
 import { TREASURY_DID } from "../deploy/03_deployTreasury";
-import { OHM_SET_VAULT_DID } from "../deploy/04_setVault";
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
 import mint from "../src/subdeploy/mint";
