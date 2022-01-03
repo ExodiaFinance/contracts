@@ -1,4 +1,4 @@
 import chaiModule from "chai";
-import { chaiEthers } from "chai-ethers";
-chaiModule.use(chaiEthers);
+import chaiAsPromised from "chai-as-promised";
+chaiModule.use(chaiAsPromised);
 export = chaiModule;

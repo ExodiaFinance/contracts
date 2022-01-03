@@ -1,3 +1,4 @@
+import { LiquidityBootstrappingPool__factory } from "@balancer-labs/typechain";
 import {
     DAI,
     DAI__factory,
@@ -7,6 +8,10 @@ import {
     GOHMBondDepository__factory,
     GOHMSpotPriceOracle,
     GOHMSpotPriceOracle__factory,
+    LiquidLockStaking,
+    LiquidLockStaking__factory,
+    LLSRewardHandler,
+    LLSRewardHandler__factory,
     OHMCirculatingSupplyContract,
     OHMCirculatingSupplyContract__factory,
     OlympusBondDepository,
@@ -56,6 +61,8 @@ export interface IExodiaContractsRegistry {
     RemoveUniLp: ContractVersions<RemoveUniLp>;
     GOHMBondDepository: ContractVersions<GOHMBondDepository>;
     GOHMSpotPriceOracle: ContractVersions<GOHMSpotPriceOracle>;
+    LiquidLockStaking: ContractVersions<LiquidLockStaking>;
+    LLSRewardHandler: ContractVersions<LLSRewardHandler>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -145,6 +152,12 @@ const mainOperaContract: IExodiaContractsRegistry = {
     GOHMBondDepository: new ContractVersions<GOHMBondDepository>([
         version(GOHMBondDepository__factory.connect),
     ]),
+    LiquidLockStaking: new ContractVersions<LiquidLockStaking>([
+        version(LiquidLockStaking__factory.connect),
+    ]),
+    LLSRewardHandler: new ContractVersions<LLSRewardHandler>([
+        version(LLSRewardHandler__factory.connect),
+    ]),
 };
 
 const testNetOperaContract: IExodiaContractsRegistry = {
@@ -227,6 +240,12 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     GOHMBondDepository: new ContractVersions<GOHMBondDepository>([
         version(GOHMBondDepository__factory.connect),
     ]),
+    LiquidLockStaking: new ContractVersions<LiquidLockStaking>([
+        version(LiquidLockStaking__factory.connect),
+    ]),
+    LLSRewardHandler: new ContractVersions<LLSRewardHandler>([
+        version(LLSRewardHandler__factory.connect),
+    ]),
 };
 
 const hardhatContracts: IExodiaContractsRegistry = {
@@ -268,6 +287,12 @@ const hardhatContracts: IExodiaContractsRegistry = {
     ]),
     GOHMBondDepository: new ContractVersions<GOHMBondDepository>([
         version(GOHMBondDepository__factory.connect),
+    ]),
+    LiquidLockStaking: new ContractVersions<LiquidLockStaking>([
+        version(LiquidLockStaking__factory.connect),
+    ]),
+    LLSRewardHandler: new ContractVersions<LLSRewardHandler>([
+        version(LLSRewardHandler__factory.connect),
     ]),
 };
 

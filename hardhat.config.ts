@@ -5,6 +5,7 @@
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-solhint";
+import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "dotenv/config";
 import { ethers } from "ethers";
@@ -27,7 +28,7 @@ module.exports = {
     defaultNetwork: "hardhat",
     networks: {
         hardhat: {
-            // // If you want to do some forking, uncomment this
+            // If you want to do some forking, uncomment this
             forking: {
                 url: providers.getUrl(Network.OPERA_MAIN_NET),
             },

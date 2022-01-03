@@ -7,7 +7,6 @@ cache
 deployments
 node_modules
 abi
-contracts/strategies
 
 cache/
 artifacts/
