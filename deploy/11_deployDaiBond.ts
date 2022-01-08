@@ -1,7 +1,7 @@
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import { zeroAddress } from "../src/subdeploy/deployBasics";
+import { ZERO_ADDRESS } from "../src/subdeploy/deployBasics";
 import { log } from "../src/utils";
 import {
     DAI__factory,
@@ -31,7 +31,7 @@ const deployDaiBond: IExtendedDeployFunction<IExodiaContractsRegistry> = async (
     const { DAO } = await getNamedAccounts();
     const { contract: bond, deployment } = await deploy<OlympusBondDepository__factory>(
         "DAIBondDepository",
-        [ohm.address, dai.address, treasury.address, DAO, zeroAddress]
+        [ohm.address, dai.address, treasury.address, DAO, ZERO_ADDRESS]
     );
     await bond.initializeBondTerms(100, 1000, 0, 100000000, 0, "10000000000000000", 0);
     /*    if (deployment?.newlyDeployed) {

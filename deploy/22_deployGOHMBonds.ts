@@ -1,7 +1,7 @@
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import { zeroAddress } from "../src/subdeploy/deployBasics";
+import { ZERO_ADDRESS } from "../src/subdeploy/deployBasics";
 import { ifNotProd, log } from "../src/utils";
 import {
     DAI__factory,

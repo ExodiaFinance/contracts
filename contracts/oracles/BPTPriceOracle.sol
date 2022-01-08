@@ -31,13 +31,13 @@ contract BPTPriceOracle is SpotPriceOracle {
     address vault;
     bytes32 poolId;
     uint8 index;
-    uint8 weight;
+    uint weight;
     
     constructor(address _denominator) SpotPriceOracle(){
         denominator = IERC20(_denominator);
     }
     
-    function setup(address _vault, bytes32 _poolId, uint8 _index, uint8 _weight) public onlyPolicy {
+    function setup(address _vault, bytes32 _poolId, uint8 _index, uint _weight) public onlyPolicy {
         require(weight < 100, "Weight can't be more than 100");
         (IERC20[] memory tokens,,) = IVault(_vault).getPoolTokens(_poolId);
         require(tokens[_index] == denominator, "Index is not the denominator");
@@ -49,7 +49,7 @@ contract BPTPriceOracle is SpotPriceOracle {
 
     function getPrice() public view override returns (int256){
         (IERC20[] memory tokens, uint[] memory balances,) = IVault(vault).getPoolTokens(poolId);
-        uint totalValue = balances[index].mul(100).div(weight);
+        uint totalValue = balances[index].mul(1e18).div(weight);
         (address poolAddress, uint8 spec) = IVault(vault).getPool(poolId);
         IERC20 bpt = IERC20(poolAddress);
         totalValue = totalValue.mul(10**bpt.decimals()).div(10**denominator.decimals());

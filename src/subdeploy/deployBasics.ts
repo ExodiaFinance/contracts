@@ -8,7 +8,7 @@ import deployStaking from "./deployStaking";
 import deployTreasury from "./deployTreasury";
 import toggleRights, { MANAGING } from "./toggleRights";
 
-export const zeroAddress = "0x0000000000000000000000000000000000000000";
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 export default async function deployBasics(
     ethers: HardhatEthersHelpers,

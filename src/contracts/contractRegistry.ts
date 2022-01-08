@@ -1,7 +1,7 @@
 import { Provider } from "@ethersproject/providers";
 import { Signer } from "ethers";
 
-import { zeroAddress } from "../subdeploy/deployBasics";
+import { ZERO_ADDRESS } from "../subdeploy/deployBasics";
 
 import { Network } from "./Network";
 
@@ -13,7 +13,7 @@ export interface IContract<T> {
 
 export const version = (
     factory: (address: string, signerOrProvider: Signer | Provider) => any,
-    address = zeroAddress,
+    address = ZERO_ADDRESS,
     deployedAt = 0
 ) => {
     return {

@@ -1,4 +1,3 @@
-import { LiquidityBootstrappingPool__factory } from "@balancer-labs/typechain";
 import {
     DAI,
     DAI__factory,
@@ -42,6 +41,14 @@ import {
 
 import { ContractVersions, NetworksContractsRegistry, version } from "./contractRegistry";
 import { Network } from "./Network";
+
+export interface IExternalContractsRegistry {
+    REVEST_REGISTRY: string;
+    THE_MONOLITH_POOL: string;
+    BEETHOVEN_VAULT: string;
+    MAI_TOKEN: string;
+    FTM_USD_FEED: string;
+}
 
 export interface IExodiaContractsRegistry {
     OlympusERC20Token: ContractVersions<OlympusERC20Token>;

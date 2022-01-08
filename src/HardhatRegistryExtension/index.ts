@@ -28,6 +28,7 @@ extendEnvironment((hre) => {
     xhre.get = (contractName: string) => get(xhre, contractName);
     xhre.getContractFromRegistry = (contractName: string) =>
         getContractInstance(contractName, xhre);
+    xhre.getNetwork = async () => Number(await hre.getChainId());
 });
 
 const createContractFactory = (networks: NetworksConfig) => {

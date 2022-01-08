@@ -8,6 +8,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import { ContractFactory } from "../contracts/ContractFactory";
 import { IContract, NetworksContractsRegistry } from "../contracts/contractRegistry";
+import { Network } from "../contracts/Network";
 
 export interface IDeployable {
     deploy(...string: any): any;
@@ -27,6 +28,7 @@ export interface IHRERegistryExtension<T> {
     contractFactory: ContractFactory<T>;
     getNamedAccounts: () => Promise<{ [name: string]: string }>;
     getChainId(): Promise<string>;
+    getNetwork(): Promise<Network>;
     getContract<K>(contractName: keyof T, block: number): Promise<IContract<K>>;
     deploy<K extends IDeployable>(
         contractName: keyof T,

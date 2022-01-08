@@ -1,3 +1,4 @@
+import { parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
 
 import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
@@ -28,7 +29,12 @@ describe("Beethoven X BPT oracle", function () {
         });
         const signer = await xhre.ethers.getSigner(deployer);
         oracle = BPTPriceOracle__factory.connect(oracleDeployment.address, signer);
-        await oracle.setup(BEETHOVEN_VAULT, A_LATE_QUARTET, 0, 25);
+        await oracle.setup(
+            BEETHOVEN_VAULT,
+            A_LATE_QUARTET,
+            0,
+            parseUnits("0.25", "ether")
+        );
     });
 
     it("Should get the price of 1 BPT with 8 decimals", async function () {

@@ -1,7 +1,7 @@
 import { HardhatEthersHelpers } from "@nomiclabs/hardhat-ethers/dist/src/types";
 
 import { OlympusBondDepository__factory, RedeemHelper__factory } from "../../typechain";
-import { zeroAddress } from "./deployBasics";
+import { ZERO_ADDRESS } from "./deployBasics";
 
 export default async function deployBonds(
     ethers: HardhatEthersHelpers,
@@ -11,7 +11,7 @@ export default async function deployBonds(
     daoAddress: string,
     stakingHelperAddress = "",
     redeemHelperAddress = "",
-    bondCalculator = zeroAddress
+    bondCalculator = ZERO_ADDRESS
 ) {
     const bondFactory = await ethers.getContractFactory<OlympusBondDepository__factory>(
         "OlympusBondDepository"

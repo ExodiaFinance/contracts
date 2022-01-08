@@ -1,5 +1,5 @@
 import { OlympusTreasury } from "../../typechain";
-import { zeroAddress } from "./deployBasics";
+import { ZERO_ADDRESS } from "./deployBasics";
 
 export enum MANAGING {
     RESERVEDEPOSITOR = 0,
@@ -18,7 +18,7 @@ export default async function toggleRights(
     treasury: OlympusTreasury,
     managing: MANAGING,
     address: string,
-    calculator = zeroAddress
+    calculator = ZERO_ADDRESS
 ) {
     await treasury.queue(managing, address);
     await treasury.toggle(managing, address, calculator);
