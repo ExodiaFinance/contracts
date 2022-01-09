@@ -1,14 +1,11 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@uniswap/v2-core/contracts/interfaces/IERC20.sol";
 
-import "../interfaces/IUniswapV2Router.sol";
 import "./interfaces/AggregatorV3Interface.sol";
 import "./SpotPriceOracle.sol";
-
-import "hardhat/console.sol";
 
 interface IVault {
     function getPoolTokens(bytes32 poolId)

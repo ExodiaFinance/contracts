@@ -1,10 +1,12 @@
+import { expect } from "chai";
 import { parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
-import { expect } from "chai";
 
+import { BPTMNLT_ORACLE_DID } from "../../deploy/25_deployBPTMNLTpriceOracle";
 import { externalAddressRegistry } from "../../src/contracts";
 import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
 import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
+import { ZERO_ADDRESS } from "../../src/utils";
 import {
     AggregatorV3Interface__factory,
     BPTPriceOracleV2,
@@ -128,5 +130,55 @@ describe("Beethoven X BPT oracle V2", function () {
         const poolValue = ethValue.mul(100).div(60);
         const bptPrice = poolValue.div(lpSupply);
         expect(price).to.eq(bptPrice);
+    });
+
+    it("Should deploy BPTMNLT price oracle", async function () {
+        await deployments.fixture([BPTMNLT_ORACLE_DID]);
+        const { contract: oracle } = await get<BPTPriceOracleV2__factory>(
+            "BPTMNLTPriceOracle"
+        );
+        const price = await oracle.getPrice();
+        const { BEETHOVEN_VAULT, THE_MONOLITH_POOLID, THE_MONOLITH_POOL } =
+            externalAddressRegistry.forNetwork(await getNetwork());
+        const signer = await xhre.ethers.getSigner(deployer);
+        const FTM_INDEX = 0;
+        await oracle.setup(
+            BEETHOVEN_VAULT,
+            THE_MONOLITH_POOLID,
+            [FTM_INDEX],
+            [FTM_USD_FEED]
+        );
+        const ftmFeedAnswer = await AggregatorV3Interface__factory.connect(
+            FTM_USD_FEED,
+            signer
+        ).latestRoundData();
+        const ftmUsd = ftmFeedAnswer.answer;
+        const ftmBalance = await IVault__factory.connect(
+            BEETHOVEN_VAULT,
+            signer
+        ).getPoolTokens(THE_MONOLITH_POOLID);
+        const lpSupply = await IERC20__factory.connect(
+            THE_MONOLITH_POOL,
+            signer
+        ).totalSupply();
+        const ethValue = ftmUsd.mul(ftmBalance.balances[FTM_INDEX]);
+        const poolValue = ethValue.mul(100).div(20);
+        const bptPrice = poolValue.div(lpSupply);
+        expect(price).to.be.closeTo(bptPrice, 1e5);
+    });
+
+    it("BPTMNLTPriceOracle should only let policy call setup", async function () {
+        await deployments.fixture([BPTMNLT_ORACLE_DID]);
+        const { contract: oracle } = await get<BPTPriceOracleV2__factory>(
+            "BPTMNLTPriceOracle"
+        );
+        const [account] = await xhre.getUnnamedAccounts();
+        const signer = await xhre.ethers.getSigner(account);
+        const contract = BPTPriceOracleV2__factory.connect(oracle.address, signer);
+        const { BEETHOVEN_VAULT, THE_MONOLITH_POOLID, THE_MONOLITH_POOL } =
+            externalAddressRegistry.forNetwork(await getNetwork());
+        expect(
+            contract.setup(BEETHOVEN_VAULT, THE_MONOLITH_POOLID, [1], [FTM_USD_FEED])
+        ).to.be.revertedWith("Ownable: caller is not the owner");
     });
 });

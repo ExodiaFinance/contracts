@@ -1,4 +1,8 @@
 import {
+    BPTMNLTBondDepository,
+    BPTMNLTBondDepository__factory,
+    BPTMNLTPriceOracle,
+    BPTPriceOracleV2__factory,
     DAI,
     DAI__factory,
     Distributor,
@@ -45,6 +49,7 @@ import { Network } from "./Network";
 export interface IExternalContractsRegistry {
     REVEST_REGISTRY: string;
     THE_MONOLITH_POOL: string;
+    THE_MONOLITH_POOLID: string;
     BEETHOVEN_VAULT: string;
     MAI_TOKEN: string;
     FTM_USD_FEED: string;
@@ -66,10 +71,12 @@ export interface IExodiaContractsRegistry {
     DAIBondDepository: ContractVersions<OlympusBondDepository>;
     wOHM: ContractVersions<WOHM>;
     RemoveUniLp: ContractVersions<RemoveUniLp>;
+    BPTMNLTPriceOracle: ContractVersions<BPTMNLTPriceOracle>;
     GOHMBondDepository: ContractVersions<GOHMBondDepository>;
     GOHMSpotPriceOracle: ContractVersions<GOHMSpotPriceOracle>;
     LiquidLockStaking: ContractVersions<LiquidLockStaking>;
     LLSRewardHandler: ContractVersions<LLSRewardHandler>;
+    BPTMNLTBondDepository: ContractVersions<BPTMNLTBondDepository>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -165,6 +172,18 @@ const mainOperaContract: IExodiaContractsRegistry = {
     LLSRewardHandler: new ContractVersions<LLSRewardHandler>([
         version(LLSRewardHandler__factory.connect),
     ]),
+    BPTMNLTPriceOracle: new ContractVersions<BPTMNLTPriceOracle>([
+        version(
+            BPTPriceOracleV2__factory.connect,
+            "0x5d1F638C39997750740c1D23C2990A48463ec4ED"
+        ),
+    ]),
+    BPTMNLTBondDepository: new ContractVersions<BPTMNLTBondDepository>([
+        version(
+            BPTMNLTBondDepository__factory.connect,
+            "0x86E21dB31c154aE777e0C126999e89Df0C01D9Fa"
+        ),
+    ]),
 };
 
 const testNetOperaContract: IExodiaContractsRegistry = {
@@ -253,6 +272,12 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     LLSRewardHandler: new ContractVersions<LLSRewardHandler>([
         version(LLSRewardHandler__factory.connect),
     ]),
+    BPTMNLTPriceOracle: new ContractVersions<BPTMNLTPriceOracle>([
+        version(BPTPriceOracleV2__factory.connect),
+    ]),
+    BPTMNLTBondDepository: new ContractVersions<BPTMNLTBondDepository>([
+        version(BPTMNLTBondDepository__factory.connect),
+    ]),
 };
 
 const hardhatContracts: IExodiaContractsRegistry = {
@@ -300,6 +325,12 @@ const hardhatContracts: IExodiaContractsRegistry = {
     ]),
     LLSRewardHandler: new ContractVersions<LLSRewardHandler>([
         version(LLSRewardHandler__factory.connect),
+    ]),
+    BPTMNLTPriceOracle: new ContractVersions<BPTMNLTPriceOracle>([
+        version(BPTPriceOracleV2__factory.connect),
+    ]),
+    BPTMNLTBondDepository: new ContractVersions<BPTMNLTBondDepository>([
+        version(BPTMNLTBondDepository__factory.connect),
     ]),
 };
 
