@@ -11,7 +11,6 @@ import {
     AggregatorV3Interface__factory,
     BPTPriceOracleV2,
     BPTPriceOracleV2__factory,
-    IERC20,
     IERC20__factory,
     IVault__factory,
 } from "../../typechain";
@@ -138,22 +137,23 @@ describe("Beethoven X BPT oracle V2", function () {
             "BPTMNLTPriceOracle"
         );
         const price = await oracle.getPrice();
-        const { BEETHOVEN_VAULT, THE_MONOLITH_POOLID, THE_MONOLITH_POOL } =
+        const { BEETHOVEN_VAULT, THE_MONOLITH_POOLID, THE_MONOLITH_POOL, DAI_USD_FEED } =
             externalAddressRegistry.forNetwork(await getNetwork());
         const signer = await xhre.ethers.getSigner(deployer);
         const FTM_INDEX = 0;
+        const MAI_INDEX = 4;
         await oracle.setup(
             BEETHOVEN_VAULT,
             THE_MONOLITH_POOLID,
-            [FTM_INDEX],
-            [FTM_USD_FEED]
+            [FTM_INDEX, MAI_INDEX],
+            [FTM_USD_FEED, DAI_USD_FEED]
         );
         const ftmFeedAnswer = await AggregatorV3Interface__factory.connect(
             FTM_USD_FEED,
             signer
         ).latestRoundData();
         const ftmUsd = ftmFeedAnswer.answer;
-        const ftmBalance = await IVault__factory.connect(
+        const poolTokens = await IVault__factory.connect(
             BEETHOVEN_VAULT,
             signer
         ).getPoolTokens(THE_MONOLITH_POOLID);
@@ -161,10 +161,13 @@ describe("Beethoven X BPT oracle V2", function () {
             THE_MONOLITH_POOL,
             signer
         ).totalSupply();
-        const ethValue = ftmUsd.mul(ftmBalance.balances[FTM_INDEX]);
-        const poolValue = ethValue.mul(100).div(20);
+        const ftmValue = ftmUsd.mul(poolTokens.balances[FTM_INDEX]);
+        const poolValue = ftmValue
+            .add(poolTokens.balances[MAI_INDEX].mul(1e8))
+            .mul(100)
+            .div(40);
         const bptPrice = poolValue.div(lpSupply);
-        expect(price).to.be.closeTo(bptPrice, 1e5);
+        expect(price).to.be.closeTo(bptPrice, 1e7);
     });
 
     it("BPTMNLTPriceOracle should only let policy call setup", async function () {

@@ -170,4 +170,11 @@ describe("GOHM bond depository", function () {
         const payout = await bond.payoutFor(valueOfBond);
         expect(payout.toString()).to.eq(valueOfBond.mul(1e4).div(bondPrice).toString());
     });
+
+    it("Should sell at min price", async function () {
+        await bond.setBondTerms(3, 50_0000);
+        expect(await bond.bondPrice()).to.eq(50_0000);
+        const payout = await bond.payoutFor(10000e9);
+        expect(payout).to.eq(200e9);
+    });
 });

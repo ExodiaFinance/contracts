@@ -7,21 +7,22 @@ import { BPTMNLTPriceOracle__factory } from "../typechain";
 
 export const BPTMNLT_ORACLE_DID = "bptmnlt_oracle_did";
 
-const deployDaiBond: IExtendedDeployFunction<IExodiaContractsRegistry> = async ({
-    deploy,
-    getNetwork,
-}: IExtendedHRE<IExodiaContractsRegistry>) => {
-    const { contract: oracle, deployment } = await deploy<BPTMNLTPriceOracle__factory>(
-        "BPTMNLTPriceOracle",
-        []
-    );
-    const { BEETHOVEN_VAULT, THE_MONOLITH_POOLID, FTM_USD_FEED } =
-        externalAddressRegistry.forNetwork(await getNetwork());
-    if (deployment?.newlyDeployed) {
-        await oracle.setup(BEETHOVEN_VAULT, THE_MONOLITH_POOLID, [0], [FTM_USD_FEED]);
-    }
-    log("BPTMNLT oracle: ", oracle.address);
-};
-export default deployDaiBond;
-deployDaiBond.id = BPTMNLT_ORACLE_DID;
-deployDaiBond.tags = ["local", "test", BPTMNLT_ORACLE_DID];
+const deployBPTMNLTPriceProvider: IExtendedDeployFunction<IExodiaContractsRegistry> =
+    async ({ deploy, getNetwork }: IExtendedHRE<IExodiaContractsRegistry>) => {
+        const { contract: oracle, deployment } =
+            await deploy<BPTMNLTPriceOracle__factory>("BPTMNLTPriceOracle", []);
+        const { BEETHOVEN_VAULT, THE_MONOLITH_POOLID, FTM_USD_FEED, DAI_USD_FEED } =
+            externalAddressRegistry.forNetwork(await getNetwork());
+        if (true || deployment?.newlyDeployed) {
+            await oracle.setup(
+                BEETHOVEN_VAULT,
+                THE_MONOLITH_POOLID,
+                [0, 4],
+                [FTM_USD_FEED, DAI_USD_FEED]
+            );
+        }
+        log("BPTMNLT oracle: ", oracle.address);
+    };
+export default deployBPTMNLTPriceProvider;
+deployBPTMNLTPriceProvider.id = BPTMNLT_ORACLE_DID;
+deployBPTMNLTPriceProvider.tags = ["local", "test", BPTMNLT_ORACLE_DID];

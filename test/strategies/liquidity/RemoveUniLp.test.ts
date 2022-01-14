@@ -36,8 +36,6 @@ import {
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNamedAccounts, deploy } = xhre;
 
-const FLOATING_POINT_DECIMALS = 18;
-
 describe("test treasury", function () {
     let treasury: OlympusTreasury;
     let ohm: OlympusERC20Token;

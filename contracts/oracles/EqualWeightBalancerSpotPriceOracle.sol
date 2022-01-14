@@ -2,24 +2,11 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@uniswap/v2-core/contracts/interfaces/IERC20.sol";
 
-import "../interfaces/IUniswapV2Router.sol";
+import "../interfaces/IBVaultV2.sol";
 import "./SpotPriceOracle.sol";
 
 import "hardhat/console.sol";
-
-interface IVault {
-    function getPoolTokens(bytes32 poolId)
-    external
-    view
-    returns (
-        IERC20[] memory tokens,
-        uint256[] memory balances,
-        uint256 lastChangeBlock
-    );
-
-}
 
 contract EWBalSpotPriceOracle is SpotPriceOracle {
 
@@ -41,7 +28,7 @@ contract EWBalSpotPriceOracle is SpotPriceOracle {
     function updatePool(address _vault, bytes32 _poolId, uint8 _index0, uint8 _index1) public onlyPolicy {
         vault = _vault;
         poolId = _poolId;
-        (IERC20[] memory tokens,,) = IVault(vault).getPoolTokens(poolId);
+        (IERC20[] memory tokens,,) = IBVaultV2(vault).getPoolTokens(poolId);
         require(address(tokens[_index0]) == token0, "Wrong index0");
         require(address(tokens[_index1]) == token1, "Wrong index1");
         index0 = _index0;
@@ -49,7 +36,7 @@ contract EWBalSpotPriceOracle is SpotPriceOracle {
     }
 
     function getPrice() public view override returns (int256){
-        (,uint[] memory balances,) = IVault(vault).getPoolTokens(poolId);
+        (,uint[] memory balances,) = IBVaultV2(vault).getPoolTokens(poolId);
         uint bal0 = balances[index0];
         uint bal1 = balances[index1].mul(10 ** IERC20(token0).decimals()).div(10**IERC20(token1).decimals());
         uint ratio = bal1.mul(1e8).div(bal0);

@@ -15,6 +15,8 @@ import {
     LiquidLockStaking__factory,
     LLSRewardHandler,
     LLSRewardHandler__factory,
+    MaiPriceProvider,
+    MaiPriceProvider__factory,
     OHMCirculatingSupplyContract,
     OHMCirculatingSupplyContract__factory,
     OlympusBondDepository,
@@ -53,6 +55,13 @@ export interface IExternalContractsRegistry {
     BEETHOVEN_VAULT: string;
     MAI_TOKEN: string;
     FTM_USD_FEED: string;
+    USDC_USD_FEED: string;
+    DAI_USD_FEED: string;
+    SPIRIT_FTM_GOHM: string;
+    SPOOKY_MAI_USDC: string;
+    SPOOKY_ROUTER: string;
+    EXODDAI_LP: string;
+    GUIQIN_QI_POOLID: string;
 }
 
 export interface IExodiaContractsRegistry {
@@ -77,6 +86,7 @@ export interface IExodiaContractsRegistry {
     LiquidLockStaking: ContractVersions<LiquidLockStaking>;
     LLSRewardHandler: ContractVersions<LLSRewardHandler>;
     BPTMNLTBondDepository: ContractVersions<BPTMNLTBondDepository>;
+    MaiPriceProvider: ContractVersions<MaiPriceProvider>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -158,7 +168,10 @@ const mainOperaContract: IExodiaContractsRegistry = {
         version(WOHM__factory.connect, "0xe992C5Abddb05d86095B18a158251834D616f0D1"),
     ]),
     RemoveUniLp: new ContractVersions<RemoveUniLp>([
-        version(RemoveUniLp__factory.connect),
+        version(
+            RemoveUniLp__factory.connect,
+            "0xde88F5f28771B84512d3B355a1C9065B3586dA1c"
+        ),
     ]),
     GOHMSpotPriceOracle: new ContractVersions<GOHMSpotPriceOracle>([
         version(GOHMSpotPriceOracle__factory.connect),
@@ -175,7 +188,7 @@ const mainOperaContract: IExodiaContractsRegistry = {
     BPTMNLTPriceOracle: new ContractVersions<BPTMNLTPriceOracle>([
         version(
             BPTPriceOracleV2__factory.connect,
-            "0x5d1F638C39997750740c1D23C2990A48463ec4ED"
+            "0x982a5A71C411f2eF748C91DC97D60C07E1016d4e"
         ),
     ]),
     BPTMNLTBondDepository: new ContractVersions<BPTMNLTBondDepository>([
@@ -183,6 +196,9 @@ const mainOperaContract: IExodiaContractsRegistry = {
             BPTMNLTBondDepository__factory.connect,
             "0x86E21dB31c154aE777e0C126999e89Df0C01D9Fa"
         ),
+    ]),
+    MaiPriceProvider: new ContractVersions<MaiPriceProvider>([
+        version(MaiPriceProvider__factory.connect),
     ]),
 };
 
@@ -278,6 +294,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     BPTMNLTBondDepository: new ContractVersions<BPTMNLTBondDepository>([
         version(BPTMNLTBondDepository__factory.connect),
     ]),
+    MaiPriceProvider: new ContractVersions<MaiPriceProvider>([
+        version(MaiPriceProvider__factory.connect),
+    ]),
 };
 
 const hardhatContracts: IExodiaContractsRegistry = {
@@ -331,6 +350,9 @@ const hardhatContracts: IExodiaContractsRegistry = {
     ]),
     BPTMNLTBondDepository: new ContractVersions<BPTMNLTBondDepository>([
         version(BPTMNLTBondDepository__factory.connect),
+    ]),
+    MaiPriceProvider: new ContractVersions<MaiPriceProvider>([
+        version(MaiPriceProvider__factory.connect),
     ]),
 };
 

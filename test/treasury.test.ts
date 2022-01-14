@@ -21,7 +21,7 @@ describe("test treasury", function () {
         await deployments.fixture([TREASURY_DID]);
     });
 
-    it("Should be deployed", async function () {
+    it("Should be deploy", async function () {
         const { contract: treasury } = await get<OlympusTreasury__factory>(
             "OlympusTreasury"
         );

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity >=0.7.5;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
@@ -31,8 +31,8 @@ contract UniV2SpotPriceOracle is SpotPriceOracle{
     function getPrice() public view override returns (int256){
         uint[] memory amountsOut = IUniswapV2Router(router).getAmountsOut(1e18, path);
         uint price = amountsOut[amountsOut.length - 1];
-        price = price.mul(100);
         // returned price is 6 decimals, but chain link oracle returns 8 decimals
+        price = price.mul(100);
         return int256(price);
     }
 }

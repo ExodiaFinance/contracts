@@ -14,9 +14,9 @@ async function main() {
             staking.address,
             ohm.address
         );
-        console.log("Helper deployed to to:", stakingHelper.address);
+        console.log("Helper deploy to to:", stakingHelper.address);
     } else {
-        console.log("Dependencies are not deployed");
+        console.log("Dependencies are not deploy");
     }
 }
 

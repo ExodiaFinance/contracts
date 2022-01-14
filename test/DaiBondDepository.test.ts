@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import hre from "hardhat";
 
 import { DAI_BOND_DID } from "../deploy/11_deployDaiBond";
@@ -79,5 +79,16 @@ describe("Dai bond depository", function () {
                 .div(1e9)
                 .toString()
         );
+    });
+
+    it("Should sell at 1$ price", async function () {
+        const payout = await daiBond.payoutFor(1e9);
+        expect(payout).to.eq(1e9);
+    });
+
+    it("Should sell at min price", async function () {
+        await daiBond.setBondTerms(4, 200);
+        const payout = await daiBond.payoutFor(10e9);
+        expect(payout).to.eq(5e9);
     });
 });

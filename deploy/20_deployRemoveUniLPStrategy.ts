@@ -30,9 +30,6 @@ const deployUniLpStrategy: IExtendedDeployFunction<IExodiaContractsRegistry> = a
         if (!(await treasury.isReserveDepositor(removeUniLP.address))) {
             await toggleRights(treasury, MANAGING.RESERVEDEPOSITOR, removeUniLP.address);
         }
-        if (!(await treasury.isRewardManager(removeUniLP.address))) {
-            await toggleRights(treasury, MANAGING.REWARDMANAGER, removeUniLP.address);
-        }
         if (!(await treasury.isLiquidityManager(removeUniLP.address))) {
             await toggleRights(treasury, MANAGING.LIQUIDITYMANAGER, removeUniLP.address);
         }

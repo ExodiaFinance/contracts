@@ -1,18 +1,13 @@
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import { ZERO_ADDRESS } from "../src/subdeploy/deployBasics";
 import { ifNotProd, log } from "../src/utils";
 import {
-    DAI__factory,
     GOHMBondDepository__factory,
     GOHMSpotPriceOracle__factory,
-    OlympusBondDepository__factory,
     OlympusERC20Token__factory,
-    OlympusStaking__factory,
     OlympusTreasury__factory,
     RedeemHelper__factory,
-    StakingHelperV2__factory,
 } from "../typechain";
 import { OHM_DID } from "./01_deployOhm";
 import { TREASURY_DID } from "./03_deployTreasury";
@@ -26,6 +21,7 @@ const deployDaiBond: IExtendedDeployFunction<IExodiaContractsRegistry> = async (
     get,
     getNamedAccounts,
 }: IExtendedHRE<IExodiaContractsRegistry>) => {
+    const { deployer } = await getNamedAccounts();
     const { contract: ohm } = await get<OlympusERC20Token__factory>("OlympusERC20Token");
     const { contract: treasury } = await get<OlympusTreasury__factory>("OlympusTreasury");
     const { DAO } = await getNamedAccounts();
@@ -36,12 +32,14 @@ const deployDaiBond: IExtendedDeployFunction<IExodiaContractsRegistry> = async (
         "GOHMBondDepository",
         [ohm.address, GOHM_ADDRESS, treasury.address, DAO, feed.address]
     );
-    /*    if (deployment?.newlyDeployed) {
+    if (deployment?.newlyDeployed) {
         const { contract: redeemHelper } = await get<RedeemHelper__factory>(
             "RedeemHelper"
         );
-        await redeemHelper.addBondContract(bond.address);
-    }*/
+        if ((await redeemHelper.policy()) === deployer) {
+            await redeemHelper.addBondContract(bond.address);
+        }
+    }
     log("gOHM Bond ", bond.address);
 };
 export default deployDaiBond;
