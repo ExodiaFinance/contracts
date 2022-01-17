@@ -39,11 +39,12 @@ abstract contract SpotPriceOracle is AggregatorV3Interface, Policy{
     function description()
     external
     pure
+    virtual
     override
     returns (
         string memory
     ){
-        return "oracle using spot price UniV2";
+        return "oracle";
     }
 
     function version()

@@ -1,8 +1,9 @@
+import { externalAddressRegistry } from "../src/contracts";
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
 import { log } from "../src/utils";
-import { GOHMSpotPriceOracle__factory } from "../typechain";
+import { GOHMPriceOracle__factory } from "../typechain";
 
 export const GOHM_ORACLE_DID = "gohm_oracle_did";
 
@@ -13,14 +14,15 @@ export const HEC_ADDRESS = "0x5C4FDfc5233f935f20D2aDbA572F770c2E377Ab0";
 
 const deployDaiBond: IExtendedDeployFunction<IExodiaContractsRegistry> = async ({
     deploy,
+    getNetwork,
 }: IExtendedHRE<IExodiaContractsRegistry>) => {
-    const { contract: oracle, deployment } = await deploy<GOHMSpotPriceOracle__factory>(
-        "GOHMSpotPriceOracle",
-        [GOHM_ADDRESS, USDC_ADDRESS]
+    const { OHM_INDEX_FEED, OHM_USD_FEED } = externalAddressRegistry.forNetwork(
+        await getNetwork()
     );
-    if (deployment?.newlyDeployed) {
-        await oracle.updatePath(SPIRIT_ROUTER, [GOHM_ADDRESS, HEC_ADDRESS, USDC_ADDRESS]);
-    }
+    const { contract: oracle, deployment } = await deploy<GOHMPriceOracle__factory>(
+        "GOHMPriceOracle",
+        [OHM_USD_FEED, OHM_INDEX_FEED]
+    );
     log("gOHM oracle: ", oracle.address);
 };
 export default deployDaiBond;

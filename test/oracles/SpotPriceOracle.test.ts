@@ -7,7 +7,7 @@ import {
     HEC_ADDRESS,
     SPIRIT_ROUTER,
     USDC_ADDRESS,
-} from "../../deploy/21_deployGOHMSpotPriceOracle";
+} from "../../deploy/21_deployGOHMPriceOracle";
 import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
 import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
 import { toWei, WOHM_DECIMALS } from "../../src/utils";
@@ -15,6 +15,7 @@ import {
     GOHMSpotPriceOracle,
     GOHMSpotPriceOracle__factory,
     IUniswapV2Router__factory,
+    SpotPriceOracle__factory,
 } from "../../typechain";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
@@ -44,10 +45,10 @@ describe("GOHMSpotPriceOracle", function () {
     });
 
     it("should return a price (path length 3)", async function () {
-        const { contract } = await deploy<GOHMSpotPriceOracle__factory>(
-            "GOHMSpotPriceOracle",
-            [BOO_ADDRESS, USDC_ADDRESS]
-        );
+        const deployment = await deployments.deploy("GOHMSpotPriceOracle", {
+            args: [BOO_ADDRESS, USDC_ADDRESS],
+        });
+        const contract = SpotPriceOracle__factory.connect(deployment.address);
         await contract.updatePath(SPOOKY_SWAP_ROUTER, [
             BOO_ADDRESS,
             WFTM_ADDRESS,

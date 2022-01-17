@@ -6,7 +6,7 @@ import hre from "hardhat";
 import { TREASURY_DID } from "../deploy/03_deployTreasury";
 import { OHM_CIRCULATING_SUPPLY_DID } from "../deploy/14_deployOhmCirculatingSupply";
 import { MINT_OHM_DID } from "../deploy/16_mintOHM";
-import { GOHM_ORACLE_DID } from "../deploy/21_deployGOHMSpotPriceOracle";
+import { GOHM_ORACLE_DID } from "../deploy/21_deployGOHMPriceOracle";
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
 import toggleRights, { MANAGING } from "../src/subdeploy/toggleRights";

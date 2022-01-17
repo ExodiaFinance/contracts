@@ -9,14 +9,12 @@ import {
     Distributor__factory,
     GOHMBondDepository,
     GOHMBondDepository__factory,
-    GOHMSpotPriceOracle,
-    GOHMSpotPriceOracle__factory,
+    GOHMPriceOracle,
+    GOHMPriceOracle__factory,
     LiquidLockStaking,
     LiquidLockStaking__factory,
     LLSRewardHandler,
     LLSRewardHandler__factory,
-    MaiPriceProvider,
-    MaiPriceProvider__factory,
     OHMCirculatingSupplyContract,
     OHMCirculatingSupplyContract__factory,
     OlympusBondDepository,
@@ -57,6 +55,8 @@ export interface IExternalContractsRegistry {
     FTM_USD_FEED: string;
     USDC_USD_FEED: string;
     DAI_USD_FEED: string;
+    OHM_USD_FEED: string;
+    OHM_INDEX_FEED: string;
     SPIRIT_FTM_GOHM: string;
     SPOOKY_MAI_USDC: string;
     SPOOKY_ROUTER: string;
@@ -82,11 +82,10 @@ export interface IExodiaContractsRegistry {
     RemoveUniLp: ContractVersions<RemoveUniLp>;
     BPTMNLTPriceOracle: ContractVersions<BPTMNLTPriceOracle>;
     GOHMBondDepository: ContractVersions<GOHMBondDepository>;
-    GOHMSpotPriceOracle: ContractVersions<GOHMSpotPriceOracle>;
+    GOHMPriceOracle: ContractVersions<GOHMPriceOracle>;
     LiquidLockStaking: ContractVersions<LiquidLockStaking>;
     LLSRewardHandler: ContractVersions<LLSRewardHandler>;
     BPTMNLTBondDepository: ContractVersions<BPTMNLTBondDepository>;
-    MaiPriceProvider: ContractVersions<MaiPriceProvider>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -173,11 +172,17 @@ const mainOperaContract: IExodiaContractsRegistry = {
             "0xde88F5f28771B84512d3B355a1C9065B3586dA1c"
         ),
     ]),
-    GOHMSpotPriceOracle: new ContractVersions<GOHMSpotPriceOracle>([
-        version(GOHMSpotPriceOracle__factory.connect),
+    GOHMPriceOracle: new ContractVersions<GOHMPriceOracle>([
+        version(
+            GOHMPriceOracle__factory.connect,
+            "0x5E1DEE184a4809EBfcEDa72E4287f4d2d62dC6C1"
+        ),
     ]),
     GOHMBondDepository: new ContractVersions<GOHMBondDepository>([
-        version(GOHMBondDepository__factory.connect),
+        version(
+            GOHMBondDepository__factory.connect,
+            "0xE9CfB79eDD1d37e106719dECEcbFB0a54d2927d3"
+        ),
     ]),
     LiquidLockStaking: new ContractVersions<LiquidLockStaking>([
         version(LiquidLockStaking__factory.connect),
@@ -196,9 +201,6 @@ const mainOperaContract: IExodiaContractsRegistry = {
             BPTMNLTBondDepository__factory.connect,
             "0x86E21dB31c154aE777e0C126999e89Df0C01D9Fa"
         ),
-    ]),
-    MaiPriceProvider: new ContractVersions<MaiPriceProvider>([
-        version(MaiPriceProvider__factory.connect),
     ]),
 };
 
@@ -276,8 +278,8 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     RemoveUniLp: new ContractVersions<RemoveUniLp>([
         version(RemoveUniLp__factory.connect),
     ]),
-    GOHMSpotPriceOracle: new ContractVersions<GOHMSpotPriceOracle>([
-        version(GOHMSpotPriceOracle__factory.connect),
+    GOHMPriceOracle: new ContractVersions<GOHMPriceOracle>([
+        version(GOHMPriceOracle__factory.connect),
     ]),
     GOHMBondDepository: new ContractVersions<GOHMBondDepository>([
         version(GOHMBondDepository__factory.connect),
@@ -293,9 +295,6 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     ]),
     BPTMNLTBondDepository: new ContractVersions<BPTMNLTBondDepository>([
         version(BPTMNLTBondDepository__factory.connect),
-    ]),
-    MaiPriceProvider: new ContractVersions<MaiPriceProvider>([
-        version(MaiPriceProvider__factory.connect),
     ]),
 };
 
@@ -333,8 +332,8 @@ const hardhatContracts: IExodiaContractsRegistry = {
     RemoveUniLp: new ContractVersions<RemoveUniLp>([
         version(RemoveUniLp__factory.connect),
     ]),
-    GOHMSpotPriceOracle: new ContractVersions<GOHMSpotPriceOracle>([
-        version(GOHMSpotPriceOracle__factory.connect),
+    GOHMPriceOracle: new ContractVersions<GOHMPriceOracle>([
+        version(GOHMPriceOracle__factory.connect),
     ]),
     GOHMBondDepository: new ContractVersions<GOHMBondDepository>([
         version(GOHMBondDepository__factory.connect),
@@ -350,9 +349,6 @@ const hardhatContracts: IExodiaContractsRegistry = {
     ]),
     BPTMNLTBondDepository: new ContractVersions<BPTMNLTBondDepository>([
         version(BPTMNLTBondDepository__factory.connect),
-    ]),
-    MaiPriceProvider: new ContractVersions<MaiPriceProvider>([
-        version(MaiPriceProvider__factory.connect),
     ]),
 };
 
