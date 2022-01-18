@@ -1101,8 +1101,8 @@ contract wETHOlympusBondDepository is Ownable {
     uint256 nativePrice = _bondPrice();
 
     require(_maxPrice >= nativePrice, "Slippage limit: more than max price"); // slippage protection
-
-    uint256 value = ITreasury(treasury).valueOf(principle, _amount);
+      
+    uint256 value = _amount.mul(10 ** IERC20(OHM).decimals()).div(10 ** IERC20(principle).decimals());
     uint256 payout = payoutFor(value); // payout to bonder is computed
     require(payout >= 10000000, "Bond too small"); // must be > 0.01 OHM ( underflow protection )
     require(payout <= maxPayout(), "Bond too large"); // size protection because there is no slippage

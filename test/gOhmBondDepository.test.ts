@@ -16,7 +16,7 @@ import {
     DAI__factory,
     GOHMBondDepository,
     GOHMBondDepository__factory,
-    GOHMSpotPriceOracle,
+    GOHMPriceOracle,
     OHMCirculatingSupplyContract,
     OHMCirculatingSupplyContract__factory,
     OlympusERC20Token__factory,
@@ -30,7 +30,7 @@ const { deployments, get, deploy, getNamedAccounts } = xhre;
 
 describe("GOHM bond depository", function () {
     let bond: GOHMBondDepository;
-    let feed: FakeContract<GOHMSpotPriceOracle>;
+    let feed: FakeContract<GOHMPriceOracle>;
     let treasury: OlympusTreasury;
     let dai: DAI;
     let deployer: string;
@@ -63,7 +63,7 @@ describe("GOHM bond depository", function () {
             "OHMCirculatingSupplyContract"
         );
         supplyContract = circSupplyDeployment.contract;
-        feed = await smock.fake<GOHMSpotPriceOracle>("GOHMSpotPriceOracle");
+        feed = await smock.fake<GOHMPriceOracle>("GOHMPriceOracle");
         assetPriceUsd = BigNumber.from("2000");
         feed.latestRoundData.returns([0, assetPriceUsd.mul(1e6), 0, 0, 0]);
         feed.latestAnswer.returns(assetPriceUsd.mul(1e6));

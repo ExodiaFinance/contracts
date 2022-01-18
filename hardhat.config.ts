@@ -17,9 +17,6 @@ import "solidity-coverage";
 import { Network } from "./src/contracts/Network";
 import { providers } from "./src/contracts/providers";
 import "./src/HardhatRegistryExtension";
-import "./tasks/accounts";
-import "./tasks/balance";
-import "./tasks/block-number";
 
 const FTMSCAN_API_KEY = process.env.FTMSCAN_API_KEY as string;
 const DEPLOYER_SECRET_KEY = process.env.DEPLOYER_SECRET_KEY as string;
