@@ -7,6 +7,8 @@ import {
     DAI__factory,
     Distributor,
     Distributor__factory,
+    FBEETSPriceOracle,
+    FBEETSPriceOracle__factory,
     GOHMBondDepository,
     GOHMBondDepository__factory,
     GOHMPriceOracle,
@@ -64,6 +66,8 @@ export interface IExternalContractsRegistry {
     SPOOKY_ROUTER: string;
     EXODDAI_LP: string;
     GUIQIN_QI_POOLID: string;
+    FIDELIO_DUETTO: string;
+    FBEETS_BAR: string;
 }
 
 export interface IExodiaContractsRegistry {
@@ -89,6 +93,7 @@ export interface IExodiaContractsRegistry {
     LiquidLockStaking: ContractVersions<LiquidLockStaking>;
     LLSRewardHandler: ContractVersions<LLSRewardHandler>;
     BPTMNLTBondDepository: ContractVersions<BPTMNLTBondDepository>;
+    fBEETSPriceOracle: ContractVersions<FBEETSPriceOracle>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -206,6 +211,9 @@ const mainOperaContract: IExodiaContractsRegistry = {
             "0x86E21dB31c154aE777e0C126999e89Df0C01D9Fa"
         ),
     ]),
+    fBEETSPriceOracle: new ContractVersions<FBEETSPriceOracle>([
+        version(FBEETSPriceOracle__factory.connect),
+    ]),
 };
 
 const testNetOperaContract: IExodiaContractsRegistry = {
@@ -301,6 +309,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     BPTMNLTBondDepository: new ContractVersions<BPTMNLTBondDepository>([
         version(BPTMNLTBondDepository__factory.connect),
     ]),
+    fBEETSPriceOracle: new ContractVersions<FBEETSPriceOracle>([
+        version(FBEETSPriceOracle__factory.connect),
+    ]),
 };
 
 const hardhatContracts: IExodiaContractsRegistry = {
@@ -355,6 +366,9 @@ const hardhatContracts: IExodiaContractsRegistry = {
     ]),
     BPTMNLTBondDepository: new ContractVersions<BPTMNLTBondDepository>([
         version(BPTMNLTBondDepository__factory.connect),
+    ]),
+    fBEETSPriceOracle: new ContractVersions<FBEETSPriceOracle>([
+        version(FBEETSPriceOracle__factory.connect),
     ]),
 };
 

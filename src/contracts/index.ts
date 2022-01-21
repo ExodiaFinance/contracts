@@ -36,6 +36,8 @@ const mainnetRegistry: IExternalContractsRegistry = {
     EXODDAI_LP: "0xC0c1Dff0Fe24108586e11ec9E20a7CbB405CB769",
     GUIQIN_QI_POOLID:
         "0x2c580c6f08044d6dfaca8976a66c8fadddbd9901000000000000000000000038",
+    FIDELIO_DUETTO: "0xcdE5a11a4ACB4eE4c805352Cec57E236bdBC3837",
+    FBEETS_BAR: "0xfcef8a994209d6916EB2C86cDD2AFD60Aa6F54b1",
 };
 externalAddressRegistry.addNetwork(Network.OPERA_MAIN_NET, mainnetRegistry);
 
@@ -55,6 +57,8 @@ externalAddressRegistry.addNetwork(Network.OPERA_TEST_NET, {
     SPOOKY_ROUTER: ZERO_ADDRESS,
     EXODDAI_LP: ZERO_ADDRESS,
     GUIQIN_QI_POOLID: ZERO_ADDRESS,
+    FIDELIO_DUETTO: ZERO_ADDRESS,
+    FBEETS_BAR: ZERO_ADDRESS,
 });
 
 externalAddressRegistry.addNetwork(Network.HARDHAT, mainnetRegistry);
