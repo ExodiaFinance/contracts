@@ -2,7 +2,7 @@ import { expect } from "chai";
 import hre from "hardhat";
 
 import { GOHM_ORACLE_DID } from "../../deploy/21_deployGOHMPriceOracle";
-import { FBEETS_ORACLE_DID } from "../../deploy/29_fBEETSOracleDeployment";
+import { FBEETS_ORACLE_DID } from "../../deploy/29_deployFBEETSOracle";
 import { externalAddressRegistry } from "../../src/contracts";
 import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
 import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";

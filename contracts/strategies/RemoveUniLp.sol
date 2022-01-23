@@ -3,9 +3,9 @@ pragma solidity ^0.7.5;
 
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 
-import "../../Policy.sol";
-import "../../OlympusTreasury.sol";
-import "../../interfaces/IUniswapV2Router.sol";
+import "../Policy.sol";
+import "../OlympusTreasury.sol";
+import "../interfaces/IUniswapV2Router.sol";
 
 contract RemoveUniLp is Policy {
     address public immutable treasury;

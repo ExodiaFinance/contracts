@@ -1,25 +1,18 @@
 import { expect } from "chai";
 import hre from "hardhat";
 
-import { TREASURY_DID } from "../../../deploy/03_deployTreasury";
-import { OHM_SET_VAULT_DID } from "../../../deploy/04_setVault";
-import { BONDING_CALCULATOR_DID } from "../../../deploy/09_deployOlympusBondingCalculator";
-import { MINT_DAI_DID } from "../../../deploy/15_mintDai";
-import { ADD_SPOOKY_LP_DID, SPOOKY_SWAP_ROUTER } from "../../../deploy/18_addSpookyLP";
-import {
-    DEPOSIT_SPOOKY_LP,
-    SPOOKY_SWAP_FACTORY,
-} from "../../../deploy/19_depositSpookyLP";
-import { DEPLOY_REMOVE_UNI_LP_STRATEGY_DID } from "../../../deploy/20_deployRemoveUniLPStrategy";
-import { IExodiaContractsRegistry } from "../../../src/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../../src/HardhatRegistryExtension/ExtendedHRE";
-import mint from "../../../src/subdeploy/mint";
-import { DAI_DECIMALS, OHM_DECIMALS, toWei } from "../../../src/utils";
-
+import { TREASURY_DID } from "../../deploy/03_deployTreasury";
+import { OHM_SET_VAULT_DID } from "../../deploy/04_setVault";
+import { BONDING_CALCULATOR_DID } from "../../deploy/09_deployOlympusBondingCalculator";
+import { SPOOKY_SWAP_ROUTER } from "../../deploy/18_addSpookyLP";
+import { DEPOSIT_SPOOKY_LP, SPOOKY_SWAP_FACTORY } from "../../deploy/19_depositSpookyLP";
+import { DEPLOY_REMOVE_UNI_LP_STRATEGY_DID } from "../../deploy/20_deployRemoveUniLPStrategy";
+import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
+import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
+import { DAI_DECIMALS, OHM_DECIMALS, toWei } from "../../src/utils";
 import {
     DAI,
     DAI__factory,
-    ERC20__factory,
     OlympusERC20Token,
     OlympusERC20Token__factory,
     OlympusTreasury,
@@ -31,7 +24,7 @@ import {
     UniswapV2Pair__factory,
     UniswapV2Router02,
     UniswapV2Router02__factory,
-} from "../../../typechain";
+} from "../../typechain";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNamedAccounts, deploy } = xhre;

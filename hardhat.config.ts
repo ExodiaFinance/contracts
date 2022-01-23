@@ -29,6 +29,7 @@ module.exports = {
             forking: {
                 url: providers.getUrl(Network.OPERA_MAIN_NET),
             },
+            blockNumber: 28753406,
         },
         localhost: {},
         ganache: {

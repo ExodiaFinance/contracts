@@ -1,4 +1,10 @@
 import {
+    AllocatedRiskFreeValue,
+    AllocatedRiskFreeValue__factory,
+    AssetAllocator,
+    AssetAllocator__factory,
+    BeethovenXFarming,
+    BeethovenXFarming__factory,
     BPTMNLTBondDepository,
     BPTMNLTBondDepository__factory,
     BPTMNLTPriceOracle,
@@ -94,6 +100,9 @@ export interface IExodiaContractsRegistry {
     LLSRewardHandler: ContractVersions<LLSRewardHandler>;
     BPTMNLTBondDepository: ContractVersions<BPTMNLTBondDepository>;
     fBEETSPriceOracle: ContractVersions<FBEETSPriceOracle>;
+    AssetAllocator: ContractVersions<AssetAllocator>;
+    BeethovenXFarming: ContractVersions<BeethovenXFarming>;
+    AllocatedRiskFreeValue: ContractVersions<AllocatedRiskFreeValue>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -214,6 +223,15 @@ const mainOperaContract: IExodiaContractsRegistry = {
     fBEETSPriceOracle: new ContractVersions<FBEETSPriceOracle>([
         version(FBEETSPriceOracle__factory.connect),
     ]),
+    AssetAllocator: new ContractVersions<AssetAllocator>([
+        version(AssetAllocator__factory.connect),
+    ]),
+    BeethovenXFarming: new ContractVersions<BeethovenXFarming>([
+        version(BeethovenXFarming__factory.connect),
+    ]),
+    AllocatedRiskFreeValue: new ContractVersions<AllocatedRiskFreeValue>([
+        version(AllocatedRiskFreeValue__factory.connect),
+    ]),
 };
 
 const testNetOperaContract: IExodiaContractsRegistry = {
@@ -312,6 +330,15 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     fBEETSPriceOracle: new ContractVersions<FBEETSPriceOracle>([
         version(FBEETSPriceOracle__factory.connect),
     ]),
+    AssetAllocator: new ContractVersions<AssetAllocator>([
+        version(AssetAllocator__factory.connect),
+    ]),
+    BeethovenXFarming: new ContractVersions<BeethovenXFarming>([
+        version(BeethovenXFarming__factory.connect),
+    ]),
+    AllocatedRiskFreeValue: new ContractVersions<AllocatedRiskFreeValue>([
+        version(AllocatedRiskFreeValue__factory.connect),
+    ]),
 };
 
 const hardhatContracts: IExodiaContractsRegistry = {
@@ -369,6 +396,15 @@ const hardhatContracts: IExodiaContractsRegistry = {
     ]),
     fBEETSPriceOracle: new ContractVersions<FBEETSPriceOracle>([
         version(FBEETSPriceOracle__factory.connect),
+    ]),
+    AssetAllocator: new ContractVersions<AssetAllocator>([
+        version(AssetAllocator__factory.connect),
+    ]),
+    BeethovenXFarming: new ContractVersions<BeethovenXFarming>([
+        version(BeethovenXFarming__factory.connect),
+    ]),
+    AllocatedRiskFreeValue: new ContractVersions<AllocatedRiskFreeValue>([
+        version(AllocatedRiskFreeValue__factory.connect),
     ]),
 };
 
