@@ -38,6 +38,8 @@ const mainnetRegistry: IExternalContractsRegistry = {
         "0x2c580c6f08044d6dfaca8976a66c8fadddbd9901000000000000000000000038",
     FIDELIO_DUETTO: "0xcdE5a11a4ACB4eE4c805352Cec57E236bdBC3837",
     FBEETS_BAR: "0xfcef8a994209d6916EB2C86cDD2AFD60Aa6F54b1",
+    BEETS_MASTERCHEF: "0x8166994d9ebBe5829EC86Bd81258149B87faCfd3",
+    BEETS: "0xf24bcf4d1e507740041c9cfd2dddb29585adce1e",
 };
 externalAddressRegistry.addNetwork(Network.OPERA_MAIN_NET, mainnetRegistry);
 
@@ -59,6 +61,8 @@ externalAddressRegistry.addNetwork(Network.OPERA_TEST_NET, {
     GUIQIN_QI_POOLID: ZERO_ADDRESS,
     FIDELIO_DUETTO: ZERO_ADDRESS,
     FBEETS_BAR: ZERO_ADDRESS,
+    BEETS_MASTERCHEF: ZERO_ADDRESS,
+    BEETS: ZERO_ADDRESS,
 });
 
 externalAddressRegistry.addNetwork(Network.HARDHAT, mainnetRegistry);

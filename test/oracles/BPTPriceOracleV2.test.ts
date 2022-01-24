@@ -16,14 +16,10 @@ import {
 } from "../../typechain";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
-const { deployments, get, getNamedAccounts, deploy, getNetwork } = xhre;
-
-export const WBTC_ADDRESS = "0x321162Cd933E2Be498Cd2267a90534A804051b11";
-export const USDC_ADDRESS = "0x04068da6c83afcfa0e13ba15a6696662335d5b75";
-export const ETH_ADDRESS = "0x74b23882a30290451A17c44f4F05243b6b58C76d";
+const { deployments, get, getNamedAccounts, getNetwork } = xhre;
 export const BEETHOVEN_SUBGRAPH =
     "https://graph-node.beets-ftm-node.com/subgraphs/name/beethovenx";
-export const A_LATE_QUARTET =
+const A_LATE_QUARTET =
     "0xf3a602d30dcb723a74a0198313a7551feaca7dac00010000000000000000005f";
 const A_LATE_QUARTET_ADDRESS = "0xf3A602d30dcB723A74a0198313a7551FEacA7DAc";
 const THE_E_MAJOR = "0xa07de66aef84e2c01d88a48d57d1463377ee602b000200000000000000000002";

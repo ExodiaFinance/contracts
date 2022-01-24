@@ -74,6 +74,8 @@ export interface IExternalContractsRegistry {
     GUIQIN_QI_POOLID: string;
     FIDELIO_DUETTO: string;
     FBEETS_BAR: string;
+    BEETS_MASTERCHEF: string;
+    BEETS: string;
 }
 
 export interface IExodiaContractsRegistry {
@@ -219,9 +221,17 @@ const mainOperaContract: IExodiaContractsRegistry = {
             BPTMNLTBondDepository__factory.connect,
             "0x86E21dB31c154aE777e0C126999e89Df0C01D9Fa"
         ),
+        version(
+            BPTMNLTBondDepository__factory.connect,
+            "0x18c01a517ED7216b52A4160c12bf814210477Ef2",
+            28878457
+        ),
     ]),
     fBEETSPriceOracle: new ContractVersions<FBEETSPriceOracle>([
-        version(FBEETSPriceOracle__factory.connect),
+        version(
+            FBEETSPriceOracle__factory.connect,
+            "0xB90Fc1e595C19d84eAeC802f95d32619bB2dE7A0"
+        ),
     ]),
     AssetAllocator: new ContractVersions<AssetAllocator>([
         version(AssetAllocator__factory.connect),

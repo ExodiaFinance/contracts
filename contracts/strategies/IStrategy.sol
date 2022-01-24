@@ -9,5 +9,6 @@ interface IStrategy {
     
     function collectRewards(address _token) external;
     
+    // Returns the amount of tokens in the strategy
     function deposited(address _token) external view returns (uint);
 }

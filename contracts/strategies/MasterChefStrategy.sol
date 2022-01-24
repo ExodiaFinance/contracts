@@ -40,7 +40,7 @@ interface IMasterchef {
     function userInfo(uint _pid, address _farmer) external view returns(UserInfo memory);
 }
 
-contract MasterchefStrategy is IStrategy, Policy {
+contract MasterChefStrategy is IStrategy, Policy {
     
     mapping(address => uint) tokenFarmPid;
     
@@ -106,7 +106,7 @@ contract MasterchefStrategy is IStrategy, Policy {
     }
 
     modifier onlyAssetAllocator() {
-        require(msg.sender == allocator, "MCS: caller is not allocator");
+        require(msg.sender == allocator || msg.sender == _owner, "MCS: caller is not allocator");
         _;
     }
     

@@ -5,7 +5,7 @@ import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
 import { log } from "../src/utils";
 import { FBEETSPriceOracle__factory } from "../typechain";
 
-export const FBEETS_ORACLE_DID = "bptmnlt_bond";
+export const FBEETS_ORACLE_DID = "fbeets_oracle";
 
 const deployfBeetsBonds: IExtendedDeployFunction<IExodiaContractsRegistry> = async ({
     deploy,
