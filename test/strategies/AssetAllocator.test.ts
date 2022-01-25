@@ -168,6 +168,33 @@ describe("AssetAllocator", function () {
         expect(allocation.allocated).to.eq(deployedAmount);
     });
 
+    it("Should allocate funds and return", async function () {
+        await assetAllocator.setAllocation(dai.address, [strategy.address], [20_000]);
+        const mintAmount = parseUnits("10000", "ether");
+        await dai.mint(deployer, mintAmount);
+        await dai.approve(treasury.address, mintAmount);
+        await treasury.deposit(mintAmount, dai.address, mintAmount.div(2e9));
+        const daiTreasuryBalance0 = await dai.balanceOf(treasury.address);
+        const excessReserve0 = await treasury.excessReserves();
+        expect(daiTreasuryBalance0).to.gt(0);
+        await assetAllocator.reallocate(dai.address);
+        await assetAllocator.setAllocation(dai.address, [strategy.address], [0]);
+        await assetAllocator.reallocate(dai.address);
+        const daiTreasuryBalance1 = await dai.balanceOf(treasury.address);
+        expect(daiTreasuryBalance1).to.eq(daiTreasuryBalance0);
+        const stratBalance = await dai.balanceOf(strategy.address);
+        expect(stratBalance).to.eq(0);
+        expect(strategy.deploy).to.have.been.calledWith(dai.address);
+        const excessReserve1 = await treasury.excessReserves();
+        expect(excessReserve1).to.eq(excessReserve0);
+        const arfvTreasuryBalance = await arfv.balanceOf(treasury.address);
+        expect(arfvTreasuryBalance).to.eq(0);
+        const arfvAllocBalance = await arfv.balanceOf(assetAllocator.address);
+        expect(arfvAllocBalance).to.eq(0);
+        const allocation = await assetAllocator.getAllocation(dai.address);
+        expect(allocation.allocated).to.eq(0);
+    });
+
     it("Should allocate 100% of risky fund", async function () {
         const token = await mockTokenFactory.deploy(0);
         await assetAllocator.setAllocation(token.address, [strategy.address], [100_000]);

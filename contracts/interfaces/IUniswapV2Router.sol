@@ -3,6 +3,7 @@ pragma solidity >=0.7.5;
 
 interface IUniswapV2Router {
     function getAmountsOut(uint amountIn, address[] calldata path) external view returns (uint[] memory amounts);
+    
     function removeLiquidity(
         address tokenA,
         address tokenB,
@@ -12,4 +13,15 @@ interface IUniswapV2Router {
         address to,
         uint deadline
     ) external returns (uint, uint);
+    
+    function addLiquidity(
+        address tokenA,
+        address tokenB,
+        uint amountADesired,
+        uint amountBDesired,
+        uint amountAMin,
+        uint amountBMin,
+        address to,
+        uint deadline
+    ) external returns (uint amountA, uint amountB, uint liquidity);
 }

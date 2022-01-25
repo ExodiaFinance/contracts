@@ -5,9 +5,9 @@ import mint from "../src/subdeploy/mint";
 import { DAI_DECIMALS, OHM_DECIMALS, toWei } from "../src/utils";
 import {
     DAI__factory,
+    IUniswapV2Router__factory,
     OlympusERC20Token__factory,
     OlympusTreasury__factory,
-    UniswapV2Router02__factory,
 } from "../typechain";
 
 import { TREASURY_DID } from "./03_deployTreasury";
@@ -27,7 +27,7 @@ const addSpookyLP: IExtendedDeployFunction<IExodiaContractsRegistry> = async ({
     const { contract: ohm } = await get<OlympusERC20Token__factory>("OlympusERC20Token");
     const { contract: dai } = await get<DAI__factory>("DAI");
     const { contract: treasury } = await get<OlympusTreasury__factory>("OlympusTreasury");
-    const spookyRouter = await UniswapV2Router02__factory.connect(
+    const spookyRouter = await IUniswapV2Router__factory.connect(
         SPOOKY_SWAP_ROUTER,
         await ethers.getSigner(deployer)
     );

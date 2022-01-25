@@ -40,6 +40,7 @@ describe("MasterChefStrategy", function () {
     let exod: OlympusERC20Token;
     let dai: DAI;
     let bptQuartet: ERC20;
+    let beets: ERC20;
     let bptBalance: BigNumber;
     let assetAllocator: AssetAllocator;
     let masterChefStrat: MasterChefStrategy;
@@ -72,6 +73,7 @@ describe("MasterChefStrategy", function () {
             deployment.address,
             deployerSigner
         );
+        beets = ERC20__factory.connect(BEETS, deployerSigner);
         const quartetHolderAddress = "0x6d3133c5ecbbf44fdf135abaeb5eae2ab3a1e894";
         await hre.network.provider.request({
             method: "hardhat_impersonateAccount",
@@ -86,7 +88,8 @@ describe("MasterChefStrategy", function () {
             [masterChefStrat.address],
             [100_000]
         );
-        await masterChefStrat.setPid(bptQuartet.address, 31);
+        await masterChefStrat.setPid(FBEETS_BAR, 22);
+        await masterChefStrat.setPid(A_LATE_QUARTET, 17);
     });
 
     it("Treasury should hold BPT-QUARTET", async function () {
@@ -94,7 +97,50 @@ describe("MasterChefStrategy", function () {
     });
 
     it("Should allocate and deposit", async function () {
-        await assetAllocator.reallocate(bptQuartet.address);
-        expect(await masterChefStrat.deposited(bptQuartet.address)).to.eq(bptBalance);
+        await assetAllocator.reallocate(A_LATE_QUARTET);
+        expect(await masterChefStrat.deposited(A_LATE_QUARTET)).to.eq(bptBalance);
+    });
+
+    it("Should collect rewards", async function () {
+        const beetsBal = await beets.balanceOf(treasury.address);
+        await assetAllocator.reallocate(A_LATE_QUARTET);
+        await xhre.ethers.provider.send("evm_increaseTime", [3600]);
+        await xhre.ethers.provider.send("evm_mine", []);
+        await masterChefStrat.collectRewards(A_LATE_QUARTET);
+        expect(await beets.balanceOf(treasury.address)).to.be.gt(beetsBal);
+    });
+
+    it("Should return deposit to treasury", async function () {
+        const beetsBal = await beets.balanceOf(treasury.address);
+        await assetAllocator.reallocate(A_LATE_QUARTET);
+        const deposited = await masterChefStrat.deposited(A_LATE_QUARTET);
+        await assetAllocator.setAllocation(
+            A_LATE_QUARTET,
+            [masterChefStrat.address],
+            [0]
+        );
+        await xhre.ethers.provider.send("evm_increaseTime", [3600]);
+        await xhre.ethers.provider.send("evm_mine", []);
+        await assetAllocator.reallocate(A_LATE_QUARTET);
+        expect(await bptQuartet.balanceOf(masterChefStrat.address)).to.eq(0);
+        expect(await bptQuartet.balanceOf(assetAllocator.address)).to.eq(0);
+        expect(await bptQuartet.balanceOf(treasury.address)).to.eq(deposited);
+        expect(await beets.balanceOf(treasury.address)).to.be.gt(beetsBal);
+    });
+
+    it("Should only let policy update PID", async function () {
+        const signer = await xhre.ethers.getSigner(randomAddress);
+        const mcs = MasterChefStrategy__factory.connect(masterChefStrat.address, signer);
+        expect(mcs.setPid(bptQuartet.address, 17)).to.be.revertedWith(
+            "Ownable: caller is not the owner"
+        );
+    });
+
+    it("Should only let policy call withdrawToTreasury", async function () {
+        const signer = await xhre.ethers.getSigner(randomAddress);
+        const mcs = MasterChefStrategy__factory.connect(masterChefStrat.address, signer);
+        expect(mcs.setPid(bptQuartet.address, 17)).to.be.revertedWith(
+            "Ownable: caller is not the owner"
+        );
     });
 });

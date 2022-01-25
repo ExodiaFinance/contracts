@@ -22,4 +22,8 @@ contract MockStrategy {
     function deposited(address _token) public view returns (uint) {
         return IERC20(_token).balanceOf(address(this));
     }
+
+    function balance(address _token) public view returns (uint) {
+        return IERC20(_token).balanceOf(address(this));
+    }
 }

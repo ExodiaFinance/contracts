@@ -13,6 +13,8 @@ import {
     DAI__factory,
     Distributor,
     Distributor__factory,
+    FBEETSBondDepository,
+    FBEETSBondDepository__factory,
     FBEETSPriceOracle,
     FBEETSPriceOracle__factory,
     GOHMBondDepository,
@@ -76,6 +78,7 @@ export interface IExternalContractsRegistry {
     FBEETS_BAR: string;
     BEETS_MASTERCHEF: string;
     BEETS: string;
+    YEARN_DAI_VAULT: string;
 }
 
 export interface IExodiaContractsRegistry {
@@ -102,6 +105,7 @@ export interface IExodiaContractsRegistry {
     LLSRewardHandler: ContractVersions<LLSRewardHandler>;
     BPTMNLTBondDepository: ContractVersions<BPTMNLTBondDepository>;
     fBEETSPriceOracle: ContractVersions<FBEETSPriceOracle>;
+    fBEETSBondDepository: ContractVersions<FBEETSBondDepository>;
     AssetAllocator: ContractVersions<AssetAllocator>;
     BeethovenXFarming: ContractVersions<BeethovenXFarming>;
     AllocatedRiskFreeValue: ContractVersions<AllocatedRiskFreeValue>;
@@ -233,6 +237,12 @@ const mainOperaContract: IExodiaContractsRegistry = {
             "0xB90Fc1e595C19d84eAeC802f95d32619bB2dE7A0"
         ),
     ]),
+    fBEETSBondDepository: new ContractVersions<FBEETSBondDepository>([
+        version(
+            FBEETSBondDepository__factory.connect,
+            "0xe2eA15E992455972Ae11De0a543C48DbeAb9E5Ce"
+        ),
+    ]),
     AssetAllocator: new ContractVersions<AssetAllocator>([
         version(AssetAllocator__factory.connect),
     ]),
@@ -340,6 +350,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     fBEETSPriceOracle: new ContractVersions<FBEETSPriceOracle>([
         version(FBEETSPriceOracle__factory.connect),
     ]),
+    fBEETSBondDepository: new ContractVersions<FBEETSBondDepository>([
+        version(FBEETSBondDepository__factory.connect),
+    ]),
     AssetAllocator: new ContractVersions<AssetAllocator>([
         version(AssetAllocator__factory.connect),
     ]),
@@ -406,6 +419,9 @@ const hardhatContracts: IExodiaContractsRegistry = {
     ]),
     fBEETSPriceOracle: new ContractVersions<FBEETSPriceOracle>([
         version(FBEETSPriceOracle__factory.connect),
+    ]),
+    fBEETSBondDepository: new ContractVersions<FBEETSBondDepository>([
+        version(FBEETSBondDepository__factory.connect),
     ]),
     AssetAllocator: new ContractVersions<AssetAllocator>([
         version(AssetAllocator__factory.connect),

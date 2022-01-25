@@ -29,7 +29,7 @@ module.exports = {
             forking: {
                 url: providers.getUrl(Network.OPERA_MAIN_NET),
             },
-            blockNumber: 28753406,
+            blockNumber: 28878457,
         },
         localhost: {},
         ganache: {
@@ -61,13 +61,10 @@ module.exports = {
             [Network.OPERA_TEST_NET]: ethers.utils.computeAddress(DEPLOYER_SECRET_KEY),
         },
         DAO: {
-            default: 1,
+            default: 0,
             [Network.OPERA_MAIN_NET]: "0xC4e0cbe134c48085e8FF72eb31f0Ebca29b152ee",
             [Network.OPERA_TEST_NET]: "0x723BF24e952ac47C52bB6df19DE16294b027Cd3E",
         },
-    },
-    typechain: {
-        externalArtifacts: ["./node_modules/@hovoh/spookyswap-core/build/*.json"],
     },
     solidity: {
         compilers: [

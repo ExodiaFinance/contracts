@@ -40,6 +40,7 @@ const mainnetRegistry: IExternalContractsRegistry = {
     FBEETS_BAR: "0xfcef8a994209d6916EB2C86cDD2AFD60Aa6F54b1",
     BEETS_MASTERCHEF: "0x8166994d9ebBe5829EC86Bd81258149B87faCfd3",
     BEETS: "0xf24bcf4d1e507740041c9cfd2dddb29585adce1e",
+    YEARN_DAI_VAULT: "0x637ec617c86d24e421328e6caea1d92114892439",
 };
 externalAddressRegistry.addNetwork(Network.OPERA_MAIN_NET, mainnetRegistry);
 
@@ -63,6 +64,7 @@ externalAddressRegistry.addNetwork(Network.OPERA_TEST_NET, {
     FBEETS_BAR: ZERO_ADDRESS,
     BEETS_MASTERCHEF: ZERO_ADDRESS,
     BEETS: ZERO_ADDRESS,
+    YEARN_DAI_VAULT: ZERO_ADDRESS,
 });
 
 externalAddressRegistry.addNetwork(Network.HARDHAT, mainnetRegistry);

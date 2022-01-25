@@ -5,10 +5,10 @@ import toggleRights, { MANAGING } from "../src/subdeploy/toggleRights";
 import {
     DAI__factory,
     ERC20__factory,
+    IUniswapV2Factory__factory,
     OlympusBondingCalculator__factory,
     OlympusERC20Token__factory,
     OlympusTreasury__factory,
-    UniswapV2Factory__factory,
 } from "../typechain";
 
 import { TREASURY_DID } from "./03_deployTreasury";
@@ -30,7 +30,7 @@ const addSpookyLP: IExtendedDeployFunction<IExodiaContractsRegistry> = async ({
     const { contract: ohm } = await get<OlympusERC20Token__factory>("OlympusERC20Token");
     const { contract: dai } = await get<DAI__factory>("DAI");
     const { contract: treasury } = await get<OlympusTreasury__factory>("OlympusTreasury");
-    const spookyPairFactory = await UniswapV2Factory__factory.connect(
+    const spookyPairFactory = await IUniswapV2Factory__factory.connect(
         SPOOKY_SWAP_FACTORY,
         await ethers.getSigner(deployer)
     );

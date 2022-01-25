@@ -5,7 +5,7 @@ import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
 import { ifNotProd, log } from "../src/utils";
 import {
     BPTMNLTBondDepository__factory,
-    BPTMNLTPriceOracle__factory,
+    FBEETSPriceOracle__factory,
     OlympusERC20Token__factory,
     OlympusTreasury__factory,
     RedeemHelper__factory,
@@ -14,11 +14,11 @@ import {
 import { OHM_DID } from "./01_deployOhm";
 import { TREASURY_DID } from "./03_deployTreasury";
 import { REDEEM_HELPER_DID } from "./10_deployRedeemHelper";
-import { BPTMNLT_ORACLE_DID } from "./25_deployBPTMNLTpriceOracle";
+import { FBEETS_ORACLE_DID } from "./29_deployFBEETSOracle";
 
-export const BPTMNLT_BOND_DID = "bptmnlt_bond";
+export const FBEETS_BOND_DID = "fbeets_bond";
 
-const deployDaiBond: IExtendedDeployFunction<IExodiaContractsRegistry> = async ({
+const deployFBEETSbond: IExtendedDeployFunction<IExodiaContractsRegistry> = async ({
     deploy,
     get,
     getNamedAccounts,
@@ -27,13 +27,11 @@ const deployDaiBond: IExtendedDeployFunction<IExodiaContractsRegistry> = async (
     const { contract: ohm } = await get<OlympusERC20Token__factory>("OlympusERC20Token");
     const { contract: treasury } = await get<OlympusTreasury__factory>("OlympusTreasury");
     const { DAO, deployer } = await getNamedAccounts();
-    const { contract: feed } = await get<BPTMNLTPriceOracle__factory>(
-        "BPTMNLTPriceOracle"
-    );
-    const { THE_MONOLITH_POOL } = externalAddressRegistry.forNetwork(await getNetwork());
+    const { contract: feed } = await get<FBEETSPriceOracle__factory>("fBEETSPriceOracle");
+    const { FBEETS_BAR } = externalAddressRegistry.forNetwork(await getNetwork());
     const { contract: bond, deployment } = await deploy<BPTMNLTBondDepository__factory>(
-        "BPTMNLTBondDepository",
-        [ohm.address, THE_MONOLITH_POOL, treasury.address, DAO, feed.address]
+        "fBEETSBondDepository",
+        [ohm.address, FBEETS_BAR, treasury.address, DAO, feed.address]
     );
     if (deployment?.newlyDeployed) {
         const { contract: redeemHelper } = await get<RedeemHelper__factory>(
@@ -43,11 +41,14 @@ const deployDaiBond: IExtendedDeployFunction<IExodiaContractsRegistry> = async (
             await redeemHelper.addBondContract(bond.address);
         }
     }
-    log("BPTMNLT Bond ", bond.address);
+    log("fBEETS Bond ", bond.address);
 };
-export default deployDaiBond;
-deployDaiBond.id = BPTMNLT_BOND_DID;
-deployDaiBond.tags = ["local", "test", BPTMNLT_BOND_DID];
-deployDaiBond.dependencies = [
-    ...ifNotProd([TREASURY_DID, OHM_DID, REDEEM_HELPER_DID, BPTMNLT_ORACLE_DID]),
-];
+export default deployFBEETSbond;
+deployFBEETSbond.id = FBEETS_BOND_DID;
+deployFBEETSbond.tags = ["local", "test", FBEETS_BOND_DID];
+deployFBEETSbond.dependencies = ifNotProd([
+    TREASURY_DID,
+    OHM_DID,
+    REDEEM_HELPER_DID,
+    FBEETS_ORACLE_DID,
+]);
