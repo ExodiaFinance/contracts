@@ -9,6 +9,7 @@ import { ASSET_ALLOCATOR_DID } from "../../deploy/30_deployAssetAllocator";
 import { ARFV_TOKEN_DID } from "../../deploy/31_deployARFVToken";
 import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
 import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
+import mint from "../../src/subdeploy/mint";
 import toggleRights, { MANAGING } from "../../src/subdeploy/toggleRights";
 import {
     AllocatedRiskFreeValue,
@@ -255,6 +256,50 @@ describe("AssetAllocator", function () {
                 const allocation = await assetAllocator.getAllocation(dai.address);
                 expect(allocation.allocated).to.eq(deployedAmount);
             });
+
+            it("Should send funds after allocation increased and mint ARFV", async function () {
+                await assetAllocator.setAllocation(
+                    dai.address,
+                    [strategy.address],
+                    [90_000]
+                );
+                await assetAllocator.rebalance(dai.address);
+                const daiTreasuryBalance1 = await dai.balanceOf(treasury.address);
+                const targetAmount = daiTreasuryBalance0.mul(90).div(100);
+                expect(daiTreasuryBalance1).to.eq(daiTreasuryBalance0.sub(targetAmount));
+                const stratBalance = await dai.balanceOf(strategy.address);
+                expect(stratBalance).to.eq(targetAmount);
+                const totalReserves1 = await treasury.totalReserves();
+                expect(totalReserves1).to.eq(totalReserves0);
+                const arfvTreasuryBalance = await arfv.balanceOf(treasury.address);
+                expect(arfvTreasuryBalance).to.eq(targetAmount.div(1e9));
+                const arfvAllocBalance = await arfv.balanceOf(assetAllocator.address);
+                expect(arfvAllocBalance).to.eq(0);
+                const allocation = await assetAllocator.getAllocation(dai.address);
+                expect(allocation.allocated).to.eq(targetAmount);
+            });
+
+            it("Should allocate everything", async function () {
+                await assetAllocator.setAllocation(
+                    dai.address,
+                    [strategy.address],
+                    [100_000]
+                );
+                await assetAllocator.rebalance(dai.address);
+                const daiTreasuryBalance1 = await dai.balanceOf(treasury.address);
+                const targetAmount = daiTreasuryBalance0;
+                expect(daiTreasuryBalance1).to.eq(daiTreasuryBalance0.sub(targetAmount));
+                const stratBalance = await dai.balanceOf(strategy.address);
+                expect(stratBalance).to.eq(targetAmount);
+                const totalReserves1 = await treasury.totalReserves();
+                expect(totalReserves1).to.eq(totalReserves0);
+                const arfvTreasuryBalance = await arfv.balanceOf(treasury.address);
+                expect(arfvTreasuryBalance).to.eq(targetAmount.div(1e9));
+                const arfvAllocBalance = await arfv.balanceOf(assetAllocator.address);
+                expect(arfvAllocBalance).to.eq(0);
+                const allocation = await assetAllocator.getAllocation(dai.address);
+                expect(allocation.allocated).to.eq(targetAmount);
+            });
         });
 
         describe("To a single profitable strategy", function () {
@@ -328,6 +373,37 @@ describe("AssetAllocator", function () {
                     allocations.allocated.div(1e9)
                 );
             });
+
+            it("Should increase excess reserve and send diff to reach target alloc", async function () {
+                await assetAllocator.setAllocation(
+                    dai.address,
+                    [strategy.address],
+                    [50_000]
+                );
+                await assetAllocator.rebalance(dai.address);
+                const targetAlloc = mintAmount.add(profits).mul(50).div(100);
+                expect(await dai.balanceOf(strategy.address)).to.eq(targetAlloc);
+                const allocations = await assetAllocator.getAllocation(dai.address);
+                expect(allocations.allocated).eq(targetAlloc);
+                expect(await arfv.balanceOf(treasury.address)).to.eq(
+                    allocations.allocated.div(1e9)
+                );
+            });
+
+            it("Should withdraw everything to treasury", async function () {
+                await assetAllocator.setAllocation(dai.address, [strategy.address], [0]);
+                await assetAllocator.rebalance(dai.address);
+                const targetAlloc = 0;
+                expect(await dai.balanceOf(strategy.address)).to.eq(targetAlloc);
+                const allocations = await assetAllocator.getAllocation(dai.address);
+                expect(allocations.allocated).eq(targetAlloc);
+                expect(await arfv.balanceOf(treasury.address)).to.eq(
+                    allocations.allocated.div(1e9)
+                );
+                const daiInTreasury = await dai.balanceOf(treasury.address);
+                expect(daiInTreasury).to.eq(mintAmount.add(profits));
+                expect(await treasury.totalReserves()).to.eq(daiInTreasury.div(1e9));
+            });
         });
 
         describe("To an unprofitable strategy", function () {
@@ -357,7 +433,7 @@ describe("AssetAllocator", function () {
                 expect(balance).to.eq(deployedAmount.mul(returnRate).div(100));
             });
 
-            it("Should reduce excess reserve", async function () {
+            it("Should reduce excess reserves", async function () {
                 await assetAllocator.setAllocation(
                     dai.address,
                     [loosingStrat.address],
@@ -392,6 +468,49 @@ describe("AssetAllocator", function () {
                 expect(totalReserves1).to.be.lt(totalReserves0);
                 expect(totalReserves1).to.be.eq(totalReserves0.sub(lostAmount.div(1e9)));
             });
+
+            it("Should allocate everything to it and register loss", async function () {
+                await assetAllocator.setAllocation(
+                    dai.address,
+                    [loosingStrat.address],
+                    [100_000]
+                );
+                await assetAllocator.rebalance(dai.address);
+                const loosingStrategyBalance = await loosingStrat.balance(dai.address);
+                expect(loosingStrategyBalance).to.eq(mintAmount.mul(returnRate).div(100));
+                const allocation = await assetAllocator.getAllocation(dai.address);
+                const lostAmount = deployedAmount.mul(100 - returnRate).div(100);
+                expect(allocation.allocated).to.eq(mintAmount.sub(lostAmount));
+                expect(await arfv.balanceOf(treasury.address)).to.eq(
+                    allocation.allocated.div(1e9)
+                );
+                expect(await treasury.totalReserves()).to.eq(
+                    totalReserves0.sub(lostAmount.div(1e9))
+                );
+            });
+
+            it("Should allocate funds to reach target alloc and register loss", async function () {
+                await assetAllocator.setAllocation(
+                    dai.address,
+                    [loosingStrat.address],
+                    [80_000]
+                );
+                await assetAllocator.rebalance(dai.address);
+                const loosingStrategyBalance = await loosingStrat.balance(dai.address);
+                const allocation = await assetAllocator.getAllocation(dai.address);
+                const lostAmount = deployedAmount.mul(100 - returnRate).div(100);
+                const totalBalance = mintAmount.sub(lostAmount);
+                const allocatedBalance = totalBalance.mul(80).div(100);
+                const notAllocated = totalBalance.mul(20).div(100);
+                expect(await dai.balanceOf(treasury.address)).to.eq(notAllocated);
+                expect(allocation.allocated).to.eq(allocatedBalance);
+                expect(await arfv.balanceOf(treasury.address)).to.eq(
+                    allocation.allocated.div(1e9)
+                );
+                expect(await treasury.totalReserves()).to.eq(
+                    totalReserves0.sub(lostAmount.div(1e9))
+                );
+            });
         });
 
         describe("To a strategy with slippage", function () {
@@ -423,11 +542,9 @@ describe("AssetAllocator", function () {
                     [10_000]
                 );
                 const treasuryBalance0 = await dai.balanceOf(treasury.address);
-                const stratBalance0 = await dai.balanceOf(slippingStrategy.address);
                 await assetAllocator.rebalance(dai.address);
                 const totalReserves1 = await treasury.totalReserves();
                 const stratBalance1 = await dai.balanceOf(slippingStrategy.address);
-                const treasuryBalance1 = await dai.balanceOf(treasury.address);
                 const withdrew = mintAmount.div(10);
                 const received = withdrew.mul(returnRate).div(100);
                 expect(await dai.balanceOf(treasury.address)).to.eq(
@@ -441,6 +558,44 @@ describe("AssetAllocator", function () {
                 expect(totalReserves1).to.be.eq(
                     totalReserves0.sub(withdrew.sub(received).div(1e9))
                 );
+            });
+
+            it("Should send to reach target alloc", async function () {
+                await assetAllocator.setAllocation(
+                    dai.address,
+                    [slippingStrategy.address],
+                    [90_000]
+                );
+                await assetAllocator.rebalance(dai.address);
+                const allocatedAmount = mintAmount.mul(9).div(10);
+                expect(await dai.balanceOf(treasury.address)).to.eq(
+                    mintAmount.sub(allocatedAmount)
+                );
+                const allocations = await assetAllocator.getAllocation(dai.address);
+                expect(allocations.allocated).to.eq(allocatedAmount);
+                const arfvBalance = await arfv.balanceOf(treasury.address);
+                expect(arfvBalance).to.eq(allocations.allocated.div(1e9));
+                const totalReserves1 = await treasury.totalReserves();
+                expect(totalReserves1).to.be.eq(totalReserves0);
+            });
+
+            it("Should allocate all", async function () {
+                await assetAllocator.setAllocation(
+                    dai.address,
+                    [slippingStrategy.address],
+                    [100_000]
+                );
+                await assetAllocator.rebalance(dai.address);
+                const allocatedAmount = mintAmount;
+                expect(await dai.balanceOf(treasury.address)).to.eq(
+                    mintAmount.sub(allocatedAmount)
+                );
+                const allocations = await assetAllocator.getAllocation(dai.address);
+                expect(allocations.allocated).to.eq(allocatedAmount);
+                const arfvBalance = await arfv.balanceOf(treasury.address);
+                expect(arfvBalance).to.eq(allocations.allocated.div(1e9));
+                const totalReserves1 = await treasury.totalReserves();
+                expect(totalReserves1).to.be.eq(totalReserves0);
             });
         });
 

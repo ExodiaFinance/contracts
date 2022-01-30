@@ -79,6 +79,14 @@ contract AssetAllocator is Policy, IAssetAllocator {
         uint balance = _manage(_token);
         uint manageable = stratAllocations.allocated + balance;
         (uint[] memory allocations, uint allocated) = _calculateAllocations(_token, stratAllocations.allocations, manageable);
+        uint[] memory amounts = new uint[](allocations.length);
+        for(uint i = 0; i < allocations.length; i++){
+            IStrategy strategy = IStrategy(stratAllocations.strategies[i]);
+            uint deposited = strategy.deposited(_token);
+            if(allocations[i] > deposited){
+                amounts[i] = allocations[i] - deposited;
+            }
+        }
         _allocateAmounts(_token, stratAllocations.strategies, allocations);
         stratAllocations.allocated = allocated;
         _sendToTreasury(_token);
