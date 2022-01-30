@@ -12,7 +12,7 @@ interface IAssetAllocator {
 
     function collectProfits(address _token) external;
     function collectRewards(address _token) external;
-    function reallocate(address _token) external;
+    function rebalance(address _token) external;
     function sendToTreasury(address _token, uint _amount) external;
     
     function withdrawFromStrategy(

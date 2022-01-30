@@ -38,17 +38,45 @@ contract AssetAllocator is Policy, IAssetAllocator {
     }
 
     function collectProfits(address _token) external override {}
-    function collectRewards(address _token) external override{}
+    function collectRewards(address _token) external override {}
     
-    function reallocate(address _token) external override {
-        Allocations storage allocations = tokenAllocations[_token];
+    function rebalance(address _token) external override {
+        Allocations storage stratAllocations = tokenAllocations[_token];
         uint balance = _manage(_token);
-        uint manageable = allocations.allocated + balance;
-        (int[] memory reAllocations, uint allocated) = _calculateAllocations(_token, allocations, manageable);
-        _withdrawAllocations(_token, allocations.strategies, reAllocations);
-        _allocate(_token, allocations.strategies, reAllocations);
-        allocations.allocated = allocated;
-        _returnToTreasury(_token);
+        uint arfv = stratAllocations.allocated + balance;
+        uint manageable = _balance(_token) + balance;
+        (uint[] memory allocations, uint total) = _calculateAllocations(_token, stratAllocations.allocations, manageable);
+        uint[] memory toWithdraw = new uint[](stratAllocations.strategies.length);
+        for(uint i = 0; i < stratAllocations.strategies.length; i++){
+            uint balance = IStrategy(stratAllocations.strategies[i]).balance(_token);
+            if(balance > allocations[i]){
+                toWithdraw[i] = balance - allocations[i];
+            }
+        }
+        (uint actual, uint expected) = _withdrawAmounts(_token, stratAllocations.strategies, toWithdraw);
+        uint manageableAfterWithdraw = manageable;
+        if(actual > expected){ //We made a profit so we have more money manageable
+            manageableAfterWithdraw += actual - expected;
+        } else if (actual < expected){ // We lost money
+            manageableAfterWithdraw -= expected - actual;
+        }
+        (allocations, total) = _calculateAllocations(_token, stratAllocations.allocations, manageableAfterWithdraw);
+        _allocate(_token, stratAllocations.strategies, allocations);
+        stratAllocations.allocated = total;
+        _sendToTreasury(_token);
+        _manageARFV(_token, arfv, stratAllocations.allocated);
+        
+    }
+    
+    function allocate(address _token) external {
+        Allocations storage stratAllocations = tokenAllocations[_token];
+        uint balance = _manage(_token);
+        uint manageable = stratAllocations.allocated + balance;
+        (uint[] memory allocations, uint allocated) = _calculateAllocations(_token, stratAllocations.allocations, manageable);
+        _allocate(_token, stratAllocations.strategies, allocations);
+        stratAllocations.allocated = allocated;
+        _sendToTreasury(_token);
+        _manageARFV(_token, manageable, stratAllocations.allocated);
     }
     
     function _manage(address _token) internal returns(uint){
@@ -65,54 +93,65 @@ contract AssetAllocator is Policy, IAssetAllocator {
         return balance;
     }
     
-    function _calculateAllocations(address _token, Allocations memory _allocations, uint _manageable) internal view returns(int[] memory, uint){
-        int[] memory allocations = new int[](_allocations.strategies.length);
-        uint allocated = _allocations.allocated;
-        for(uint i = 0; i < _allocations.strategies.length; i++){
-            address strategy = _allocations.strategies[i];
-            uint allocation = _allocations.allocations[i].mul(_manageable).div(1e5);
-            uint deposited = IStrategy(strategy).deposited(_token);
-            int deltaAllocation = int(allocation) - int(deposited);
-            allocations[i] = deltaAllocation;
-            allocated = uint(int(allocated) + deltaAllocation);
+    function _calculateAllocations(
+        address _token, 
+        uint[] memory _allocations, 
+        uint _manageable
+    ) internal view returns(uint[] memory, uint){
+        uint[] memory allocations = new uint[](_allocations.length);
+        uint allocated = 0;
+        for(uint i = 0; i < _allocations.length; i++){
+            uint allocation = _allocations[i].mul(_manageable).div(1e5);
+            allocations[i] = allocation;
+            allocated += allocation;
         }
         return (allocations, allocated);
     }
     
-    function _withdrawAllocations(address _token, address[] memory _strategies, int[] memory _allocations) internal {
+    function _withdrawAmounts(
+        address _token, 
+        address[] memory _strategies, 
+        uint[] memory _amounts) internal returns (uint, uint) {
+        uint expected = 0;
+        uint actual = 0;
         for (uint i = 0; i < _strategies.length; i++){
-            if (_allocations[i] < 0){
-                IStrategy(_strategies[i]).withdraw(_token, uint(_allocations[i]*-1));
+            uint amount = _amounts[i];
+            if(amount > 0){
+                expected += amount;
+                actual += IStrategy(_strategies[i]).withdraw(_token, amount);
             }
         }
+        return (actual, expected);
     }
 
-    function _allocate(address _token, address[] memory _strategies, int[] memory _allocations) internal {
+    function _allocate(address _token, address[] memory _strategies, uint[] memory _allocations) internal {
         for (uint i = 0; i < _strategies.length; i++){
-            if (_allocations[i] > 0){
-                address strategy = _strategies[i];
-                IERC20(_token).transfer(strategy, uint(_allocations[i]));
-                IStrategy(strategy).deploy(_token);
+            address strategyAddress = _strategies[i];
+            IStrategy strategy = IStrategy(strategyAddress);
+            uint allocation = _allocations[i];
+            uint deposited = strategy.deposited(_token);
+            if (allocation > deposited){
+                uint amount = allocation - deposited;
+                IERC20(_token).transfer(strategyAddress, amount);
+                strategy.deploy(_token);
             }
         }
     }
-    
-    function _returnToTreasury(address _token) internal {
+    /**
+        @notice withdraws ARFV token
+        */
+    function _manageARFV(
+        address _token, 
+        uint _manageable,
+        uint _allocated
+    ) internal {
         IOlympusTreasury treasury = _getTreasury();
         IAllocatedRiskFreeValue arfv = _getARFVToken();
-        uint balance = IERC20(_token).balanceOf(address(this));
-        _sendToTreasury(_token, balance);
-        if(_hasRiskFreeValue(_token)){
-            uint returnedRFV = treasury.valueOf(_token, balance);
-            uint arfvBalance = arfv.balanceOf(treasuryAddress);
-            if(arfvBalance > returnedRFV){
-                treasury.manage(arfvAddress, returnedRFV);
-                arfv.burn(returnedRFV);   
-            } else {
-                treasury.manage(arfvAddress, arfvBalance);
-                arfv.burn(arfvBalance);
-            }
-        }
+        IERC20 token = IERC20(_token);
+        uint returnedAmount = _manageable.sub(_allocated);
+        uint returnedRFV = treasury.valueOf(_token, returnedAmount);
+        treasury.manage(arfvAddress, returnedRFV);
+        arfv.burn(returnedRFV);
     }
 
     function _sendToTreasury(address _token) internal {
@@ -172,7 +211,7 @@ contract AssetAllocator is Policy, IAssetAllocator {
 
     function _withdrawFromStrategy(address _token, address _strategy, uint _amount) internal {
         tokenAllocations[_token].allocated -= _amountToAllocation(_strategy, _token, _amount);
-        IStrategy(_strategy).withdraw(_token, _amount);
+        uint amount = IStrategy(_strategy).withdraw(_token, _amount);
     }
     
     function _amountToAllocation(address _strategy, address _token, uint _amount) internal returns (uint) {
@@ -190,6 +229,19 @@ contract AssetAllocator is Policy, IAssetAllocator {
             IStrategy(_strategy).emergencyWithdraw(token);
             _sendToTreasury(token);
         }
+    }
+
+    function allocatedBalance(address _token) external view override returns (uint) {
+        return _balance(_token);
+    }
+    
+    function _balance(address _token) internal view returns (uint){
+        uint allocated = 0;
+        Allocations memory allocations = tokenAllocations[_token];
+        for(uint i = 0; i < allocations.strategies.length; i++){
+            allocated += IStrategy(allocations.strategies[i]).balance(_token);
+        }
+        return allocated;
     }
     
 }
