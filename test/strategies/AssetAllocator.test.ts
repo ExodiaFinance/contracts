@@ -696,6 +696,26 @@ describe("AssetAllocator", function () {
                 const allocation = await assetAllocator.getAllocation(dai.address);
                 expect(allocation.allocated).to.eq(stratBalance);
             });
+
+            it.only("Should withdraw to rebalance and reduce excess reserve", async function () {
+                await assetAllocator.setAllocation(
+                    dai.address,
+                    [loosingStrategy.address, strategy.address],
+                    [50_000, 50_000]
+                );
+                await assetAllocator.rebalance(dai.address);
+                const deployedAmount = daiTreasuryBalance0.mul(50_000).div(100_000);
+                const lostAmount = deployedAmount.sub(
+                    deployedAmount.mul(returnRate).div(100)
+                );
+                const amountLeft = daiTreasuryBalance0.sub(lostAmount);
+                const stratBalance = await dai.balanceOf(strategy.address);
+                const treasuryBalance = await dai.balanceOf(treasury.address);
+                expect(stratBalance).to.eq(amountLeft.div(2));
+                expect(treasuryBalance).to.eq(0);
+                const allocation = await assetAllocator.getAllocation(dai.address);
+                expect(allocation.allocated).to.eq(amountLeft);
+            });
         });
     });
 

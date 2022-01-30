@@ -51,6 +51,8 @@ import {
     StakingHelperV2__factory,
     StakingWarmup,
     StakingWarmup__factory,
+    WFTMBondDepository,
+    WFTMBondDepository__factory,
     WOHM,
     WOHM__factory,
 } from "../../typechain";
@@ -64,6 +66,7 @@ export interface IExternalContractsRegistry {
     THE_MONOLITH_POOLID: string;
     BEETHOVEN_VAULT: string;
     MAI_TOKEN: string;
+    WFTM: string;
     FTM_USD_FEED: string;
     USDC_USD_FEED: string;
     DAI_USD_FEED: string;
@@ -109,6 +112,7 @@ export interface IExodiaContractsRegistry {
     AssetAllocator: ContractVersions<AssetAllocator>;
     BeethovenXFarming: ContractVersions<BeethovenXFarming>;
     AllocatedRiskFreeValue: ContractVersions<AllocatedRiskFreeValue>;
+    wFTMBondDepository: ContractVersions<WFTMBondDepository>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -252,6 +256,17 @@ const mainOperaContract: IExodiaContractsRegistry = {
     AllocatedRiskFreeValue: new ContractVersions<AllocatedRiskFreeValue>([
         version(AllocatedRiskFreeValue__factory.connect),
     ]),
+    wFTMBondDepository: new ContractVersions<WFTMBondDepository>([
+        version(
+            WFTMBondDepository__factory.connect,
+            "0xd7cbA20A464C10FB03Bbc265D962ADa8e29af118"
+        ),
+        version(
+            WFTMBondDepository__factory.connect,
+            "0x39086c3E5979d6F0aB0a54e3135D6e3eDD53c395",
+            29523359
+        ),
+    ]),
 };
 
 const testNetOperaContract: IExodiaContractsRegistry = {
@@ -362,6 +377,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     AllocatedRiskFreeValue: new ContractVersions<AllocatedRiskFreeValue>([
         version(AllocatedRiskFreeValue__factory.connect),
     ]),
+    wFTMBondDepository: new ContractVersions<WFTMBondDepository>([
+        version(WFTMBondDepository__factory.connect),
+    ]),
 };
 
 const hardhatContracts: IExodiaContractsRegistry = {
@@ -431,6 +449,9 @@ const hardhatContracts: IExodiaContractsRegistry = {
     ]),
     AllocatedRiskFreeValue: new ContractVersions<AllocatedRiskFreeValue>([
         version(AllocatedRiskFreeValue__factory.connect),
+    ]),
+    wFTMBondDepository: new ContractVersions<WFTMBondDepository>([
+        version(WFTMBondDepository__factory.connect),
     ]),
 };
 

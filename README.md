@@ -47,7 +47,7 @@ Use `.env.example` file and adapt it to you values and settings.
 |sEXOD           |[0x8de250C65636Ef02a75e4999890c91cECd38D03D](https://ftmscan.com/address/0x8de250C65636Ef02a75e4999890c91cECd38D03D)| Staked Ohm|
 |Treasury       |[0x6A654D988eEBCD9FfB48ECd5AF9Bd79e090D8347](https://ftmscan.com/address/0x6a654d988eebcd9ffb48ecd5af9bd79e090d8347)| Olympus Treasury holds all the assets        |
 |OlympusStaking |[0xfd31c7d00ca47653c6ce64af53c1571f9c36566a](https://ftmscan.com/address/0x8b8d40f98a2f14e2dd972b3f2e2a2cc227d1e3be)| Main Staking contract responsible for calling rebases every 2200 blocks|
-|StakingHelper  |[0x43CdFC01C2DEF98C595b28E72b58D2575AA05E9B](https://ftmscan.com/address/0x43cdfc01c2def98c595b28e72b58d2575aa05e9b)| Helper Contract to Stake with 0 warmup |
+|StakingHelperV2  |[0x19c027fA2dFA8a9aAD43f36e1ff2B06B2b8e2bf3](https://ftmscan.com/address/0x19c027fA2dFA8a9aAD43f36e1ff2B06B2b8e2bf3)| Helper Contract to Stake with 0 warmup |
 |DAO            |[0xC4e0cbe134c48085e8FF72eb31f0Ebca29b152ee](https://ftmscan.com/address/0xC4e0cbe134c48085e8FF72eb31f0Ebca29b152ee)|Storage Wallet for DAO under MS |
 |Staking Warm Up|[0xfb14cce5f6951e6c0935927c00a01fc57ed65920](https://ftmscan.com/address/0xfb14cce5f6951e6c0935927c00a01fc57ed65920)| Instructs the Staking contract when a user can claim sOHM |
 
@@ -59,10 +59,11 @@ All LP bonds use the Bonding Calculator contract which is used to compute RFV.
 |Contract       | Addresss                                                                                                            | Notes   |
 |:-------------:|:-------------------------------------------------------------------------------------------------------------------:|-------|
 |Bond Calculator|[0x01884c8FBA9E2C510093d2af308e7a8bA7060b8F](https://ftmscan.com/address/0x01884c8fba9e2c510093d2af308e7a8ba7060b8f)| |
-|DAI bond|[0xc43db16ed7b57597170b76d3aff29708bc608483](https://ftmscan.com/address/0xc43db16ed7b57597170b76d3aff29708bc608483)| Main bond managing serve mechanics for OHM/DAI|
-|DAI/EXOD spLP Bond|[0x5B7E66542800cA1A27402DD00f4325460553C5eb](https://ftmscan.com/address/0x5b7e66542800ca1a27402dd00f4325460553c5eb#code)| Manages mechanism for the protocol to buy back its own liquidity from the pair. |
-|wFTM bond      |[0xd7cbA20A464C10FB03Bbc265D962ADa8e29af118](https://ftmscan.com/address/0xd7cba20a464c10fb03bbc265d962ada8e29af118)| Manages wFTM bonds
-
+|DAI bond       |[0xc43db16ed7b57597170b76d3aff29708bc608483](https://ftmscan.com/address/0xc43db16ed7b57597170b76d3aff29708bc608483)| |
+|BPT-MNLT bond  |[0x18c01a517ED7216b52A4160c12bf814210477Ef2](https://ftmscan.com/address/0x18c01a517ed7216b52a4160c12bf814210477ef2)| |
+|wFTM bond      |[0x39086c3E5979d6F0aB0a54e3135D6e3eDD53c395](https://ftmscan.com/address/0x39086c3E5979d6F0aB0a54e3135D6e3eDD53c395)| |
+|gOHM bond      |[0xcf69Ba319fF0F8e2481dE13d16CE7f74b063533E](https://ftmscan.com/address/0xcf69ba319ff0f8e2481de13d16ce7f74b063533e)| |
+|fBEETS bond    |[0xe2eA15E992455972Ae11De0a543C48DbeAb9E5Ce](https://ftmscan.com/address/0xe2ea15e992455972ae11de0a543c48dbeab9e5ce)| |
 
 ## Allocator Guide
 
