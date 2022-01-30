@@ -23,15 +23,18 @@ contract MockLoosingStrategy is IStrategy{
         depositedAmounts[_token] += IERC20(_token).balanceOf(address(this));
     }
 
+
+    // Amount left in the contract may not be correct if reallocation occurs
     function withdraw(address _token, uint _amount) external override returns (uint) {
         int roi = int(balance(_token)) - int(depositedAmounts[_token]);
         if (int(_amount) > roi) {
             depositedAmounts[_token] = uint(int(depositedAmounts[_token])-(int(_amount) - roi));
         }
         IERC20 token = IERC20(_token);
-        require(token.balanceOf(address(this)) >= _amount * 100 / returnRate, "insufficient fund");
+        uint amount = ( _amount * 100 / returnRate);
+        require(token.balanceOf(address(this))  >= amount, "insufficient fund");
         token.transfer(allocator, _amount);
-        token.transfer(address(0), (_amount * 100 / returnRate) - _amount);
+        token.transfer(address(0), amount - _amount );
         return _amount;
     }
 

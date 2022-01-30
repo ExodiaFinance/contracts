@@ -311,10 +311,27 @@ describe("AssetAllocator", function () {
                 const arfvAllocBalance = await arfv.balanceOf(assetAllocator.address);
                 expect(arfvAllocBalance).to.eq(0);
             });
+
+            it("Should increase excess reserve and send all to strategy", async function () {
+                await assetAllocator.setAllocation(
+                    dai.address,
+                    [strategy.address],
+                    [100_000]
+                );
+                await assetAllocator.rebalance(dai.address);
+                expect(await dai.balanceOf(treasury.address)).to.eq(0);
+                const stratBalance0 = await dai.balanceOf(strategy.address);
+                expect(stratBalance0).to.eq(mintAmount.add(profits));
+                const allocations = await assetAllocator.getAllocation(dai.address);
+                expect(allocations.allocated).eq(stratBalance0);
+                expect(await arfv.balanceOf(treasury.address)).to.eq(
+                    allocations.allocated.div(1e9)
+                );
+            });
         });
 
         describe("To an unprofitable strategy", function () {
-            let loosingStrat: MockContract<MockGreedyStrategy>;
+            let loosingStrat: MockContract<MockLoosingStrategy>;
             const returnRate = 90;
             const deployedAmount = mintAmount.mul(20).div(100);
 
@@ -347,25 +364,33 @@ describe("AssetAllocator", function () {
                     [10_000]
                 );
                 const treasuryBalance0 = await dai.balanceOf(treasury.address);
-                const stratBalance0 = await dai.balanceOf(loosingStrat.address);
+                const stratdeposited0 = await loosingStrat.deposited(dai.address);
+                const stratBalance0 = await loosingStrat.balance(dai.address);
+                const lostAmount = deployedAmount.mul(100 - returnRate).div(100);
+                expect(stratdeposited0.sub(stratBalance0)).eq(lostAmount);
                 await assetAllocator.rebalance(dai.address);
-                const excessReserve1 = await treasury.excessReserves();
+                const totalReserves1 = await treasury.totalReserves();
                 const stratBalance1 = await dai.balanceOf(loosingStrat.address);
                 const treasuryBalance1 = await dai.balanceOf(treasury.address);
-                const withdrew = stratBalance0.sub(stratBalance1);
+                const withdrew = stratdeposited0.sub(stratBalance1);
                 const received = withdrew.mul(returnRate).div(100);
+                const targetInStrat = daiTreasuryBalance0
+                    .sub(lostAmount)
+                    .mul(10)
+                    .div(100);
                 expect(await dai.balanceOf(treasury.address)).to.closeTo(
                     treasuryBalance0.add(received),
                     1e3
                 );
+                expect(loosingStrat.withdraw).to.have.been.calledWith(
+                    dai.address,
+                    stratBalance0.sub(targetInStrat)
+                );
                 const allocations = await assetAllocator.getAllocation(dai.address);
-                expect(allocations.allocated).to.eq(stratBalance1);
                 const arfvBalance = await arfv.balanceOf(treasury.address);
                 expect(arfvBalance).to.eq(allocations.allocated.div(1e9));
-                expect(excessReserve1).to.be.lt(totalReserves0);
-                expect(excessReserve1).to.be.eq(
-                    totalReserves0.sub(withdrew.sub(received).div(1e9))
-                );
+                expect(totalReserves1).to.be.lt(totalReserves0);
+                expect(totalReserves1).to.be.eq(totalReserves0.sub(lostAmount.div(1e9)));
             });
         });
 
@@ -374,8 +399,8 @@ describe("AssetAllocator", function () {
             const returnRate = 90;
             const deployedAmount = mintAmount.mul(20).div(100);
 
-            const setUpGreedyContrat = deployments.createFixture(async () => {
-                slippingStrategy = await mockLoosingStrategyFactory.deploy(
+            const setUpSlippingContract = deployments.createFixture(async () => {
+                slippingStrategy = await mockGreedyStrategyFactory.deploy(
                     assetAllocator.address,
                     returnRate
                 );
@@ -388,7 +413,7 @@ describe("AssetAllocator", function () {
             });
 
             beforeEach(async function () {
-                await setUpGreedyContrat();
+                await setUpSlippingContract();
             });
 
             it("Should reduce excess reserve by slippage", async function () {
@@ -400,10 +425,10 @@ describe("AssetAllocator", function () {
                 const treasuryBalance0 = await dai.balanceOf(treasury.address);
                 const stratBalance0 = await dai.balanceOf(slippingStrategy.address);
                 await assetAllocator.rebalance(dai.address);
-                const excessReserve1 = await treasury.excessReserves();
+                const totalReserves1 = await treasury.totalReserves();
                 const stratBalance1 = await dai.balanceOf(slippingStrategy.address);
                 const treasuryBalance1 = await dai.balanceOf(treasury.address);
-                const withdrew = stratBalance0.sub(stratBalance1);
+                const withdrew = mintAmount.div(10);
                 const received = withdrew.mul(returnRate).div(100);
                 expect(await dai.balanceOf(treasury.address)).to.eq(
                     treasuryBalance0.add(received)
@@ -412,8 +437,8 @@ describe("AssetAllocator", function () {
                 expect(allocations.allocated).to.eq(stratBalance1);
                 const arfvBalance = await arfv.balanceOf(treasury.address);
                 expect(arfvBalance).to.eq(allocations.allocated.div(1e9));
-                expect(excessReserve1).to.be.lt(totalReserves0);
-                expect(excessReserve1).to.be.eq(
+                expect(totalReserves1).to.be.lt(totalReserves0);
+                expect(totalReserves1).to.be.eq(
                     totalReserves0.sub(withdrew.sub(received).div(1e9))
                 );
             });
