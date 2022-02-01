@@ -79,7 +79,7 @@ describe("Absorption bond", function () {
             bond = AbsorptionBond__factory.connect(deployment.address, deployer);
             await wsexod.mint(deployer.address, seedAmount);
             await wsexod.approve(bond.address, seedAmount);
-            await bond.seed(seedAmount, vestingTerms, 10);
+            await bond.seed(seedAmount, vestingTerms, validForDays);
         });
 
         beforeEach(async function () {
@@ -87,14 +87,12 @@ describe("Absorption bond", function () {
         });
 
         it("Should return the price", async function () {
-            expect(await bond.bondPrice()).to.eq(
-                seedAmount.mul(1e9).mul(1e9).div(totalSupply)
-            );
+            expect(await bond.bondPrice()).to.eq(parseUnits("100", "ether"));
         });
 
         it("Should return payout for principle", async function () {
-            expect(await bond.payoutFor(parseUnits("2", "ether"))).to.eq(
-                seedAmount.mul(1e9).mul(1e9).div(totalSupply).mul(2)
+            expect(await bond.payoutFor(parseUnits("200", "ether"))).to.eq(
+                parseUnits("2", "ether")
             );
         });
 
@@ -203,9 +201,32 @@ describe("Absorption bond", function () {
                 });
             });
         });
+
+        describe("Recovering seed tokens", async function () {
+            it("Should recover all tokens", async function () {
+                await increaseTime(xhre, 86400 * validForDays);
+                expect(await wsexod.balanceOf(bond.address)).to.eq(seedAmount);
+                await bond.recoverUnclaimed();
+                expect(await wsexod.balanceOf(dao)).to.eq(seedAmount);
+            });
+
+            it("Should recover unbonded tokens", async function () {
+                const payout = await bond.payoutFor(balance);
+                await bond.deposit(balance, deployer.address);
+                await increaseTime(xhre, 86400 * validForDays);
+                await bond.recoverUnclaimed();
+                expect(await wsexod.balanceOf(dao)).to.eq(seedAmount.sub(payout));
+            });
+
+            it("Should not let recover token before time is up", async function () {
+                expect(bond.recoverUnclaimed()).to.be.revertedWith(
+                    "bonding period is not done"
+                );
+            });
+        });
     });
 
-    describe.only("5 decimals principle", function () {
+    describe("5 decimals principle", function () {
         beforeEach(async function () {
             principle = await ercFactory.deploy(5);
             balance = BigNumber.from(30e5);

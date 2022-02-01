@@ -37,10 +37,10 @@ contract AbsorptionBond is Policy{
     /* ======== STRUCTS ======== */
 
 
-    uint256 vestingTerm; // in blocks
-    uint256 seedAmount;
-    uint256 bondedAmount = 0;
-    uint256 endsAt = 0;
+    uint256 public vestingTerm; // in blocks
+    uint256 public seedAmount;
+    uint256 public bondedAmount = 0;
+    uint256 public endsAt = 0;
 
     // Info for bond holder
     struct Bond {
@@ -152,7 +152,7 @@ contract AbsorptionBond is Policy{
         }
     }
     
-    function recoverUnclaimed() external onlyPolicy{
+    function recoverUnclaimed() external {
         require(block.timestamp > endsAt, "bonding period is not done");
         IERC20(OHM).transfer(DAO, seedAmount - bondedAmount);
     }
@@ -165,7 +165,7 @@ contract AbsorptionBond is Policy{
    *  @return uint
    */
     function payoutFor(uint256 _value) public view returns (uint256) {
-        return _value.mul(10**ERC20(principle).decimals()).div(_bondPrice());
+        return _value.mul(10**ERC20(OHM).decimals()).div(_bondPrice());
     }
 
     /**
