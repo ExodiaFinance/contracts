@@ -3,7 +3,6 @@ import { BigNumber } from "ethers";
 import { parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
 
-import { MAI_PRICE_PROVIDER_DID } from "../../deploy/28_deployMaiPriceProvider";
 import { externalAddressRegistry } from "../../src/contracts";
 import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
 import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
@@ -12,7 +11,6 @@ import {
     AggregatorV3Interface__factory,
     BalV2SpotPriceOracle__factory,
     IVault__factory,
-    MaiPriceProvider__factory,
 } from "../../typechain";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;

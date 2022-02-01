@@ -51,6 +51,8 @@ import {
     StakingHelperV2__factory,
     StakingWarmup,
     StakingWarmup__factory,
+    WenAbsorptionBondDepository,
+    WenAbsorptionBondDepository__factory,
     WFTMBondDepository,
     WFTMBondDepository__factory,
     WOHM,
@@ -113,6 +115,7 @@ export interface IExodiaContractsRegistry {
     BeethovenXFarming: ContractVersions<BeethovenXFarming>;
     AllocatedRiskFreeValue: ContractVersions<AllocatedRiskFreeValue>;
     wFTMBondDepository: ContractVersions<WFTMBondDepository>;
+    WenAbsorptionBondDepository: ContractVersions<WenAbsorptionBondDepository>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -267,6 +270,9 @@ const mainOperaContract: IExodiaContractsRegistry = {
             29523359
         ),
     ]),
+    WenAbsorptionBondDepository: new ContractVersions<WenAbsorptionBondDepository>([
+        version(WenAbsorptionBondDepository__factory.connect),
+    ]),
 };
 
 const testNetOperaContract: IExodiaContractsRegistry = {
@@ -380,6 +386,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     wFTMBondDepository: new ContractVersions<WFTMBondDepository>([
         version(WFTMBondDepository__factory.connect),
     ]),
+    WenAbsorptionBondDepository: new ContractVersions<WenAbsorptionBondDepository>([
+        version(WenAbsorptionBondDepository__factory.connect),
+    ]),
 };
 
 const hardhatContracts: IExodiaContractsRegistry = {
@@ -452,6 +461,9 @@ const hardhatContracts: IExodiaContractsRegistry = {
     ]),
     wFTMBondDepository: new ContractVersions<WFTMBondDepository>([
         version(WFTMBondDepository__factory.connect),
+    ]),
+    WenAbsorptionBondDepository: new ContractVersions<WenAbsorptionBondDepository>([
+        version(WenAbsorptionBondDepository__factory.connect),
     ]),
 };
 

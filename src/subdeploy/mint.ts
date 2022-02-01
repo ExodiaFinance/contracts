@@ -1,11 +1,14 @@
+import { BigNumberish } from "ethers";
+
 import { DAI, OlympusTreasury } from "../../typechain";
+
 import toggleRights, { MANAGING } from "./toggleRights";
 
 export default async function (
     minter: string,
     treasury: OlympusTreasury,
     dai: DAI,
-    amount: string,
+    amount: BigNumberish,
     profit = "0"
 ) {
     if (!(await treasury.isReserveDepositor(minter))) {
