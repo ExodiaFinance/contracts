@@ -2,7 +2,7 @@ import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
 import toggleRights, { MANAGING } from "../src/subdeploy/toggleRights";
-import { ifNotProd, log } from "../src/utils";
+import { exec, ifNotProd, log } from "../src/utils";
 import {
     AllocatedRiskFreeValue__factory,
     AssetAllocator__factory,
@@ -30,7 +30,7 @@ const deployARFVToken: IExtendedDeployFunction<IExodiaContractsRegistry> = async
         []
     );
     if (deployment?.newlyDeployed) {
-        await arfv.addMinter(assetAllocator.address);
+        await exec(() => arfv.addMinter(assetAllocator.address));
         if ((await treasury.manager()) === deployer) {
             await toggleRights(treasury, MANAGING.RESERVETOKEN, arfv.address);
         }
@@ -38,9 +38,9 @@ const deployARFVToken: IExtendedDeployFunction<IExodiaContractsRegistry> = async
             await assetAllocator.setARFVToken(arfv.address);
         }
     }
-    log("Asset Allocator", assetAllocator.address);
+    log("ARFV token", arfv.address);
 };
 export default deployARFVToken;
 deployARFVToken.id = ARFV_TOKEN_DID;
 deployARFVToken.tags = ["local", "test", ARFV_TOKEN_DID];
-deployARFVToken.dependencies = ifNotProd([TREASURY_DID, ASSET_ALLOCATOR_DID]);
+deployARFVToken.dependencies = []; // ifNotProd([TREASURY_DID, ASSET_ALLOCATOR_DID]);

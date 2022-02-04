@@ -2,11 +2,7 @@ import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
 import { ifNotProd, log } from "../src/utils";
-import {
-    BPTMNLTBondDepository__factory,
-    WenAbsorptionBondDepository__factory,
-    WOHM__factory,
-} from "../typechain";
+import { WenAbsorptionBondDepository__factory, WOHM__factory } from "../typechain";
 
 import { WOHM_DID } from "./17_deployWOHM";
 

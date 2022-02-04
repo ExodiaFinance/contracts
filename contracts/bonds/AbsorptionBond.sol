@@ -107,7 +107,7 @@ contract AbsorptionBond is Policy{
             lastBlock: block.number,
             pricePaid: _amount
         });
-
+        IERC20(principle).transferFrom(msg.sender, address(this), _amount);
         // indexed events are emitted
         emit BondCreated(
             _amount,
@@ -126,14 +126,13 @@ contract AbsorptionBond is Policy{
     function redeem(address _recipient) external returns (uint256) {
         Bond memory info = bondInfo[_recipient];
         uint256 percentVested = percentVestedFor(_recipient); // (blocks since last interaction / vesting term remaining)
-        require(percentVested != 0, "No bond vesting");
         if (percentVested >= 10000) {
             // if fully vested
             delete bondInfo[_recipient]; // delete user info
             emit BondRedeemed(_recipient, info.payout, 0); // emit bond data
             IERC20(OHM).transfer(_recipient, info.payout); // pay user everything due
             return info.payout;
-        } else {
+        } else if(percentVested > 0) {
             // if unfinished
             // calculate payout vested
             uint256 payout = info.payout.mul(percentVested).div(10000);
@@ -150,6 +149,7 @@ contract AbsorptionBond is Policy{
             IERC20(OHM).transfer(_recipient, payout);
             return payout;
         }
+        return 0;
     }
     
     function recoverUnclaimed() external {
@@ -229,12 +229,11 @@ contract AbsorptionBond is Policy{
     /* ======= AUXILLIARY ======= */
 
     /**
-     *  @notice allow anyone to send lost tokens (excluding principle or OHM) to the DAO
+     *  @notice allow anyone to send lost tokens to the DAO
    *  @return bool
    */
     function recoverLostToken(address _token) external returns (bool) {
         require(_token != OHM);
-        require(_token != principle);
         IERC20(_token).safeTransfer(DAO, IERC20(_token).balanceOf(address(this)));
         return true;
     }

@@ -110,14 +110,20 @@ describe("Absorption bond", function () {
         });
 
         it("Should not give funds if not bonded", async function () {
-            expect(bond.redeem(deployer.address)).to.be.revertedWith("No bond vesting");
+            await bond.redeem(deployer.address);
+            expect(await wsexod.balanceOf(deployer.address)).to.eq(0);
         });
 
         describe("When bonded", function () {
             let payout: BigNumber;
             beforeEach(async function () {
                 payout = await bond.payoutFor(balance);
+                await principle.approve(bond.address, balance);
                 await bond.deposit(balance, deployer.address);
+            });
+
+            it("Should remove principle from bonder", async function () {
+                expect(await principle.balanceOf(deployer.address)).to.eq(0);
             });
 
             it("Should be fully vested", async function () {
@@ -212,6 +218,7 @@ describe("Absorption bond", function () {
 
             it("Should recover unbonded tokens", async function () {
                 const payout = await bond.payoutFor(balance);
+                await principle.approve(bond.address, balance);
                 await bond.deposit(balance, deployer.address);
                 await increaseTime(xhre, 86400 * validForDays);
                 await bond.recoverUnclaimed();

@@ -25,6 +25,8 @@ import {
     LiquidLockStaking__factory,
     LLSRewardHandler,
     LLSRewardHandler__factory,
+    MasterchefBalanceAdapter,
+    MasterchefBalanceAdapter__factory,
     MasterLock,
     MasterLock__factory,
     OHMCirculatingSupplyContract,
@@ -51,6 +53,8 @@ import {
     StakingHelperV2__factory,
     StakingWarmup,
     StakingWarmup__factory,
+    TreasuryBalance,
+    TreasuryBalance__factory,
     WenAbsorptionBondDepository,
     WenAbsorptionBondDepository__factory,
     WFTMBondDepository,
@@ -84,6 +88,9 @@ export interface IExternalContractsRegistry {
     BEETS_MASTERCHEF: string;
     BEETS: string;
     YEARN_DAI_VAULT: string;
+    GOHM: string;
+    DEMETER_DEGREE: string;
+    EXODFTM_HLP: string;
 }
 
 export interface IExodiaContractsRegistry {
@@ -116,6 +123,8 @@ export interface IExodiaContractsRegistry {
     AllocatedRiskFreeValue: ContractVersions<AllocatedRiskFreeValue>;
     wFTMBondDepository: ContractVersions<WFTMBondDepository>;
     WenAbsorptionBondDepository: ContractVersions<WenAbsorptionBondDepository>;
+    TreasuryBalance: ContractVersions<TreasuryBalance>;
+    MasterchefBalanceAdapter: ContractVersions<MasterchefBalanceAdapter>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -257,7 +266,10 @@ const mainOperaContract: IExodiaContractsRegistry = {
         version(BeethovenXFarming__factory.connect),
     ]),
     AllocatedRiskFreeValue: new ContractVersions<AllocatedRiskFreeValue>([
-        version(AllocatedRiskFreeValue__factory.connect),
+        version(
+            AllocatedRiskFreeValue__factory.connect,
+            "0x4907918C64197B7C96437d831CA9fD264B8a7A8F"
+        ),
     ]),
     wFTMBondDepository: new ContractVersions<WFTMBondDepository>([
         version(
@@ -271,7 +283,22 @@ const mainOperaContract: IExodiaContractsRegistry = {
         ),
     ]),
     WenAbsorptionBondDepository: new ContractVersions<WenAbsorptionBondDepository>([
-        version(WenAbsorptionBondDepository__factory.connect),
+        version(
+            WenAbsorptionBondDepository__factory.connect,
+            "0x23Cd0F3d9eaD6c1B87789a1484380D132ea62Ffe"
+        ),
+    ]),
+    TreasuryBalance: new ContractVersions<TreasuryBalance>([
+        version(
+            TreasuryBalance__factory.connect,
+            "0xF1d7Da162FaC1c2DfFAC01A656AF6afC37dfc509"
+        ),
+    ]),
+    MasterchefBalanceAdapter: new ContractVersions<MasterchefBalanceAdapter>([
+        version(
+            MasterchefBalanceAdapter__factory.connect,
+            "0x853ab5f4678e7f6de4a717f1ca1b48f4893d120c"
+        ),
     ]),
 };
 
@@ -389,6 +416,12 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     WenAbsorptionBondDepository: new ContractVersions<WenAbsorptionBondDepository>([
         version(WenAbsorptionBondDepository__factory.connect),
     ]),
+    TreasuryBalance: new ContractVersions<TreasuryBalance>([
+        version(TreasuryBalance__factory.connect),
+    ]),
+    MasterchefBalanceAdapter: new ContractVersions<MasterchefBalanceAdapter>([
+        version(MasterchefBalanceAdapter__factory.connect),
+    ]),
 };
 
 const hardhatContracts: IExodiaContractsRegistry = {
@@ -464,6 +497,12 @@ const hardhatContracts: IExodiaContractsRegistry = {
     ]),
     WenAbsorptionBondDepository: new ContractVersions<WenAbsorptionBondDepository>([
         version(WenAbsorptionBondDepository__factory.connect),
+    ]),
+    TreasuryBalance: new ContractVersions<TreasuryBalance>([
+        version(TreasuryBalance__factory.connect),
+    ]),
+    MasterchefBalanceAdapter: new ContractVersions<MasterchefBalanceAdapter>([
+        version(MasterchefBalanceAdapter__factory.connect),
     ]),
 };
 
