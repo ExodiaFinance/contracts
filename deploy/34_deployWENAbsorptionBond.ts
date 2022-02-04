@@ -2,7 +2,11 @@ import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
 import { ifNotProd, log } from "../src/utils";
-import { WenAbsorptionBondDepository__factory, WOHM__factory } from "../typechain";
+import {
+    AllocatedRiskFreeValue__factory,
+    WenAbsorptionBondDepository__factory,
+    WOHM__factory,
+} from "../typechain";
 
 import { WOHM_DID } from "./17_deployWOHM";
 
@@ -11,11 +15,18 @@ export const WEN_ABSORPTION_BOND = "wen_absorption_bond";
 const deployWenAbsorptionBond: IExtendedDeployFunction<IExodiaContractsRegistry> =
     async ({ deploy, get, getNamedAccounts }: IExtendedHRE<IExodiaContractsRegistry>) => {
         const { contract: wsexod } = await get<WOHM__factory>("wOHM");
+        const { contract: arfv } = await get<AllocatedRiskFreeValue__factory>(
+            "AllocatedRiskFreeValue"
+        );
         const { DAO } = await getNamedAccounts();
         const WEN = "0x86D7BcCB91B1c5A01A7aD7D7D0eFC7106928c7F8";
-        const { contract: bond } = await deploy<WenAbsorptionBondDepository__factory>(
+        /*        const { contract: bond } = await deploy<WenAbsorptionBondDepository__factory>(
             "WenAbsorptionBondDepository",
             [wsexod.address, WEN, DAO]
+        );   */
+        const { contract: bond } = await deploy<WenAbsorptionBondDepository__factory>(
+            "WenAbsorptionBondDepository",
+            [arfv.address, arfv.address, DAO]
         );
 
         log("WEN absorption bond", bond.address);

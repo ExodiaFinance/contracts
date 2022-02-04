@@ -53,8 +53,8 @@ import {
     StakingHelperV2__factory,
     StakingWarmup,
     StakingWarmup__factory,
-    TreasuryBalance,
-    TreasuryBalance__factory,
+    TreasuryTracker,
+    TreasuryTracker__factory,
     WenAbsorptionBondDepository,
     WenAbsorptionBondDepository__factory,
     WFTMBondDepository,
@@ -71,6 +71,7 @@ export interface IExternalContractsRegistry {
     THE_MONOLITH_POOL: string;
     THE_MONOLITH_POOLID: string;
     BEETHOVEN_VAULT: string;
+    DAI: string;
     MAI_TOKEN: string;
     WFTM: string;
     FTM_USD_FEED: string;
@@ -123,7 +124,7 @@ export interface IExodiaContractsRegistry {
     AllocatedRiskFreeValue: ContractVersions<AllocatedRiskFreeValue>;
     wFTMBondDepository: ContractVersions<WFTMBondDepository>;
     WenAbsorptionBondDepository: ContractVersions<WenAbsorptionBondDepository>;
-    TreasuryBalance: ContractVersions<TreasuryBalance>;
+    TreasuryTracker: ContractVersions<TreasuryTracker>;
     MasterchefBalanceAdapter: ContractVersions<MasterchefBalanceAdapter>;
 }
 
@@ -288,10 +289,10 @@ const mainOperaContract: IExodiaContractsRegistry = {
             "0x23Cd0F3d9eaD6c1B87789a1484380D132ea62Ffe"
         ),
     ]),
-    TreasuryBalance: new ContractVersions<TreasuryBalance>([
+    TreasuryTracker: new ContractVersions<TreasuryTracker>([
         version(
-            TreasuryBalance__factory.connect,
-            "0xF1d7Da162FaC1c2DfFAC01A656AF6afC37dfc509"
+            TreasuryTracker__factory.connect,
+            "0x68f30FEd7a9132832d93fAE18dE717D6533edF97"
         ),
     ]),
     MasterchefBalanceAdapter: new ContractVersions<MasterchefBalanceAdapter>([
@@ -416,8 +417,8 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     WenAbsorptionBondDepository: new ContractVersions<WenAbsorptionBondDepository>([
         version(WenAbsorptionBondDepository__factory.connect),
     ]),
-    TreasuryBalance: new ContractVersions<TreasuryBalance>([
-        version(TreasuryBalance__factory.connect),
+    TreasuryTracker: new ContractVersions<TreasuryTracker>([
+        version(TreasuryTracker__factory.connect),
     ]),
     MasterchefBalanceAdapter: new ContractVersions<MasterchefBalanceAdapter>([
         version(MasterchefBalanceAdapter__factory.connect),
@@ -498,8 +499,8 @@ const hardhatContracts: IExodiaContractsRegistry = {
     WenAbsorptionBondDepository: new ContractVersions<WenAbsorptionBondDepository>([
         version(WenAbsorptionBondDepository__factory.connect),
     ]),
-    TreasuryBalance: new ContractVersions<TreasuryBalance>([
-        version(TreasuryBalance__factory.connect),
+    TreasuryTracker: new ContractVersions<TreasuryTracker>([
+        version(TreasuryTracker__factory.connect),
     ]),
     MasterchefBalanceAdapter: new ContractVersions<MasterchefBalanceAdapter>([
         version(MasterchefBalanceAdapter__factory.connect),
