@@ -45,31 +45,52 @@ contract AssetAllocator is Policy, IAssetAllocator {
         (uint allocatedBalance, uint[] memory balances) = _balance(_token, strategies);
         uint manageable = allocatedBalance + treasuryBalance;
         (uint[] memory targetAllocations,) = _calculateAllocations(_token, manageable);
-        uint[] memory amounts = new uint[](strategies.length);
-        uint allocated = 0;
-        for(uint i = 0; i < strategies.length; i++){
-            if(balances[i] > targetAllocations[i]){
-                uint amount = balances[i] - targetAllocations[i];
-                allocated += balances[i] - amount;
-                amounts[i] = amount;
-            }
-        }
-        (uint actual, uint expected) = _withdrawAmounts(_token, strategies, amounts);
-        (uint[] memory allocations,) = _calculateAllocations(_token, manageable + actual - expected);
-        for(uint i = 0; i < strategies.length; i++){
-            if(balances[i] < allocations[i]){
-                uint amount = allocations[i] - balances[i];
-                allocated += balances[i] + amount;
-                amounts[i] = amount;
-            } else {
-                amounts[i] = 0;
-            }
-        }
-        _allocateAmounts(_token, strategies, amounts);
+        (uint actuallyWithdrawn, uint expectedToWithdraw, uint allocated) = _withdrawTargetExcess(_token, balances, targetAllocations, strategies);
+        (targetAllocations,) = _calculateAllocations(_token, manageable + actuallyWithdrawn - expectedToWithdraw);
+        allocated += _allocateToTarget(_token, balances, targetAllocations, strategies);
         allocatedTokens[_token] = allocated;
         _sendToTreasury(_token);
         _burnARFV(_token, arfv, allocated);
         
+    }
+    
+    function _withdrawTargetExcess(
+        address _token, 
+        uint[] memory _balances, 
+        uint[] memory _targetAllocations, 
+        address[] memory _strategies
+    ) internal returns (uint, uint, uint){
+        uint allocated = 0;
+        uint expectedToWithdraw = 0;
+        uint actuallyWithdrawn = 0;
+        for(uint i = 0; i < _strategies.length; i++){
+            if(_balances[i] > _targetAllocations[i]){
+                uint amount = _balances[i] - _targetAllocations[i];
+                allocated += _balances[i] - amount;
+                expectedToWithdraw += amount;
+                actuallyWithdrawn += IStrategy(_strategies[i]).withdraw(_token, amount);
+            }
+        }
+        return (actuallyWithdrawn, expectedToWithdraw, allocated);
+    }
+    
+    function _allocateToTarget(
+        address _token,
+        uint[] memory _balances,
+        uint[] memory _targetAllocations,
+        address[] memory _strategies
+    ) internal returns (uint){
+        uint allocated = 0;
+        for(uint i = 0; i < _strategies.length; i++){
+            if(_balances[i] < _targetAllocations[i]){
+                uint amount = _targetAllocations[i] - _balances[i];
+                allocated += _balances[i] + amount;
+                address strategyAddress = _strategies[i];
+                IERC20(_token).transfer(strategyAddress, amount);
+                IStrategy(strategyAddress).deploy(_token);
+            }
+        }
+        return allocated;
     }
     
     function _getStrategies(address _token) internal view returns(address[] memory){
@@ -83,17 +104,10 @@ contract AssetAllocator is Policy, IAssetAllocator {
     function allocate(address _token) external {
         uint balance = _manage(_token);
         uint manageable = allocatedTokens[_token] + balance;
-        (uint[] memory allocations, uint allocated) = _calculateAllocations(_token, manageable);
-        uint[] memory amounts = new uint[](allocations.length);
         address[] memory strategies = _getStrategies(_token);
-        for(uint i = 0; i < allocations.length; i++){
-            IStrategy strategy = IStrategy(strategies[i]);
-            uint deposited = strategy.deposited(_token);
-            if(allocations[i] > deposited){
-                amounts[i] = allocations[i] - deposited;
-            }
-        }
-        _allocateAmounts(_token, strategies, allocations);
+        (, uint[] memory balances) = _deposits(_token, strategies);
+        (uint[] memory allocations, uint allocated) = _calculateAllocations(_token, manageable);
+        _allocateToTarget(_token, balances, allocations, strategies);
         allocatedTokens[_token] = allocated;
         _sendToTreasury(_token);
         _burnARFV(_token, manageable, allocated);
@@ -113,33 +127,6 @@ contract AssetAllocator is Policy, IAssetAllocator {
         return balance;
     }
     
-    function _withdrawAmounts(
-        address _token, 
-        address[] memory _strategies, 
-        uint[] memory _amounts) internal returns (uint, uint) {
-        
-        uint expected = 0;
-        uint actual = 0;
-        for (uint i = 0; i < _strategies.length; i++){
-            uint amount = _amounts[i];
-            if(amount > 0){
-                expected += amount;
-                actual += IStrategy(_strategies[i]).withdraw(_token, amount);
-            }
-        }
-        return (actual, expected);
-    }
-
-    function _allocateAmounts(address _token, address[] memory _strategies, uint[] memory _amounts) internal {
-        for (uint i = 0; i < _strategies.length; i++){
-            uint amount = _amounts[i];
-            if (amount > 0){
-                address strategyAddress = _strategies[i];
-                IERC20(_token).transfer(strategyAddress, amount);
-                IStrategy(strategyAddress).deploy(_token);
-            }
-        }
-    }
     /**
         @notice withdraws ARFV token
         */
@@ -250,6 +237,17 @@ contract AssetAllocator is Policy, IAssetAllocator {
         uint[] memory balances = new uint[](_strategies.length);
         for(uint i = 0; i < _strategies.length; i++){
             uint balance = IStrategy(_strategies[i]).balance(_token);
+            balances[i] = balance;
+            allocated += balance;
+        }
+        return (allocated, balances);
+    }    
+    
+    function _deposits(address _token, address[] memory _strategies) internal view returns (uint, uint[] memory){
+        uint allocated = 0;
+        uint[] memory balances = new uint[](_strategies.length);
+        for(uint i = 0; i < _strategies.length; i++){
+            uint balance = IStrategy(_strategies[i]).deposited(_token);
             balances[i] = balance;
             allocated += balance;
         }
