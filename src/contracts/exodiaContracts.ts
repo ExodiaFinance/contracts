@@ -1,6 +1,8 @@
 import {
     AllocatedRiskFreeValue,
     AllocatedRiskFreeValue__factory,
+    AllocationCalculator,
+    AllocationCalculator__factory,
     AssetAllocator,
     AssetAllocator__factory,
     BeethovenXFarming,
@@ -126,6 +128,7 @@ export interface IExodiaContractsRegistry {
     WenAbsorptionBondDepository: ContractVersions<WenAbsorptionBondDepository>;
     TreasuryTracker: ContractVersions<TreasuryTracker>;
     MasterchefBalanceAdapter: ContractVersions<MasterchefBalanceAdapter>;
+    AllocationCalculator: ContractVersions<AllocationCalculator>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -301,6 +304,9 @@ const mainOperaContract: IExodiaContractsRegistry = {
             "0x853ab5f4678e7f6de4a717f1ca1b48f4893d120c"
         ),
     ]),
+    AllocationCalculator: new ContractVersions<AllocationCalculator>([
+        version(AllocationCalculator__factory.connect),
+    ]),
 };
 
 const testNetOperaContract: IExodiaContractsRegistry = {
@@ -423,6 +429,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     MasterchefBalanceAdapter: new ContractVersions<MasterchefBalanceAdapter>([
         version(MasterchefBalanceAdapter__factory.connect),
     ]),
+    AllocationCalculator: new ContractVersions<AllocationCalculator>([
+        version(AllocationCalculator__factory.connect),
+    ]),
 };
 
 const hardhatContracts: IExodiaContractsRegistry = {
@@ -504,6 +513,9 @@ const hardhatContracts: IExodiaContractsRegistry = {
     ]),
     MasterchefBalanceAdapter: new ContractVersions<MasterchefBalanceAdapter>([
         version(MasterchefBalanceAdapter__factory.connect),
+    ]),
+    AllocationCalculator: new ContractVersions<AllocationCalculator>([
+        version(AllocationCalculator__factory.connect),
     ]),
 };
 

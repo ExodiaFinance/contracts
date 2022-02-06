@@ -1,20 +1,20 @@
+import { expect } from "chai";
 import { ethers } from "ethers";
 import hre from "hardhat";
-import { expect } from "chai";
-import { MINT_OHM_DID } from "../../deploy/16_mintOHM";
 
+import { MINT_OHM_DID } from "../../deploy/16_mintOHM";
 import { LIQUID_LOCK_STAKING_DID } from "../../deploy/24_liquidLockStakingDeployment";
 import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
 import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
 import mint from "../../src/subdeploy/mint";
 import { DAI_DECIMALS, OHM_DECIMALS, toWei } from "../../src/utils";
-import balance from "../../tasks/balance";
 import {
     DAI,
     DAI__factory,
     LiquidLockStaking,
     LiquidLockStaking__factory,
     LLSRewardHandler,
+    LLSRewardHandler__factory,
     OlympusERC20Token,
     OlympusERC20Token__factory,
     OlympusTreasury,
@@ -22,7 +22,6 @@ import {
     WOHM,
     WOHM__factory,
 } from "../../typechain";
-import { RewardsHandler__factory } from "../../typechain/factories/RewardsHandler__factory";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, deploy, getNamedAccounts } = xhre;
@@ -52,7 +51,7 @@ describe("LiquidLockStaking", function () {
         const llsDeployment = await get<LiquidLockStaking__factory>("LiquidLockStaking");
 
         liquidLockStaking = llsDeployment.contract;
-        const rewardHandlerDeployment = await get<RewardsHandler__factory>(
+        const rewardHandlerDeployment = await get<LLSRewardHandler__factory>(
             "LLSRewardHandler"
         );
         rewardHandler = rewardHandlerDeployment.contract;
@@ -67,7 +66,7 @@ describe("LiquidLockStaking", function () {
         const wsExodBal = await wsexod.balanceOf(deployer);
         // console.log(liquidLockStaking);
         await wsexod.approve(liquidLockStaking.address, wsExodBal);
-        const fnftId = await liquidLockStaking.stake(wsExodBal.mul(90).div(100), 3, {
+        const fnftId = await liquidLockStaking.lock(wsExodBal.mul(90).div(100), 3, {
             value: parseUnits("3", "ether"),
         });
     });

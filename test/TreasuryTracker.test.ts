@@ -8,6 +8,7 @@ import hre from "hardhat";
 
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
+import { ZERO_ADDRESS } from "../src/utils";
 import {
     AssetAllocator__factory,
     MasterchefBalanceAdapter,
@@ -159,7 +160,10 @@ describe("TreasuryBalance", function () {
         const assetAllocatorFactory = await smock.mock<AssetAllocator__factory>(
             "AssetAllocator"
         );
-        const assetAllocator = await assetAllocatorFactory.deploy(treasuryAddress);
+        const assetAllocator = await assetAllocatorFactory.deploy(
+            treasuryAddress,
+            ZERO_ADDRESS
+        );
         const allocatedBalance = parseUnits("10", "ether");
         assetAllocator.allocatedBalance.returns(allocatedBalance);
         await treasuryTracker.setAllocator(assetAllocator.address);
