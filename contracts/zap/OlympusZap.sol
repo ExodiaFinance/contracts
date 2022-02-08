@@ -78,11 +78,11 @@ contract OlympusZap {
     SwapKind kind,
     BatchSwapStep[] memory swaps1,
     IAsset[] memory assets1,
+    int256[] memory limits1,
     BatchSwapStep[] memory swaps2,
     IAsset[] memory assets2,
-    FundManagement memory funds,
-    int256[] memory limits1,
     int256[] memory limits2,
+    FundManagement memory funds,
     uint256 deadline
   ) external payable {
     uint256 inputAssetIndex = swaps1[0].assetInIndex;
