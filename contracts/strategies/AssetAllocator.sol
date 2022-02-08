@@ -13,7 +13,7 @@ import "./IAllocatedRiskFreeValue.sol";
 
 import "hardhat/console.sol";
 
-contract AssetAllocator is Policy, IAssetAllocator {
+abstract contract AssetAllocator is Policy, IAssetAllocator {
     using SafeMath for uint256;
     
     address public immutable treasuryAddress;
