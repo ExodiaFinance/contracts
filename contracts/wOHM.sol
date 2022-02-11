@@ -766,7 +766,7 @@ contract wOHM is ERC20 {
     }
     
     /**
-@notice stakes OHM and wraps sOHM
+        @notice stakes OHM and wraps sOHM
         @param _amount uint
         @return uint
      */

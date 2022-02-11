@@ -20,13 +20,9 @@ const deployWenAbsorptionBond: IExtendedDeployFunction<IExodiaContractsRegistry>
         );
         const { DAO } = await getNamedAccounts();
         const WEN = "0x86D7BcCB91B1c5A01A7aD7D7D0eFC7106928c7F8";
-        /*        const { contract: bond } = await deploy<WenAbsorptionBondDepository__factory>(
-            "WenAbsorptionBondDepository",
-            [wsexod.address, WEN, DAO]
-        );   */
         const { contract: bond } = await deploy<WenAbsorptionBondDepository__factory>(
             "WenAbsorptionBondDepository",
-            [arfv.address, arfv.address, DAO]
+            [wsexod.address, WEN, DAO]
         );
 
         log("WEN absorption bond", bond.address);

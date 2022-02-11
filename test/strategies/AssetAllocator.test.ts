@@ -9,7 +9,6 @@ import { ASSET_ALLOCATOR_DID } from "../../deploy/30_deployAssetAllocator";
 import { ARFV_TOKEN_DID } from "../../deploy/31_deployARFVToken";
 import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
 import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
-import mint from "../../src/subdeploy/mint";
 import toggleRights, { MANAGING } from "../../src/subdeploy/toggleRights";
 import {
     AllocatedRiskFreeValue,

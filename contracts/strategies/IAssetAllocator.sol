@@ -2,12 +2,6 @@
 pragma solidity >=0.7.5;
 pragma abicoder v2;
 
-struct Allocations {
-    uint allocated; // amount deposited in all strategies
-    address[] strategies; // address of strategies
-    uint[] allocations; // sum up to 100_000, ratio of tokens going to the strategy
-}
-
 interface IAssetAllocator {
 
     function collectProfits(address _token) external;
@@ -25,13 +19,6 @@ interface IAssetAllocator {
         address[] calldata _tokens,
         address _strategy
     ) external;
-    
-    function setAllocation(
-        address _token,
-        address[] calldata _strategies,
-        uint[] calldata _allocations
-    ) external;
-    function getAllocation(address _token) external view returns (Allocations memory);
     
     function allocatedBalance(address _token) external view returns (uint);
     

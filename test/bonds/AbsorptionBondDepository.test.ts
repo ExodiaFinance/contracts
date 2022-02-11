@@ -225,6 +225,13 @@ describe("Absorption bond", function () {
                 expect(await wsexod.balanceOf(dao)).to.eq(seedAmount.sub(payout));
             });
 
+            it("Should not let user bonds", async function () {
+                await increaseTime(xhre, 86400 * validForDays);
+                expect(bond.deposit(balance, deployer.address)).to.be.revertedWith(
+                    "Bonding period is done"
+                );
+            });
+
             it("Should not let recover token before time is up", async function () {
                 expect(bond.recoverUnclaimed()).to.be.revertedWith(
                     "bonding period is not done"

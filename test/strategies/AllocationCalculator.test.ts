@@ -46,44 +46,139 @@ describe("Allocation Calculator", function () {
             deployment.address,
             deployer
         );
-        await allocationCalculator.setAllocation(
-            token,
-            [strat0, strat1, strat2],
-            [ratio0, ratio1, ratio2]
-        );
     });
 
     beforeEach(async function () {
         await setup();
     });
 
-    it("Should return allocations for token", async function () {
-        const [strategies, ratios] = await allocationCalculator.getAllocation(token);
-        expect(strategies).to.have.members([strat0, strat1, strat2]);
-        expect(ratios.map((bn) => bn.toNumber())).to.have.members([
-            ratio0,
-            ratio1,
-            ratio2,
-        ]);
+    describe("allocation with no max", function () {
+        beforeEach(async function () {
+            await allocationCalculator.setAllocation(
+                token,
+                [strat0, strat1, strat2],
+                [ratio0, ratio1, ratio2]
+            );
+        });
+
+        it("Should return allocations for token", async function () {
+            const { addresses, allocations, maxAllocations } =
+                await allocationCalculator.getStrategiesAllocations(token);
+            expect(addresses).to.have.members([strat0, strat1, strat2]);
+            expect(allocations.map((bn) => bn.toNumber())).to.have.members([
+                ratio0,
+                ratio1,
+                ratio2,
+            ]);
+            expect(maxAllocations.map((bn) => bn.toNumber())).to.have.members([0, 0, 0]);
+        });
+
+        it("Should return strategies", async function () {
+            expect(await allocationCalculator.getStrategies(token)).to.have.members([
+                strat0,
+                strat1,
+                strat2,
+            ]);
+        });
+
+        it("Should update allocation", async function () {
+            await allocationCalculator.setAllocation(
+                token,
+                [strat0, strat2],
+                [ratio0, ratio2]
+            );
+            const { addresses, allocations } =
+                await allocationCalculator.getStrategiesAllocations(token);
+            expect(addresses).to.have.members([strat0, strat2]);
+            expect(allocations.map((bn) => bn.toNumber())).to.have.members([
+                ratio0,
+                ratio2,
+            ]);
+        });
+
+        it("Should return target allocation", async function () {
+            const [allocations, allocated] =
+                await allocationCalculator.calculateAllocation(token, 100_000);
+            expect(allocated).to.eq(100_000);
+            expect(allocations.map((bn) => bn.toNumber())).to.have.members([
+                ratio0,
+                ratio1,
+                ratio2,
+            ]);
+        });
     });
 
-    it("Should return strategies", async function () {
-        expect(await allocationCalculator.getStrategies(token)).to.have.members([
-            strat0,
-            strat1,
-            strat2,
-        ]);
-    });
+    describe("allocation with max", function () {
+        const max0 = 0;
+        const max1 = 200;
+        const max2 = 1000000000;
 
-    it("Should update allocation", async function () {
-        await allocationCalculator.setAllocation(
-            token,
-            [strat0, strat2],
-            [ratio0, ratio2]
-        );
-        const [strategies, ratios] = await allocationCalculator.getAllocation(token);
-        expect(strategies).to.have.members([strat0, strat2]);
-        expect(ratios.map((bn) => bn.toNumber())).to.have.members([ratio0, ratio2]);
+        beforeEach(async function () {
+            await allocationCalculator.setAllocationWithMax(
+                token,
+                [strat0, strat1, strat2],
+                [ratio0, ratio1, ratio2],
+                [max0, max1, max2]
+            );
+        });
+
+        it("Should return allocations for token", async function () {
+            const { addresses, allocations, maxAllocations } =
+                await allocationCalculator.getStrategiesAllocations(token);
+            expect(addresses).to.have.members([strat0, strat1, strat2]);
+            expect(allocations.map((bn) => bn.toNumber())).to.have.members([
+                ratio0,
+                ratio1,
+                ratio2,
+            ]);
+            expect(maxAllocations.map((bn) => bn.toNumber())).to.have.members([
+                max0,
+                max1,
+                max2,
+            ]);
+        });
+
+        it("Should return strategies", async function () {
+            expect(await allocationCalculator.getStrategies(token)).to.have.members([
+                strat0,
+                strat1,
+                strat2,
+            ]);
+        });
+
+        it("Should update allocation", async function () {
+            await allocationCalculator.setAllocationWithMax(
+                token,
+                [strat0, strat2],
+                [ratio0, ratio2],
+                [300, 3000]
+            );
+            const { addresses, allocations, maxAllocations } =
+                await allocationCalculator.getStrategiesAllocations(token);
+            expect(addresses).to.have.members([strat0, strat2]);
+            expect(allocations.map((bn) => bn.toNumber())).to.have.members([
+                ratio0,
+                ratio2,
+            ]);
+            expect(maxAllocations.map((bn) => bn.toNumber())).to.have.members([
+                300, 3000,
+            ]);
+        });
+
+        it("Should return target allocation", async function () {
+            const manageable = 100_000_000;
+            const [allocations, allocated] =
+                await allocationCalculator.calculateAllocation(token, manageable);
+            const alloc0 = (ratio0 / 100_000) * manageable;
+            const alloc1 = max1;
+            const alloc2 = (ratio2 / 100_000) * manageable;
+            expect(allocated).to.eq(alloc0 + alloc1 + alloc2);
+            expect(allocations.map((bn) => bn.toNumber())).to.have.members([
+                alloc0,
+                alloc1,
+                alloc2,
+            ]);
+        });
     });
 
     it("Should revert if not called by policy", async function () {
@@ -94,18 +189,5 @@ describe("Allocation Calculator", function () {
         expect(allocCalc.setAllocation(token, [strat0], [1000])).to.be.revertedWith(
             "Ownable: caller is not the owner"
         );
-    });
-
-    it("Should return target allocation", async function () {
-        const [allocations, allocated] = await allocationCalculator.calculateAllocation(
-            token,
-            100_000
-        );
-        expect(allocated).to.eq(100_000);
-        expect(allocations.map((bn) => bn.toNumber())).to.have.members([
-            ratio0,
-            ratio1,
-            ratio2,
-        ]);
     });
 });

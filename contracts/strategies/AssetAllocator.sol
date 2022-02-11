@@ -21,7 +21,6 @@ contract AssetAllocator is Policy, IAssetAllocator {
     address public allocationCalculator;
     mapping(address => uint) public allocatedTokens;
     
-    
     constructor(address _treasury, address _allocationCalculator){
         treasuryAddress = _treasury;
         allocationCalculator = _allocationCalculator;
@@ -36,6 +35,7 @@ contract AssetAllocator is Policy, IAssetAllocator {
     }
     
     function collectProfits(address _token) external override {}
+    
     function collectRewards(address _token) external override {}
     
     function rebalance(address _token) external override {
