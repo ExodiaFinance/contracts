@@ -52,7 +52,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
         _rebalance(_token);
     }
     
-    function rebalance(address _token) external override {
+    function rebalance(address _token) external override onlyMachine {
         require(lastRebalance[_token] + minElapsedTime < block.timestamp, "Exceeding rebalance time treshold");
         _rebalance(_token);
     }

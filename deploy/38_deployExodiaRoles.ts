@@ -14,6 +14,7 @@ const deployExodiaRoles: IExtendedDeployFunction<IExodiaContractsRegistry> = asy
     const { contract: roles } = await deploy<ExodiaRoles__factory>("ExodiaRoles", [
         deployer,
     ]);
+    await roles.addArchitect(deployer);
     log("Exodia roles: ", roles.address);
 };
 export default deployExodiaRoles;

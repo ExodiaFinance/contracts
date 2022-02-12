@@ -57,6 +57,8 @@ import {
     StakingHelperV2__factory,
     StakingWarmup,
     StakingWarmup__factory,
+    TreasuryManager,
+    TreasuryManager__factory,
     TreasuryTracker,
     TreasuryTracker__factory,
     WenAbsorptionBondDepository,
@@ -132,6 +134,7 @@ export interface IExodiaContractsRegistry {
     MasterchefBalanceAdapter: ContractVersions<MasterchefBalanceAdapter>;
     AllocationCalculator: ContractVersions<AllocationCalculator>;
     ExodiaRoles: ContractVersions<ExodiaRoles>;
+    TreasuryManager: ContractVersions<TreasuryManager>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -313,6 +316,9 @@ const mainOperaContract: IExodiaContractsRegistry = {
     ExodiaRoles: new ContractVersions<ExodiaRoles>([
         version(ExodiaRoles__factory.connect),
     ]),
+    TreasuryManager: new ContractVersions<TreasuryManager>([
+        version(TreasuryManager__factory.connect),
+    ]),
 };
 
 const testNetOperaContract: IExodiaContractsRegistry = {
@@ -441,6 +447,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     ExodiaRoles: new ContractVersions<ExodiaRoles>([
         version(ExodiaRoles__factory.connect),
     ]),
+    TreasuryManager: new ContractVersions<TreasuryManager>([
+        version(TreasuryManager__factory.connect),
+    ]),
 };
 
 const hardhatContracts: IExodiaContractsRegistry = {
@@ -528,6 +537,9 @@ const hardhatContracts: IExodiaContractsRegistry = {
     ]),
     ExodiaRoles: new ContractVersions<ExodiaRoles>([
         version(ExodiaRoles__factory.connect),
+    ]),
+    TreasuryManager: new ContractVersions<TreasuryManager>([
+        version(TreasuryManager__factory.connect),
     ]),
 };
 

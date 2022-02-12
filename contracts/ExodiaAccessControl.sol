@@ -28,7 +28,7 @@ abstract contract ExodiaAccessControl {
         return address(roles);
     }
     
-    function _getRoles() internal returns (ExodiaRoles){
+    function _getRoles() internal view returns (ExodiaRoles){
         return roles;
     }
     

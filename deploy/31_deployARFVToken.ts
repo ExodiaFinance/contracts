@@ -43,4 +43,4 @@ const deployARFVToken: IExtendedDeployFunction<IExodiaContractsRegistry> = async
 export default deployARFVToken;
 deployARFVToken.id = ARFV_TOKEN_DID;
 deployARFVToken.tags = ["local", "test", ARFV_TOKEN_DID];
-deployARFVToken.dependencies = []; // ifNotProd([TREASURY_DID, ASSET_ALLOCATOR_DID]);
+deployARFVToken.dependencies = ifNotProd([TREASURY_DID, ASSET_ALLOCATOR_DID]);
