@@ -26,12 +26,17 @@ contract TreasuryManager is ExodiaAccessControl {
         IAllocatedRiskFreeValue arfv = _getARFVToken();
         uint valueOfAmount = treasury.valueOf(_token, _amount);
         if(valueOfAmount > 0) {
-            arfv.mint(valueOfAmount);
-            arfv.approve(treasuryAddress, valueOfAmount);
-            treasury.deposit(valueOfAmount, arfvAddress, valueOfAmount);
+            _addArfvToTreasury(valueOfAmount);
         }
         treasury.manage(_token, _amount);
         IERC20(_token).transfer(msg.sender, _amount);
+    }
+    
+    function _addArfvToTreasury(uint amount) internal {
+        IAllocatedRiskFreeValue arfv = _getARFVToken();
+        arfv.mint(amount);
+        arfv.approve(treasuryAddress, amount);
+        _getTreasury().deposit(amount, arfvAddress, amount);
     }
     
     function _getTreasury() internal view returns(IOlympusTreasury){
@@ -45,6 +50,16 @@ contract TreasuryManager is ExodiaAccessControl {
     function withdraw(address _token, uint _amount) external onlyMachine onlyContract {
         _getTreasury().manage(_token, _amount);
         IERC20(_token).transfer(msg.sender, _amount);
+    }
+    
+    function addARFVToTreasury(address _token, uint _amount) external onlyMachine onlyContract returns (uint) {
+        uint valueOfAmount = _getTreasury().valueOf(_token, _amount);
+        _addArfvToTreasury(valueOfAmount);
+        return valueOfAmount;
+    }
+    
+    function balance(address _token) external view returns (uint){
+        return IERC20(_token).balanceOf(treasuryAddress);
     }
     
     modifier onlyContract(){
