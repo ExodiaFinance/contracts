@@ -138,7 +138,6 @@ export interface IExodiaContractsRegistry {
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
-
 const mainOperaContract: IExodiaContractsRegistry = {
     OlympusERC20Token: new ContractVersions([
         version(
@@ -452,7 +451,7 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     ]),
 };
 
-const hardhatContracts: IExodiaContractsRegistry = {
+/*const hardhatContracts: IExodiaContractsRegistry = {
     OlympusERC20Token: new ContractVersions([
         version(OlympusERC20Token__factory.connect),
     ]),
@@ -541,8 +540,8 @@ const hardhatContracts: IExodiaContractsRegistry = {
     TreasuryManager: new ContractVersions<TreasuryManager>([
         version(TreasuryManager__factory.connect),
     ]),
-};
+};*/
 
 contracts.addNetwork(Network.OPERA_MAIN_NET, mainOperaContract);
 contracts.addNetwork(Network.OPERA_TEST_NET, testNetOperaContract);
-contracts.addNetwork(Network.HARDHAT, hardhatContracts);
+//contracts.addNetwork(Network.HARDHAT, hardhatContracts);

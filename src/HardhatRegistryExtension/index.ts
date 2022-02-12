@@ -1,24 +1,33 @@
+import * as fs from "fs";
 import { Deployment, DeployResult } from "hardhat-deploy/dist/types";
 import { DeployOptions } from "hardhat-deploy/types";
 import { extendEnvironment } from "hardhat/config";
 import { HttpNetworkConfig, NetworksConfig } from "hardhat/types";
 
 import { ContractFactory } from "../contracts/ContractFactory";
-import { ContractVersions, IContract } from "../contracts/contractRegistry";
-import { contracts } from "../contracts/exodiaContracts";
+import {
+    ContractVersions,
+    IContract,
+    NetworksContractsRegistry,
+} from "../contracts/contractRegistry";
 import { Network } from "../contracts/Network";
 import { ProvidersRegistry } from "../contracts/providersRegistry";
 
 import { IExtendedHRE } from "./ExtendedHRE";
 
-extendEnvironment((hre) => {
+extendEnvironment(async (hre) => {
     const xhre = hre as IExtendedHRE<any>;
-    xhre.contracts = contracts;
-    xhre.contracts.addNetwork(
-        Network.HARDHAT,
-        xhre.contracts.forNetwork(Network.OPERA_MAIN_NET)
-    );
-    xhre.contractFactory = createContractFactory(hre.config.networks);
+    // We have to check if typechain bindings are created before loading the registry which loads them
+    if (fs.existsSync(hre.config.typechain.outDir)) {
+        xhre.contracts = (
+            await import((hre.config as any).xhre.contractRegistryPath)
+        ).contracts;
+        xhre.contracts.addNetwork(
+            Network.HARDHAT,
+            xhre.contracts.forNetwork(Network.OPERA_MAIN_NET)
+        );
+        xhre.contractFactory = createContractFactory(hre.config.networks, xhre.contracts);
+    }
     xhre.getContract = async <K>(
         contractName: string | number | symbol,
         block?: number
@@ -31,7 +40,10 @@ extendEnvironment((hre) => {
     xhre.getNetwork = async () => Number(await hre.getChainId());
 });
 
-const createContractFactory = (networks: NetworksConfig) => {
+const createContractFactory = (
+    networks: NetworksConfig,
+    contracts: NetworksContractsRegistry<any>
+) => {
     const providers = new ProvidersRegistry();
     for (const network of Object.keys(networks)) {
         const config = networks[network] as HttpNetworkConfig;

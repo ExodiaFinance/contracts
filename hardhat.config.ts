@@ -85,6 +85,9 @@ module.exports = {
             },
         },
     },
+    xhre: {
+        contractRegistryPath: "../contracts/exodiaContracts.ts",
+    },
     mocha: {
         timeout: 100000,
     },
