@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.7.5;
+pragma solidity ^0.8.0;
 pragma abicoder v2;
 
-import "../librairies/SafeMath.sol";
-import "../interfaces/IERC20.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+
 import "../interfaces/IOlympusTreasury.sol";
-import "../Policy.sol";
+import "../ExodiaAccessControl.sol";
 import "./IStrategy.sol";
 import "./IAssetAllocator.sol";
 import "./IAllocationCalculator.sol";
@@ -13,7 +13,7 @@ import "./IAllocatedRiskFreeValue.sol";
 
 import "hardhat/console.sol";
 
-contract AssetAllocator is Policy, IAssetAllocator {
+contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
     using SafeMath for uint256;
     
     address public immutable treasuryAddress;
@@ -23,16 +23,20 @@ contract AssetAllocator is Policy, IAssetAllocator {
     mapping(address => uint) public lastRebalance;
     uint public minElapsedTime;
     
-    constructor(address _treasury, address _allocationCalculator){
+    constructor(
+        address _treasury, 
+        address _allocationCalculator, 
+        address _roles
+    ) ExodiaAccessControl (_roles){
         treasuryAddress = _treasury;
         allocationCalculator = _allocationCalculator;
     }
 
-    function setAllocationCalculator(address _calculator) external onlyPolicy {
+    function setAllocationCalculator(address _calculator) external onlyArchitect {
         allocationCalculator = _calculator;
     }
     
-    function setMinElapsedTimeRebalance(uint _minElapsedTime) external onlyPolicy {
+    function setMinElapsedTimeRebalance(uint _minElapsedTime) external onlyArchitect {
         minElapsedTime = _minElapsedTime;
     }
     
@@ -44,7 +48,7 @@ contract AssetAllocator is Policy, IAssetAllocator {
     
     function collectRewards(address _token) external override {}
     
-    function forceRebalance(address _token) external onlyPolicy {
+    function forceRebalance(address _token) external onlyStrategist {
         _rebalance(_token);
     }
     
@@ -172,7 +176,6 @@ contract AssetAllocator is Policy, IAssetAllocator {
 
     function sendToTreasury(address _token, uint _amount) external override {
         IERC20(_token).transferFrom(msg.sender, address(this), _amount);
-        allocatedTokens[_token] -= _amount;
         _sendToTreasury(_token, _amount);
     }
 
@@ -198,7 +201,7 @@ contract AssetAllocator is Policy, IAssetAllocator {
         return IAllocatedRiskFreeValue(arfvAddress);
     }
 
-    function setARFVToken(address _token) external onlyPolicy{
+    function setARFVToken(address _token) external onlyArchitect {
         arfvAddress = _token;
     }
 
@@ -215,7 +218,7 @@ contract AssetAllocator is Policy, IAssetAllocator {
         address _token, 
         address _strategy,
         uint _amount
-    ) external override onlyPolicy {
+    ) external override onlyStrategist {
         _withdrawFromStrategy(_token, _strategy, _amount);
         _sendToTreasury(_token, _amount);
     }
@@ -233,7 +236,7 @@ contract AssetAllocator is Policy, IAssetAllocator {
     function emergencyWithdrawFromStrategy(
         address[] calldata _tokens, 
         address _strategy
-    ) external override onlyPolicy {
+    ) external override onlyStrategist {
         for(uint i = 0; i < _tokens.length; i++){
             address token = _tokens[i];
             allocatedTokens[token] -= IStrategy(_strategy).deposited(token);

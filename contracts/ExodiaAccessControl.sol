@@ -4,9 +4,17 @@ pragma abicoder v2;
 
 import "./ExodiaRoles.sol";
 
+/**
+ * The ExodiaAccessControl let's contract implement role based 
+ * permission using the ExodiaRoles contract.
+ * It adds the Machine role on a per contract basis.
+ * The Machine role is intended to be used if the contract can only be called from another
+ * contract or by a keeper we know the address.
+ */
 abstract contract ExodiaAccessControl {
     
     ExodiaRoles public roles;
+    mapping(address => bool) machines;
     
     constructor(address _roles){
         roles = ExodiaRoles(_roles);
@@ -24,12 +32,20 @@ abstract contract ExodiaAccessControl {
         return roles;
     }
     
+    function addMachine(address _address) external onlyArchitect{
+        machines[_address] = true;
+    }
+    
+    function removeMachine(address _address) external onlyArchitect{
+        machines[_address] = false;
+    }
+    
     function isMachine(address _address) external view returns (bool){
-        return roles.isMachine(_address);
+        return machines[_address];
     }
     
     modifier onlyMachine(){
-        require(roles.isMachine(msg.sender), "caller is not a machine");
+        require(machines[msg.sender], "caller is not a machine");
         _;
     }
 
@@ -39,6 +55,15 @@ abstract contract ExodiaAccessControl {
     
     modifier onlyStrategist() {
         require(roles.isStrategist(msg.sender), "caller is not a strategist");
+        _;
+    }
+    
+    function isPolicy(address _address) external view returns(bool) {
+        return roles.isPolicy(_address);
+    }
+    
+    modifier onlyPolicy(){
+        require(roles.isPolicy(msg.sender), "caller is not policy");
         _;
     }
 

@@ -17,11 +17,11 @@ const { deployments, get, getNamedAccounts, getUnnamedAccounts } = xhre;
 describe("Allocation Calculator", function () {
     let deployer: SignerWithAddress;
     let noRole: SignerWithAddress;
-    let machine: SignerWithAddress;
+    let policy: SignerWithAddress;
     let strategist: SignerWithAddress;
     let architect: SignerWithAddress;
     let accounts: string[];
-    const MACHINE = 0;
+    const POLICY = 0;
     const STRATEGIST = 1;
     const ARCHITECT = 2;
     const NO_ROLE = 3;
@@ -33,7 +33,7 @@ describe("Allocation Calculator", function () {
         accounts = await getUnnamedAccounts();
         deployer = await xhre.ethers.getSigner(deployerAddress);
         noRole = await xhre.ethers.getSigner(accounts[NO_ROLE]);
-        machine = await xhre.ethers.getSigner(accounts[MACHINE]);
+        policy = await xhre.ethers.getSigner(accounts[POLICY]);
         strategist = await xhre.ethers.getSigner(accounts[STRATEGIST]);
         architect = await xhre.ethers.getSigner(accounts[ARCHITECT]);
         await deployments.fixture([EXODIA_ROLES_DID]);
@@ -41,37 +41,37 @@ describe("Allocation Calculator", function () {
         roles = deployment.contract;
     });
 
-    describe("Machine role", function () {
+    describe("Policy role", function () {
         const setUp = deployments.createFixture(async (hh) => {
-            await roles.addMachine(machine.address);
+            await roles.addPolicy(policy.address);
         });
 
-        let rolesMachine: ExodiaRoles;
+        let rolesFromPolicy: ExodiaRoles;
 
         beforeEach(async function () {
-            rolesMachine = ExodiaRoles__factory.connect(roles.address, machine);
+            rolesFromPolicy = ExodiaRoles__factory.connect(roles.address, policy);
             await setUp();
         });
 
         it("Should return true if account is machine", async function () {
-            expect(await roles.isMachine(accounts[MACHINE])).to.be.true;
+            expect(await roles.isPolicy(accounts[POLICY])).to.be.true;
         });
 
         it("Should return false if account is not a machine", async function () {
-            expect(await roles.isMachine(accounts[ARCHITECT])).to.be.false;
+            expect(await roles.isPolicy(accounts[ARCHITECT])).to.be.false;
         });
 
         it("Should not let machine add other machine", async function () {
-            expect(rolesMachine.addMachine(noRole.address)).to.be.reverted;
+            expect(rolesFromPolicy.addPolicy(noRole.address)).to.be.reverted;
         });
 
         it("Should not let machine remove other machine", async function () {
-            expect(rolesMachine.removeMachine(noRole.address)).to.be.reverted;
+            expect(rolesFromPolicy.removePolicy(noRole.address)).to.be.reverted;
         });
 
         it("Should revoke machine role", async function () {
-            await roles.removeMachine(machine.address);
-            expect(await roles.isMachine(machine.address)).to.be.false;
+            await roles.removePolicy(policy.address);
+            expect(await roles.isPolicy(policy.address)).to.be.false;
         });
     });
 
@@ -92,7 +92,7 @@ describe("Allocation Calculator", function () {
         });
 
         it("Should return false if account is not a strategist", async function () {
-            expect(await roles.isStrategist(machine.address)).to.be.false;
+            expect(await roles.isStrategist(policy.address)).to.be.false;
         });
 
         it("Should not let strategist add other strategist", async function () {
@@ -126,7 +126,7 @@ describe("Allocation Calculator", function () {
         });
 
         it("Should return false if account is not a architect", async function () {
-            expect(await roles.isArchitect(machine.address)).to.be.false;
+            expect(await roles.isArchitect(policy.address)).to.be.false;
         });
 
         it("Should not let architect add other architect", async function () {

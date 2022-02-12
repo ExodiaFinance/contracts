@@ -4,30 +4,35 @@ pragma abicoder v2;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
+/**
+ * ExodiaRoles is a registry for roles.
+ * DAO is the all powerful default admin
+ * Architect is the role in charge of deploying contracts and orchestrating automation
+ * Policy is handling bonds, reward rates and other levers on the protocol
+ * Strategist handles treasury operations, investment and farming
+ */
 
 contract ExodiaRoles is AccessControl {
 
     bytes32 public constant STRATEGIST = keccak256("strategist");
-    bytes32 public constant MACHINE = keccak256("machine");
+    bytes32 public constant POLICY = keccak256("policy");
     bytes32 public constant ARCHITECT = keccak256("architect");
     bytes32 public constant DAO = DEFAULT_ADMIN_ROLE;
     
     constructor(address _dao){
         _grantRole(DAO, _dao);
     }
-
     
-    
-    function addMachine(address _address) external {
-        grantRole(MACHINE, _address);
+    function addPolicy(address _address) external {
+        grantRole(POLICY, _address);
     }
 
-    function removeMachine(address _address) external {
-        revokeRole(MACHINE, _address);
+    function removePolicy(address _address) external {
+        revokeRole(POLICY, _address);
     }
 
-    function isMachine(address _address) external view returns (bool){
-        return hasRole(MACHINE, _address);
+    function isPolicy(address _address) external view returns (bool){
+        return hasRole(POLICY, _address);
     }
     
     function addStrategist(address _address) external {
