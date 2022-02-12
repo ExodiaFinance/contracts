@@ -5,7 +5,7 @@ import { BigNumber } from "ethers";
 import { parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
 
-import "../chai-setup";
+import "./chai-setup";
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;

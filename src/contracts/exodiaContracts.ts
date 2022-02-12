@@ -15,6 +15,8 @@ import {
     DAI__factory,
     Distributor,
     Distributor__factory,
+    ExodiaRoles,
+    ExodiaRoles__factory,
     FBEETSBondDepository,
     FBEETSBondDepository__factory,
     FBEETSPriceOracle,
@@ -129,6 +131,7 @@ export interface IExodiaContractsRegistry {
     TreasuryTracker: ContractVersions<TreasuryTracker>;
     MasterchefBalanceAdapter: ContractVersions<MasterchefBalanceAdapter>;
     AllocationCalculator: ContractVersions<AllocationCalculator>;
+    ExodiaRoles: ContractVersions<ExodiaRoles>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -307,6 +310,9 @@ const mainOperaContract: IExodiaContractsRegistry = {
     AllocationCalculator: new ContractVersions<AllocationCalculator>([
         version(AllocationCalculator__factory.connect),
     ]),
+    ExodiaRoles: new ContractVersions<ExodiaRoles>([
+        version(ExodiaRoles__factory.connect),
+    ]),
 };
 
 const testNetOperaContract: IExodiaContractsRegistry = {
@@ -432,6 +438,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     AllocationCalculator: new ContractVersions<AllocationCalculator>([
         version(AllocationCalculator__factory.connect),
     ]),
+    ExodiaRoles: new ContractVersions<ExodiaRoles>([
+        version(ExodiaRoles__factory.connect),
+    ]),
 };
 
 const hardhatContracts: IExodiaContractsRegistry = {
@@ -516,6 +525,9 @@ const hardhatContracts: IExodiaContractsRegistry = {
     ]),
     AllocationCalculator: new ContractVersions<AllocationCalculator>([
         version(AllocationCalculator__factory.connect),
+    ]),
+    ExodiaRoles: new ContractVersions<ExodiaRoles>([
+        version(ExodiaRoles__factory.connect),
     ]),
 };
 

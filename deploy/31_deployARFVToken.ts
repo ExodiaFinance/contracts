@@ -34,7 +34,7 @@ const deployARFVToken: IExtendedDeployFunction<IExodiaContractsRegistry> = async
         if ((await treasury.manager()) === deployer) {
             await toggleRights(treasury, MANAGING.RESERVETOKEN, arfv.address);
         }
-        if ((await assetAllocator.policy()) === deployer) {
+        if (await assetAllocator.isArchitect(deployer)) {
             await assetAllocator.setARFVToken(arfv.address);
         }
     }

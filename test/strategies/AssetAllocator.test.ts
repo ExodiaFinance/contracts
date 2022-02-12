@@ -20,6 +20,8 @@ import {
     AssetAllocator__factory,
     DAI,
     DAI__factory,
+    ExodiaRoles,
+    ExodiaRoles__factory,
     MockGreedyStrategy,
     MockGreedyStrategy__factory,
     MockLoosingStrategy,
@@ -77,6 +79,11 @@ describe("AssetAllocator", function () {
             "AssetAllocator"
         );
         assetAllocator = assetAllocateDeployment.contract;
+        const { contract: roles } = await get<ExodiaRoles__factory>("ExodiaRoles");
+        await roles.addArchitect(deployer);
+        await roles.addMachine(deployer);
+        await roles.addStrategist(deployer);
+        await assetAllocator.setARFVToken(arfv.address);
         mockStrategyFactory = await smock.mock<MockStrategy__factory>("MockStrategy");
         strategy = await mockStrategyFactory.deploy(assetAllocator.address);
         mockTokenFactory = await smock.mock<DAI__factory>("DAI");
@@ -804,7 +811,7 @@ describe("AssetAllocator", function () {
                 randomSigner
             );
             expect(allocator.setMinElapsedTimeRebalance(100)).to.be.revertedWith(
-                "Ownable: caller is not the owner"
+                "caller is not an architect"
             );
         });
     });
