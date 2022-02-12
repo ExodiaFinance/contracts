@@ -1,4 +1,5 @@
 import { MockContract, MockContractFactory, smock } from "@defi-wonderland/smock";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { parseUnits } from "ethers/lib/utils";
@@ -31,12 +32,14 @@ import {
     OlympusTreasury__factory,
 } from "../../typechain";
 import "../chai-setup";
+import { increaseTime } from "../testUtils";
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNamedAccounts, getUnnamedAccounts } = xhre;
 
 describe("AssetAllocator", function () {
     let deployer: string;
     let randomAddress: string;
+    let randomSigner: SignerWithAddress;
     let treasury: OlympusTreasury;
     let allocationCalculator: AllocationCalculator;
     let exod: OlympusERC20Token;
@@ -49,11 +52,12 @@ describe("AssetAllocator", function () {
     let mockGreedyStrategyFactory: MockContractFactory<MockGreedyStrategy__factory>;
     let mockTokenFactory: MockContractFactory<DAI__factory>;
 
-    beforeEach(async function () {
+    const setup = deployments.createFixture(async (hh) => {
         const namedAccounts = await getNamedAccounts();
         const unnamedAccounts = await getUnnamedAccounts();
         deployer = namedAccounts.deployer;
         randomAddress = unnamedAccounts[0];
+        randomSigner = await xhre.ethers.getSigner(randomAddress);
         await deployments.fixture([ASSET_ALLOCATOR_DID, DAI_DID, ARFV_TOKEN_DID]);
         const treasuryDeployment = await get<OlympusTreasury__factory>("OlympusTreasury");
         treasury = treasuryDeployment.contract;
@@ -83,6 +87,10 @@ describe("AssetAllocator", function () {
         mockGreedyStrategyFactory = await smock.mock<MockGreedyStrategy__factory>(
             "MockGreedyStrategy"
         );
+    });
+
+    beforeEach(async function () {
+        await setup();
     });
 
     it("Should return if asset can be Deposited", async function () {
@@ -273,12 +281,52 @@ describe("AssetAllocator", function () {
                 const allocated = await assetAllocator.allocatedTokens(dai.address);
                 expect(allocated).to.eq(targetAmount);
             });
+
+            it("Should not break if we use returnToTreasury", async function () {
+                const amount = parseUnits("50000", "ether");
+                await dai.mint(deployer, amount);
+                await dai.approve(assetAllocator.address, amount);
+                await assetAllocator.sendToTreasury(dai.address, amount);
+                await allocationCalculator.setAllocation(
+                    dai.address,
+                    [strategy.address],
+                    [50_000]
+                );
+                await assetAllocator.rebalance(dai.address);
+                expect(await dai.balanceOf(strategy.address)).to.eq(
+                    mintAmount.add(amount).div(2)
+                );
+                expect(await dai.balanceOf(treasury.address)).to.eq(
+                    mintAmount.add(amount).div(2)
+                );
+                expect(await assetAllocator.allocatedTokens(dai.address)).to.eq(
+                    mintAmount.add(amount).div(2)
+                );
+            });
+
+            it("Should not break if we use returnToTreasury and return more than alloc after", async function () {
+                const amount = parseUnits("150000", "ether");
+                await dai.mint(deployer, amount);
+                await dai.approve(assetAllocator.address, amount);
+                await assetAllocator.sendToTreasury(dai.address, amount);
+                await allocationCalculator.setAllocation(
+                    dai.address,
+                    [strategy.address],
+                    [0]
+                );
+                await assetAllocator.rebalance(dai.address);
+                expect(await dai.balanceOf(strategy.address)).to.eq(0);
+                expect(await dai.balanceOf(treasury.address)).to.eq(
+                    mintAmount.add(amount)
+                );
+                expect(await assetAllocator.allocatedTokens(dai.address)).to.eq(0);
+            });
         });
 
         describe("To a single profitable strategy", function () {
             const profits = parseUnits("100", "ether");
             const deployedAmount0 = mintAmount.mul(20).div(100);
-            const setup = deployments.createFixture(async (hh) => {
+            const setupSingleStrat = deployments.createFixture(async (hh) => {
                 await allocationCalculator.setAllocation(
                     dai.address,
                     [strategy.address],
@@ -290,7 +338,7 @@ describe("AssetAllocator", function () {
             });
 
             beforeEach(async function () {
-                await setup();
+                await setupSingleStrat();
             });
 
             it("Should return deposited and profits", async function () {
@@ -726,6 +774,38 @@ describe("AssetAllocator", function () {
                 expect(allocated).to.not.eq(0);
                 expect(allocated).to.eq(tokenTreasuryBalance0);
             });
+        });
+    });
+
+    describe("Time between rebalance", async function () {
+        beforeEach(async function () {
+            await assetAllocator.setMinElapsedTimeRebalance(1000);
+            await assetAllocator.rebalance(dai.address);
+        });
+
+        it("Should not let rebalance", async function () {
+            expect(assetAllocator.rebalance(dai.address)).to.be.revertedWith(
+                "Exceeding rebalance time treshold"
+            );
+        });
+
+        it("Should let rebalance after min time", async function () {
+            await increaseTime(hre, 1000);
+            await assetAllocator.rebalance(dai.address);
+        });
+
+        it("Should let policy force rebalance", async function () {
+            await assetAllocator.forceRebalance(dai.address);
+        });
+
+        it("Should revert if not policy updates min. time", async function () {
+            const allocator = AssetAllocator__factory.connect(
+                assetAllocator.address,
+                randomSigner
+            );
+            expect(allocator.setMinElapsedTimeRebalance(100)).to.be.revertedWith(
+                "Ownable: caller is not the owner"
+            );
         });
     });
 });

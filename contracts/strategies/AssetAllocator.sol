@@ -20,6 +20,8 @@ contract AssetAllocator is Policy, IAssetAllocator {
     address public arfvAddress;
     address public allocationCalculator;
     mapping(address => uint) public allocatedTokens;
+    mapping(address => uint) public lastRebalance;
+    uint public minElapsedTime;
     
     constructor(address _treasury, address _allocationCalculator){
         treasuryAddress = _treasury;
@@ -30,6 +32,10 @@ contract AssetAllocator is Policy, IAssetAllocator {
         allocationCalculator = _calculator;
     }
     
+    function setMinElapsedTimeRebalance(uint _minElapsedTime) external onlyPolicy {
+        minElapsedTime = _minElapsedTime;
+    }
+    
     function _getAllocationCalculator() internal view returns (IAllocationCalculator){
         return IAllocationCalculator(allocationCalculator);
     }
@@ -38,7 +44,16 @@ contract AssetAllocator is Policy, IAssetAllocator {
     
     function collectRewards(address _token) external override {}
     
+    function forceRebalance(address _token) external onlyPolicy {
+        _rebalance(_token);
+    }
+    
     function rebalance(address _token) external override {
+        require(lastRebalance[_token] + minElapsedTime < block.timestamp, "Exceeding rebalance time treshold");
+        _rebalance(_token);
+    }
+    
+    function _rebalance(address _token) internal {
         uint treasuryBalance = _manage(_token);
         uint arfv = allocatedTokens[_token] + treasuryBalance;
         address[] memory strategies = _getStrategies(_token);
@@ -51,7 +66,7 @@ contract AssetAllocator is Policy, IAssetAllocator {
         allocatedTokens[_token] = allocated;
         _sendToTreasury(_token);
         _burnARFV(_token, arfv, allocated);
-        
+        lastRebalance[_token] = block.timestamp;
     }
     
     function _withdrawTargetExcess(

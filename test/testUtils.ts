@@ -35,5 +35,5 @@ export const impersonate = async (hre: HardhatRuntimeEnvironment, address: strin
         method: "hardhat_impersonateAccount",
         params: [address],
     });
-    return await hre.ethers.getSigner(address);
+    return hre.ethers.getSigner(address);
 };
