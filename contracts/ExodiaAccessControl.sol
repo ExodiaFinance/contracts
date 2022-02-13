@@ -50,7 +50,7 @@ abstract contract ExodiaAccessControl {
     }
 
     function isStrategist(address _address) external view returns (bool){
-        return roles.isStrategist(msg.sender);
+        return roles.isStrategist(_address);
     }
     
     modifier onlyStrategist() {

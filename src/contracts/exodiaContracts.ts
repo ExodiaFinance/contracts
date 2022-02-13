@@ -57,6 +57,8 @@ import {
     StakingHelperV2__factory,
     StakingWarmup,
     StakingWarmup__factory,
+    TreasuryDepositor,
+    TreasuryDepositor__factory,
     TreasuryManager,
     TreasuryManager__factory,
     TreasuryTracker,
@@ -135,6 +137,7 @@ export interface IExodiaContractsRegistry {
     AllocationCalculator: ContractVersions<AllocationCalculator>;
     ExodiaRoles: ContractVersions<ExodiaRoles>;
     TreasuryManager: ContractVersions<TreasuryManager>;
+    TreasuryDepositor: ContractVersions<TreasuryDepositor>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -318,6 +321,9 @@ const mainOperaContract: IExodiaContractsRegistry = {
     TreasuryManager: new ContractVersions<TreasuryManager>([
         version(TreasuryManager__factory.connect),
     ]),
+    TreasuryDepositor: new ContractVersions<TreasuryDepositor>([
+        version(TreasuryDepositor__factory.connect),
+    ]),
 };
 
 const testNetOperaContract: IExodiaContractsRegistry = {
@@ -449,99 +455,10 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     TreasuryManager: new ContractVersions<TreasuryManager>([
         version(TreasuryManager__factory.connect),
     ]),
+    TreasuryDepositor: new ContractVersions<TreasuryDepositor>([
+        version(TreasuryDepositor__factory.connect),
+    ]),
 };
-
-/*const hardhatContracts: IExodiaContractsRegistry = {
-    OlympusERC20Token: new ContractVersions([
-        version(OlympusERC20Token__factory.connect),
-    ]),
-    sOlympus: new ContractVersions([version(SOlympus__factory.connect)]),
-    OHMCirculatingSupplyContract: new ContractVersions([
-        version(OHMCirculatingSupplyContract__factory.connect),
-    ]),
-    OlympusStaking: new ContractVersions([version(OlympusStaking__factory.connect)]),
-    DAI: new ContractVersions<DAI>([version(DAI__factory.connect)]),
-    OlympusTreasury: new ContractVersions([version(OlympusTreasury__factory.connect)]),
-    StakingWarmup: new ContractVersions<StakingWarmup>([
-        version(StakingWarmup__factory.connect),
-    ]),
-    StakingHelper: new ContractVersions<StakingHelper>([]),
-    StakingHelperV2: new ContractVersions<StakingHelperV2>([
-        version(StakingHelperV2__factory.connect),
-    ]),
-    Distributor: new ContractVersions<Distributor>([
-        version(Distributor__factory.connect),
-    ]),
-    OlympusBondingCalculator: new ContractVersions<OlympusBondingCalculator>([
-        version(OlympusBondingCalculator__factory.connect),
-    ]),
-    RedeemHelper: new ContractVersions<RedeemHelper>([
-        version(RedeemHelper__factory.connect),
-    ]),
-    DAIBondDepository: new ContractVersions<OlympusBondDepository>([
-        version(OlympusBondDepository__factory.connect),
-    ]),
-    wOHM: new ContractVersions<WOHM>([version(WOHM__factory.connect)]),
-    RemoveUniLp: new ContractVersions<RemoveUniLp>([
-        version(RemoveUniLp__factory.connect),
-    ]),
-    GOHMPriceOracle: new ContractVersions<GOHMPriceOracle>([
-        version(GOHMPriceOracle__factory.connect),
-    ]),
-    GOHMBondDepository: new ContractVersions<GOHMBondDepository>([
-        version(GOHMBondDepository__factory.connect),
-    ]),
-    MasterLock: new ContractVersions<MasterLock>([version(MasterLock__factory.connect)]),
-    LiquidLockStaking: new ContractVersions<LiquidLockStaking>([
-        version(LiquidLockStaking__factory.connect),
-    ]),
-    LLSRewardHandler: new ContractVersions<LLSRewardHandler>([
-        version(LLSRewardHandler__factory.connect),
-    ]),
-    BPTMNLTPriceOracle: new ContractVersions<BPTMNLTPriceOracle>([
-        version(BPTPriceOracleV2__factory.connect),
-    ]),
-    BPTMNLTBondDepository: new ContractVersions<BPTMNLTBondDepository>([
-        version(BPTMNLTBondDepository__factory.connect),
-    ]),
-    fBEETSPriceOracle: new ContractVersions<FBEETSPriceOracle>([
-        version(FBEETSPriceOracle__factory.connect),
-    ]),
-    fBEETSBondDepository: new ContractVersions<FBEETSBondDepository>([
-        version(FBEETSBondDepository__factory.connect),
-    ]),
-    AssetAllocator: new ContractVersions<AssetAllocator>([
-        version(AssetAllocator__factory.connect),
-    ]),
-    BeethovenXFarming: new ContractVersions<BeethovenXFarming>([
-        version(BeethovenXFarming__factory.connect),
-    ]),
-    AllocatedRiskFreeValue: new ContractVersions<AllocatedRiskFreeValue>([
-        version(AllocatedRiskFreeValue__factory.connect),
-    ]),
-    wFTMBondDepository: new ContractVersions<WFTMBondDepository>([
-        version(WFTMBondDepository__factory.connect),
-    ]),
-    WenAbsorptionBondDepository: new ContractVersions<WenAbsorptionBondDepository>([
-        version(WenAbsorptionBondDepository__factory.connect),
-    ]),
-    TreasuryTracker: new ContractVersions<TreasuryTracker>([
-        version(TreasuryTracker__factory.connect),
-    ]),
-    MasterchefBalanceAdapter: new ContractVersions<MasterchefBalanceAdapter>([
-        version(MasterchefBalanceAdapter__factory.connect),
-    ]),
-    AllocationCalculator: new ContractVersions<AllocationCalculator>([
-        version(AllocationCalculator__factory.connect),
-    ]),
-    ExodiaRoles: new ContractVersions<ExodiaRoles>([
-        version(ExodiaRoles__factory.connect),
-    ]),
-    TreasuryManager: new ContractVersions<TreasuryManager>([
-        version(TreasuryManager__factory.connect),
-    ]),
-};*/
 
 contracts.addNetwork(Network.OPERA_MAIN_NET, mainOperaContract);
 contracts.addNetwork(Network.OPERA_TEST_NET, testNetOperaContract);
-//contracts.addNetwork(Network.HARDHAT, hardhatContracts);

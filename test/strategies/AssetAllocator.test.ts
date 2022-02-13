@@ -82,6 +82,7 @@ describe("AssetAllocator", function () {
         const { contract: roles } = await get<ExodiaRoles__factory>("ExodiaRoles");
         await roles.addArchitect(deployer);
         await roles.addStrategist(deployer);
+        await assetAllocator.addMachine(deployer);
         await assetAllocator.setARFVToken(arfv.address);
         mockStrategyFactory = await smock.mock<MockStrategy__factory>("MockStrategy");
         strategy = await mockStrategyFactory.deploy(assetAllocator.address);

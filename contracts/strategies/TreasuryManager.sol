@@ -23,7 +23,6 @@ contract TreasuryManager is ExodiaAccessControl {
     
     function manage(address _token, uint _amount) external onlyMachine onlyContract {
         IOlympusTreasury treasury = _getTreasury();
-        IAllocatedRiskFreeValue arfv = _getARFVToken();
         uint valueOfAmount = treasury.valueOf(_token, _amount);
         if(valueOfAmount > 0) {
             _addArfvToTreasury(valueOfAmount);
