@@ -37,7 +37,9 @@ contract TreasuryDepositor is ExodiaAccessControl {
     }
     /**
      * WARNING: This reduces excess reserve. If your machine looses too much money
-     * and the loss makes the excess reserve go to 0 you won't be able to rebase.
+     * and the loss makes the excess reserve go to 0 you won't be able to rebase
+     * TODO: make sure transaction does not revert if that is the case by
+     * transferring and auditing treasury
     */
     function returnWithLoss(address _token, uint _amount, uint _loss) external onlyMachine onlyContract {
         _deposit(_token, _amount - _loss);

@@ -10,25 +10,28 @@ import "./IStrategy.sol";
 import "./IAssetAllocator.sol";
 import "./IAllocationCalculator.sol";
 import "./IAllocatedRiskFreeValue.sol";
-
+import "./TreasuryManager.sol";
+import "./TreasuryDepositor.sol";
 import "hardhat/console.sol";
 
 contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
     using SafeMath for uint256;
     
-    address public immutable treasuryAddress;
-    address public arfvAddress;
+    address public treasuryManagerAddress;
+    address public treasuryDepositorAddress;
     address public allocationCalculator;
     mapping(address => uint) public allocatedTokens;
     mapping(address => uint) public lastRebalance;
     uint public minElapsedTime;
     
     constructor(
-        address _treasury, 
+        address _treasuryManager,
+        address _treasuryDepositor,
         address _allocationCalculator, 
         address _roles
     ) ExodiaAccessControl (_roles){
-        treasuryAddress = _treasury;
+        treasuryManagerAddress = _treasuryManager;
+        treasuryDepositorAddress = _treasuryDepositor;
         allocationCalculator = _allocationCalculator;
     }
 
@@ -68,8 +71,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
         (targetAllocations,) = _calculateAllocations(_token, manageable + actuallyWithdrawn - expectedToWithdraw);
         allocated += _allocateToTarget(_token, balances, targetAllocations, strategies);
         allocatedTokens[_token] = allocated;
-        _sendToTreasury(_token);
-        _burnARFV(_token, arfv, allocated);
+        _returnUnallocated(_token, arfv, allocated);
         lastRebalance[_token] = block.timestamp;
     }
     
@@ -128,90 +130,42 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
         (uint[] memory allocations, uint allocated) = _calculateAllocations(_token, manageable);
         _allocateToTarget(_token, balances, allocations, strategies);
         allocatedTokens[_token] = allocated;
-        _sendToTreasury(_token);
-        _burnARFV(_token, manageable, allocated);
+        _returnUnallocated(_token, manageable, allocated);
     }
     
     function _manage(address _token) internal returns(uint){
-        IOlympusTreasury treasury = _getTreasury();
-        IAllocatedRiskFreeValue arfv = _getARFVToken();
-        uint balance = IERC20(_token).balanceOf(treasuryAddress);
-        uint valueOfBal = treasury.valueOf(_token, balance);
-        if(valueOfBal > 0) {
-            arfv.mint(valueOfBal);
-            arfv.approve(treasuryAddress, valueOfBal);
-            treasury.deposit(valueOfBal, arfvAddress, valueOfBal);   
-        }
-        treasury.manage(_token, balance);
+        TreasuryManager treasuryManager = _getTreasuryManager();
+        uint balance = treasuryManager.balance(_token);
+        _getTreasuryManager().manage(_token, balance);
         return balance;
+    }
+    
+    function _getTreasuryManager() internal view returns (TreasuryManager){
+        return TreasuryManager(treasuryManagerAddress);
     }
     
     /**
         @notice withdraws ARFV token
         */
-    function _burnARFV(
+    function _returnUnallocated(
         address _token, 
         uint _manageable,
         uint _allocated
     ) internal {
-        IOlympusTreasury treasury = _getTreasury();
-        IAllocatedRiskFreeValue arfv = _getARFVToken();
+        uint balance = IERC20(_token).balanceOf(address(this));
+        IERC20(_token).approve(treasuryDepositorAddress, balance);
+        TreasuryDepositor(treasuryDepositorAddress).deposit(_token, balance);
         if(_manageable > _allocated){
-            uint returnedAmount = _manageable.sub(_allocated);
-            uint returnedRFV = treasury.valueOf(_token, returnedAmount);
-            treasury.manage(arfvAddress, returnedRFV);
-            arfv.burn(returnedRFV);   
+            uint loss = _manageable.sub(_allocated);
+            _getTreasuryDepositor().removeARFVFromTreasury(_token, loss);
         } else if (_manageable < _allocated){
             uint profits = _allocated.sub(_manageable);
-            uint profitsRFV = treasury.valueOf(_token, profits);
-            arfv.mint(profitsRFV);
-            arfv.transfer(treasuryAddress, profitsRFV);
-        }
-    }
-
-    function _sendToTreasury(address _token) internal {
-        uint balance = IERC20(_token).balanceOf(address(this));
-        _sendToTreasury(_token, balance);
-    }
-
-    function sendToTreasury(address _token, uint _amount) external override {
-        IERC20(_token).transferFrom(msg.sender, address(this), _amount);
-        _sendToTreasury(_token, _amount);
-    }
-
-    function _sendToTreasury(address _token, uint _amount) internal {
-        if(_hasRiskFreeValue(_token)){
-            IOlympusTreasury treasury = _getTreasury();
-            IERC20(_token).approve(treasuryAddress, _amount);
-            treasury.deposit(_amount, _token, treasury.valueOf(_token, _amount));
-        } else {
-            IERC20(_token).transfer(treasuryAddress, _amount);
+            _getTreasuryManager().addARFVToTreasury(_token, profits);
         }
     }
     
-    function getTreasury() external view returns (address){
-        return treasuryAddress;
-    }
-    
-    function _getTreasury() internal view returns(IOlympusTreasury){
-        return IOlympusTreasury(treasuryAddress);
-    }
-    
-    function _getARFVToken() internal view returns (IAllocatedRiskFreeValue){
-        return IAllocatedRiskFreeValue(arfvAddress);
-    }
-
-    function setARFVToken(address _token) external onlyArchitect {
-        arfvAddress = _token;
-    }
-
-    function hasRiskFreeValue(address _token) external view returns(bool) {
-        return _hasRiskFreeValue(_token);
-    }
-    
-    function _hasRiskFreeValue(address _token) internal view returns (bool){
-        IOlympusTreasury treasury = _getTreasury();
-        return treasury.isReserveToken(_token) || treasury.isLiquidityToken(_token);
+    function _getTreasuryDepositor() internal view returns (TreasuryDepositor){
+        return TreasuryDepositor(treasuryDepositorAddress);
     }
     
     function withdrawFromStrategy(
@@ -220,7 +174,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
         uint _amount
     ) external override onlyStrategist {
         _withdrawFromStrategy(_token, _strategy, _amount);
-        _sendToTreasury(_token, _amount);
+        _getTreasuryDepositor().deposit(_token, _amount);
     }
 
     function _withdrawFromStrategy(address _token, address _strategy, uint _amount) internal {
@@ -232,6 +186,12 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
         IStrategy strategy = IStrategy(_strategy);
         return strategy.balance(_token).mul(_amount).div(strategy.deposited(_token));
     }
+
+    function sendToTreasury(address _token, uint _amount) external {
+        IERC20(_token).transferFrom(msg.sender, address(this), _amount);
+        IERC20(_token).approve(treasuryDepositorAddress, _amount);
+        _getTreasuryDepositor().deposit(_token, _amount);
+    }
     
     function emergencyWithdrawFromStrategy(
         address[] calldata _tokens, 
@@ -241,7 +201,8 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
             address token = _tokens[i];
             allocatedTokens[token] -= IStrategy(_strategy).deposited(token);
             IStrategy(_strategy).emergencyWithdraw(token);
-            _sendToTreasury(token);
+            uint balance = IERC20(token).balanceOf(address(this));
+            _getTreasuryDepositor().deposit(token, balance);
         }
     }
 

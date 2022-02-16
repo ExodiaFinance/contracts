@@ -83,7 +83,6 @@ describe("AssetAllocator", function () {
         await roles.addArchitect(deployer);
         await roles.addStrategist(deployer);
         await assetAllocator.addMachine(deployer);
-        await assetAllocator.setARFVToken(arfv.address);
         mockStrategyFactory = await smock.mock<MockStrategy__factory>("MockStrategy");
         strategy = await mockStrategyFactory.deploy(assetAllocator.address);
         mockTokenFactory = await smock.mock<DAI__factory>("DAI");
@@ -98,13 +97,6 @@ describe("AssetAllocator", function () {
 
     beforeEach(async function () {
         await setup();
-    });
-
-    it("Should return if asset can be Deposited", async function () {
-        await toggleRights(treasury, MANAGING.LIQUIDITYTOKEN, randomAddress);
-        expect(await assetAllocator.hasRiskFreeValue(dai.address)).to.be.true;
-        expect(await assetAllocator.hasRiskFreeValue(randomAddress)).to.be.true;
-        expect(await assetAllocator.hasRiskFreeValue(deployer)).to.be.false;
     });
 
     it("Should send depositable assets to the treasury with deposit function no EXOD mint", async function () {
@@ -136,7 +128,6 @@ describe("AssetAllocator", function () {
         expect(tokenTreasuryBalance1).to.eq(depositAmount);
         const exodBalance = await exod.balanceOf(assetAllocator.address);
         expect(exodBalance).to.eq(0);
-        expect(token.transfer).to.calledWith(treasury.address, depositAmount);
     });
 
     describe("Rebalancing risk free funds", function () {
