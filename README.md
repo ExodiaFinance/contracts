@@ -9,6 +9,7 @@ A BoilerPlate Template Project To Start Solidity Development With Hardhat and Ty
 - hardhat-deploy plugin enabled (use deployments from `deploy` folder, order and tag them; multi-network)
 - hardhat console enabled - to allow console.log usage within solidity code
 - testing environment configured and operational
+- Hardhat environment has been extended to instanciate Typechain contract automatically (src/HardhatRegistryExtension)
 
 Check the Hardhat documentation for more information. 
 
@@ -22,6 +23,8 @@ We recommend installing `hh autocomplete` so you can use `hh` shorthand globally
 https://hardhat.org/guides/shorthand.html
 
 ## Usage
+
+You need NodeJS 16.
 
 1. Run `npm install`
 2. Copy `.env.example` to `.env`
@@ -53,8 +56,9 @@ Use `.env.example` file and adapt it to you values and settings.
 
 
 **Bonds**
-- **_TODO_**: What are the requirements for creating a Bond Contract?
-All LP bonds use the Bonding Calculator contract which is used to compute RFV. 
+
+Bonds use the bonding calculator only if they have risk free value. Otherwise it is not added the
+treasury as a reserve token nor liquidity token so the valueOf call on the treasury returns 0.
 
 |Contract       | Addresss                                                                                                            | Notes   |
 |:-------------:|:-------------------------------------------------------------------------------------------------------------------:|-------|
@@ -111,3 +115,16 @@ All together, returning funds should look something like this:
 ```
 treasury.deposit( address(this), amountToReturn, DAI, treasury.valueOf( DAI, amountToReturn ) );
 ```
+## Creating a new contract
+
+To avoid mistakes and help strengthen naming convention of contracts we added typescript support to the deploy and get function
+from the hardhat-deploy extension. It will also automatically instanciante the Typechain instance to help speed up dev.
+This requires a few changes in the code for every new contract you want to add.
+
+1. Create one contract per file. The name of the file must be the name of your contract
+2. Compile the contracts to generate the Typechain bindings
+3. Add your contract to the interface in IExodiaContractsRegistry `src/contracts/exodiaContracts.ts`. The name of the attribute MUST be the same than your contract name.
+4. Add the typechain factory for you contracts in `const mainOperaContract` and `const testNetOperaContract`
+5. Write the deployment file for the contract. For example: `deploy/04_setVault.ts`
+6. Write the tests for your contract using the hardhat-deploy fixtures. The name of your test must be the same than your contract. For example: `test/bonds/AbsorptionBondDepository.test.ts`
+
