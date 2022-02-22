@@ -34,7 +34,7 @@ contract ChainlinkPriceOracle is IPriceOracle, Initializable, Ownable {
         _amountOut = _divide(_feedPrice(_feed), _feedPrice(BASE_PRICE_FEED), decimals);
     }
 
-    function setOutputDecimals(uint8 _decimals) public onlyOwner whenInitialized {
+    function setOutputDecimals(uint8 _decimals) public onlyOwner onlyInitializing {
         uint8 _old = _decimals;
         decimals = _decimals;
         emit OutputDecimalsUpdated(_old, _decimals);

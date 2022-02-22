@@ -35,4 +35,9 @@ interface IBalV2PriceOracle {
     external
     view
     returns (uint256[] memory results);
+
+    /**
+     * @dev Returns latest sample of `variable`. Prices are represented as 18 decimal fixed point values.
+     */
+    function getLatest(TWAP_VALUE variable) external view returns (uint256);
 }
