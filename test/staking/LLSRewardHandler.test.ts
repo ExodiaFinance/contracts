@@ -101,6 +101,16 @@ describe("LLSRewardHandler", function () {
         expect(allocation1).to.equal(shares.mul(2).add(allocation0));
     });
 
+    it("Should decrease totalAlloc by delta alloc", async function () {
+        await rewardHandler.setStakingContract(deployer);
+        const allocation0 = await rewardHandler.totalAllocPoint();
+        const shares = parseUnits("1", "ether");
+        await rewardHandler.updateShares(0, shares.mul(10));
+        await rewardHandler.updateShares(0, shares.mul(2));
+        const allocation1 = await rewardHandler.totalAllocPoint();
+        expect(allocation1).to.equal(shares.mul(2).add(allocation0));
+    });
+
     it("Should deposit reward tokens and increase multiplier", async function () {
         const deployerBal0 = await wsexod.balanceOf(deployer);
         await wsexod.approve(rewardHandler.address, deployerBal0);
