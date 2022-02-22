@@ -32,21 +32,16 @@ const deployAssetAllocator: IExtendedDeployFunction<IExodiaContractsRegistry> = 
         "AllocationCalculator"
     );
     const { contract: roles } = await get<ExodiaRoles__factory>("ExodiaRoles");
-    const { contract: treasuryManager } = await get<TreasuryManager__factory>(
-        "TreasuryManager"
-    );
     const { contract: depositor } = await get<TreasuryManager__factory>(
         "TreasuryDepositor"
     );
     const { contract: assetAllocator, deployment } =
         await deploy<AssetAllocator__factory>("AssetAllocator", [
-            treasuryManager.address,
             depositor.address,
             allocCalc.address,
             roles.address,
         ]);
     if (deployment?.newlyDeployed) {
-        await treasuryManager.addMachine(assetAllocator.address);
         await depositor.addMachine(assetAllocator.address);
     }
     log("Asset Allocator", assetAllocator.address);

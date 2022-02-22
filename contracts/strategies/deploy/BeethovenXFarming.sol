@@ -5,7 +5,11 @@ import "../MasterChefStrategy.sol";
 
 contract BeethovenXFarming is MasterChefStrategy {
     
-    constructor(address _masterChef, address _rewardToken, address _allocator) 
-        MasterChefStrategy(_masterChef, _rewardToken, _allocator){}
+    constructor(
+        address _masterChef, 
+        address _rewardToken, 
+        address _allocator,
+        address _roles
+    ) MasterChefStrategy(_masterChef, _rewardToken, _allocator, _roles){}
     
 }
