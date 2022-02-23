@@ -2,8 +2,6 @@
 pragma solidity ^0.8.10;
 
 interface IPriceOracle {
-    function initialize(address, uint256) external;
-
     function getSafePrice(address token) external view returns (uint256 _amountOut);
 
     function getCurrentPrice(address token) external view returns (uint256 _amountOut);

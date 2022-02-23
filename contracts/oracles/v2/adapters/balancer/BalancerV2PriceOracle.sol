@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "../../../../ExodiaAccessControlUpgradeable.sol";
 
 import "../../IPriceOracle.sol";
 import "../../../interfaces/IBalV2PriceOracle.sol";
@@ -12,7 +12,7 @@ import "../../../../interfaces/IBPoolV2.sol";
 import "../../../../interfaces/IBVaultV2.sol";
 import "../../../../interfaces/IERC20.sol";
 
-contract BalancerV2PriceOracle is IPriceOracle, Initializable, Ownable {
+contract BalancerV2PriceOracle is IPriceOracle, ExodiaAccessControlUpgradeable {
     using SafeMath for uint256;
 
     uint256 public constant VERSION = 2022022201;
@@ -30,17 +30,19 @@ contract BalancerV2PriceOracle is IPriceOracle, Initializable, Ownable {
 
     /**
      * @dev sets up the Price Oracle
+     * @param _roles exodia roles address
      * @param _vault balancer vault address
      * @param _minimumUpdateInterval how often to permit updates to the TWAP (seconds)
      *                               If set to 0, will use the default of 5 minutes
      */
-    function initialize(address _vault, uint256 _minimumUpdateInterval)
+    function initialize(address _roles, address _vault, uint256 _minimumUpdateInterval)
         public
         initializer
     {
+        require(_roles != address(0), "roles cannot be null address");
         require(_vault != address(0), "vault cannot be null address");
 
-        _transferOwnership(_msgSender());
+        roles = ExodiaRoles(_roles);
         vault = _vault;
         if (_minimumUpdateInterval != 0) {
             minimumUpdateInterval = _minimumUpdateInterval;
@@ -54,7 +56,7 @@ contract BalancerV2PriceOracle is IPriceOracle, Initializable, Ownable {
         address _token,
         address _tokenPool,
         address _denominatedOracle
-    ) external onlyOwner onlyInitializing {
+    ) external onlyArchitect {
         bytes32 poolId = IBPoolV2(_tokenPool).getPoolId();
         (IERC20[] memory tokens, , ) = IBVaultV2(vault).getPoolTokens(poolId);
 

@@ -31,7 +31,7 @@ contract ChainlinkRegistry is IChainlinkRegistry, Initializable, Ownable {
         address asset,
         string memory symbol,
         bool lookupSymbol
-    ) public onlyOwner onlyInitializing {
+    ) public onlyOwner {
         require(!feeds.contains(feed), "ChainlinkRegistry: feed already exists");
         require(
             AggregatorV3Interface(feed).version() != 0 &&
@@ -125,7 +125,7 @@ contract ChainlinkRegistry is IChainlinkRegistry, Initializable, Ownable {
         decimals = _getDecimals(info.feed);
     }
 
-    function remove(address feed) public onlyOwner onlyInitializing {
+    function remove(address feed) public onlyOwner {
         require(feeds.contains(feed), "ChainlinkRegistry: feed does not exist");
 
         uint256 index = feedByFeed[feed];
