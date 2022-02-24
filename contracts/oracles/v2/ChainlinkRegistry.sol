@@ -31,7 +31,8 @@ contract ChainlinkRegistry is IChainlinkRegistry, Initializable, Ownable {
         address asset,
         string memory symbol,
         bool lookupSymbol
-    ) public onlyOwner whenInitialized {
+    ) public onlyOwner {
+        require(_initialized, "ChainlinkRegistry: contract is not initialized");
         require(!feeds.contains(feed), "ChainlinkRegistry: feed already exists");
         require(
             AggregatorV3Interface(feed).version() != 0 &&
