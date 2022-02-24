@@ -2,8 +2,8 @@
 pragma solidity ^0.8.10;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import "../../librairies/Initializable.sol";
 import "./IPriceOracle.sol";
 
 contract ChainlinkPriceOracle is IPriceOracle, Initializable, Ownable {
@@ -34,8 +34,7 @@ contract ChainlinkPriceOracle is IPriceOracle, Initializable, Ownable {
         _amountOut = _divide(_feedPrice(_feed), _feedPrice(BASE_PRICE_FEED), decimals);
     }
 
-    function setOutputDecimals(uint8 _decimals) public onlyOwner {
-        require(_initialized, "ChainLinkPriceOracle: contract is not initialized");
+    function setOutputDecimals(uint8 _decimals) public onlyOwner whenInitialized {
         uint8 _old = _decimals;
         decimals = _decimals;
         emit OutputDecimalsUpdated(_old, _decimals);
