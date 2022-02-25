@@ -51,36 +51,36 @@ contract YearnV2Strategy is IStrategy, Policy {
         deposited[_token] += balance;
     }
 
-    function withdraw(address _token, uint _amount) external override onlyAssetAllocator returns(uint){
-        return _withdraw(_token, _amount);
+    function withdrawTo(address _token, uint _amount, address _to) external override onlyAssetAllocator returns(uint){
+        return _withdrawTo(_token, _amount, _to);
     }
 
-    function _withdraw(address _token, uint _amount) internal returns (uint){
+    function _withdrawTo(address _token, uint _amount, address _to) internal returns (uint){
         address vault = _getVault(_token);
         uint amountOfShares = _amountToShares(_token, _amount);
         uint withdrawnAmount = IVault(vault).withdraw(amountOfShares);
-        IERC20(_token).transfer(allocator, _amount);
+        IERC20(_token).transfer(_to, _amount);
         deposited[_token] -= _amount;
         return withdrawnAmount;
     }
     
-    function emergencyWithdraw(address _token) external override returns (uint){
+    function emergencyWithdrawTo(address _token, address _to) external override returns (uint){
         uint withdrawnAmount = IVault(_getVault(_token)).withdraw();
-        _sendToTreasury(_token);
+        _sendTo(_token, _to);
         deposited[_token] = 0;
         return withdrawnAmount;
     }
 
-    function collectProfits(address _token) external override returns (int){
+    function collectProfits(address _token, address _to) external override returns (int){
         uint balance = balance(_token);
         uint deposit = deposited[_token];
         if (balance > deposit){
-            return int(_withdraw(_token, balance - deposit));
+            return int(_withdrawTo(_token, balance - deposit, _to));
         }
         return int(balance) - int(deposit);
     }
 
-    function collectRewards(address _token) external override {
+    function collectRewards(address _token, address _to) external override {
         // This farm compounds rewards into the base token
     }
 
@@ -98,11 +98,11 @@ contract YearnV2Strategy is IStrategy, Policy {
             .div(vault.pricePerShare());
     }
     
-    function sendToTreasury(address _token) external onlyPolicy {
-        _sendToTreasury(_token);
+    function sendTo(address _token, address _to) external onlyPolicy {
+        _sendTo(_token, _to);
     }
 
-    function _sendToTreasury(address _token) internal {
+    function _sendTo(address _token, address _to) internal {
         IERC20 token = IERC20(_token);
         uint balance = token.balanceOf(address(this));
         token.approve(allocator, balance);

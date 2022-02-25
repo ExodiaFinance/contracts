@@ -8,6 +8,7 @@ import "./IStrategy.sol";
 import "./IAssetAllocator.sol";
 
 import "hardhat/console.sol";
+import "../ExodiaAccessControl.sol";
 
 // Info of each user.
 struct UserInfo {
@@ -44,7 +45,7 @@ interface IMasterchef {
     function emergencyWithdraw(uint256 _pid, address _to) external;
 }
 
-contract MasterChefStrategy is IStrategy, Policy {
+contract MasterChefStrategy is IStrategy, ExodiaAccessControl {
     
     mapping(address => uint) tokenFarmPid;
     mapping(address => uint) public override deposited;
@@ -53,7 +54,12 @@ contract MasterChefStrategy is IStrategy, Policy {
     address rewardToken;
     address allocator;
     
-    constructor(address _masterChef, address _rewardToken, address _allocator){
+    constructor(
+        address _masterChef, 
+        address _rewardToken, 
+        address _allocator,
+        address _roles
+    ) ExodiaAccessControl(_roles) {
         masterChef = _masterChef;
         rewardToken = _rewardToken;
         allocator = _allocator;
@@ -67,7 +73,7 @@ contract MasterChefStrategy is IStrategy, Policy {
         return tokenFarmPid[_token];
     }
     
-    function setPid(address _token, uint _pid) external onlyPolicy {
+    function setPid(address _token, uint _pid) external onlyStrategist {
         require(IMasterchef(masterChef).lpTokens(_pid) == _token, "MCS: PID does not match token");
         tokenFarmPid[_token] = _pid;
     }
@@ -81,42 +87,40 @@ contract MasterChefStrategy is IStrategy, Policy {
         deposited[_token] += balance;
     }
     
-    function withdraw(address _token, uint _amount) external override onlyAssetAllocator returns (uint) {
+    function withdrawTo(address _token, uint _amount, address _to) external override onlyMachine returns (uint) {
         uint pid = _getPid(_token);
         IMasterchef(masterChef).withdrawAndHarvest(pid, _amount, address(this));
-        _sendToTreasury(rewardToken);
-        IERC20(_token).transfer(allocator, _amount);
+        _sendTo(rewardToken, _to);
+        IERC20(_token).transfer(_to, _amount);
         deposited[_token] -= _amount;
         return _amount;
     }
 
-    function emergencyWithdraw(address _token) external override returns (uint) {
+    function emergencyWithdrawTo(address _token, address _to) external override returns (uint) {
         IMasterchef(masterChef).emergencyWithdraw(_getPid(_token), address(this));
         uint balance = IERC20(_token).balanceOf(address(this));
-        _sendToTreasury(_token, balance);
+        _sendTo(_token, balance, _to);
         deposited[_token] = 0;
         return balance;
     }
 
-    function collectProfits(address _token) external override returns (int){
+    function collectProfits(address _token, address _to) external override returns (int){
         // This farm creates yields from the reward token
         return 0;
     }
     
-    function collectRewards(address[] calldata _tokens) external {
+    function collectRewards(address[] calldata _tokens, address _to) external {
         for(uint i = 0; i < _tokens.length; i++){
-            _collectRewards(_tokens[i]);
+            uint pid = _getPid(_tokens[i]);
+            IMasterchef(masterChef).harvest(pid, address(this));
         }
+        _sendTo(rewardToken, _to);
     }
     
-    function collectRewards(address _token) external override {
-        _collectRewards(_token);
-    }
-
-    function _collectRewards(address _token) internal {
+    function collectRewards(address _token, address _to) external override {
         uint pid = _getPid(_token);
         IMasterchef(masterChef).harvest(pid, address(this));
-        _sendToTreasury(rewardToken);
+        _sendTo(rewardToken, _to);
     }
     
     function balance(address _token) external view override returns(uint256){
@@ -128,18 +132,17 @@ contract MasterChefStrategy is IStrategy, Policy {
         return IMasterchef(masterChef).userInfo(pid, address(this)).amount;
     }
     
-    function sendToTreasury(address _token) external onlyPolicy {
-        _sendToTreasury(_token);
+    function sendTo(address _token, address _to) external onlyPolicy {
+        _sendTo(_token, _to);
     }
     
-    function _sendToTreasury(address _token) internal {
+    function _sendTo(address _token, address _to) internal {
         uint balance = IERC20(_token).balanceOf(address(this));
-        _sendToTreasury(_token, balance);
+        _sendTo(_token, balance, _to);
     }
     
-    function _sendToTreasury(address _token, uint _amount) internal{
-        IERC20(_token).approve(allocator, _amount);
-        IAssetAllocator(allocator).sendToTreasury(_token, _amount);
+    function _sendTo(address _token, uint _amount, address _to) internal{
+        IERC20(_token).transfer(_to, _amount);
     }
 
     modifier onlyAssetAllocator() {

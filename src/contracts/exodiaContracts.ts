@@ -17,6 +17,8 @@ import {
     Distributor__factory,
     ExodiaRoles,
     ExodiaRoles__factory,
+    Farmer,
+    Farmer__factory,
     FBEETSBondDepository,
     FBEETSBondDepository__factory,
     FBEETSPriceOracle,
@@ -138,6 +140,7 @@ export interface IExodiaContractsRegistry {
     TreasuryManager: ContractVersions<TreasuryManager>;
     TreasuryDepositor: ContractVersions<TreasuryDepositor>;
     BalancerV2PriceOracle: ContractVersions<BalancerV2PriceOracle>;
+    Farmer: ContractVersions<Farmer>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -326,6 +329,7 @@ const mainOperaContract: IExodiaContractsRegistry = {
     BalancerV2PriceOracle: new ContractVersions<BalancerV2PriceOracle>([
         version(BalancerV2PriceOracle__factory.connect),
     ]),
+    Farmer: new ContractVersions<Farmer>([version(Farmer__factory.connect)]),
 };
 
 const testNetOperaContract: IExodiaContractsRegistry = {
@@ -462,6 +466,7 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     BalancerV2PriceOracle: new ContractVersions<BalancerV2PriceOracle>([
         version(BalancerV2PriceOracle__factory.connect),
     ]),
+    Farmer: new ContractVersions<Farmer>([version(Farmer__factory.connect)]),
 };
 
 contracts.addNetwork(Network.OPERA_MAIN_NET, mainOperaContract);

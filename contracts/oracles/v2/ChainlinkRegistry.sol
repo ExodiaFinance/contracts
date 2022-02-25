@@ -5,7 +5,7 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "../../librairies/Initializable.sol";
 import "./IChainlinkRegistry.sol";
 
 contract ChainlinkRegistry is IChainlinkRegistry, Initializable, Ownable {
@@ -31,7 +31,7 @@ contract ChainlinkRegistry is IChainlinkRegistry, Initializable, Ownable {
         address asset,
         string memory symbol,
         bool lookupSymbol
-    ) public onlyOwner {
+    ) public onlyOwner whenInitialized{
         require(!feeds.contains(feed), "ChainlinkRegistry: feed already exists");
         require(
             AggregatorV3Interface(feed).version() != 0 &&
