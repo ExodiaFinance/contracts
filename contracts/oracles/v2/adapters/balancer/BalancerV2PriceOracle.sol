@@ -42,7 +42,8 @@ contract BalancerV2PriceOracle is IPriceOracle, ExodiaAccessControlUpgradeable {
         require(_roles != address(0), "roles cannot be null address");
         require(_vault != address(0), "vault cannot be null address");
 
-        roles = ExodiaRoles(_roles);
+        __ExodiaAccessControl__init(_roles);
+
         vault = _vault;
         if (_minimumUpdateInterval != 0) {
             minimumUpdateInterval = _minimumUpdateInterval;

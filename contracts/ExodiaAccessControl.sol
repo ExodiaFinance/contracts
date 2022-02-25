@@ -13,6 +13,6 @@ import "./ExodiaAccessControlUpgradeable.sol";
  */
 abstract contract ExodiaAccessControl is ExodiaAccessControlUpgradeable {
     constructor(address _roles){
-        initialize(_roles);
+        __ExodiaAccessControl__init(_roles);
     }
 }

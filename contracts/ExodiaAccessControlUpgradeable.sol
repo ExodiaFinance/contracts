@@ -16,9 +16,9 @@ abstract contract ExodiaAccessControlUpgradeable is Initializable {
     ExodiaRoles public roles;
     mapping(address => bool) machines;
     
-    function initialize(address _roles)
-        public
-        initializer
+    function __ExodiaAccessControl__init(address _roles)
+        internal
+        onlyInitializing
     {
         roles = ExodiaRoles(_roles);
     }
