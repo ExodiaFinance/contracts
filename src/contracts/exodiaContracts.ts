@@ -33,6 +33,8 @@ import {
     LLSRewardHandler__factory,
     MasterchefBalanceAdapter,
     MasterchefBalanceAdapter__factory,
+    MasterLock,
+    MasterLock__factory,
     OHMCirculatingSupplyContract,
     OHMCirculatingSupplyContract__factory,
     OlympusBondDepository,
@@ -123,6 +125,7 @@ export interface IExodiaContractsRegistry {
     BPTMNLTPriceOracle: ContractVersions<BPTMNLTPriceOracle>;
     GOHMBondDepository: ContractVersions<GOHMBondDepository>;
     GOHMPriceOracle: ContractVersions<GOHMPriceOracle>;
+    MasterLock: ContractVersions<MasterLock>;
     LiquidLockStaking: ContractVersions<LiquidLockStaking>;
     LLSRewardHandler: ContractVersions<LLSRewardHandler>;
     BPTMNLTBondDepository: ContractVersions<BPTMNLTBondDepository>;
@@ -238,6 +241,7 @@ const mainOperaContract: IExodiaContractsRegistry = {
             "0xcf69Ba319fF0F8e2481dE13d16CE7f74b063533E"
         ),
     ]),
+    MasterLock: new ContractVersions<MasterLock>([version(MasterLock__factory.connect)]),
     LiquidLockStaking: new ContractVersions<LiquidLockStaking>([
         version(LiquidLockStaking__factory.connect),
     ]),
@@ -412,6 +416,7 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     GOHMBondDepository: new ContractVersions<GOHMBondDepository>([
         version(GOHMBondDepository__factory.connect),
     ]),
+    MasterLock: new ContractVersions<MasterLock>([version(MasterLock__factory.connect)]),
     LiquidLockStaking: new ContractVersions<LiquidLockStaking>([
         version(LiquidLockStaking__factory.connect),
     ]),

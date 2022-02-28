@@ -3,19 +3,19 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "../../../../ExodiaAccessControlUpgradeable.sol";
+import "../../../../ExodiaAccessControlInitializable.sol";
 
 import "../../IPriceOracle.sol";
 import "../../../interfaces/IBalV2PriceOracle.sol";
-import "../../../interfaces/AggregatorV3Interface.sol";
 import "../../../../interfaces/IBPoolV2.sol";
 import "../../../../interfaces/IBVaultV2.sol";
 import "../../../../interfaces/IERC20.sol";
 
-contract BalancerV2PriceOracle is IPriceOracle, ExodiaAccessControlUpgradeable {
+contract BalancerV2PriceOracle is IPriceOracle, ExodiaAccessControlInitializable {
     using SafeMath for uint256;
 
     uint256 public constant VERSION = 2022022201;
+    address public constant FTM = address(0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83);
 
     address public vault;
     uint256 public minimumUpdateInterval = 5 minutes;
@@ -35,10 +35,11 @@ contract BalancerV2PriceOracle is IPriceOracle, ExodiaAccessControlUpgradeable {
      * @param _minimumUpdateInterval how often to permit updates to the TWAP (seconds)
      *                               If set to 0, will use the default of 5 minutes
      */
-    function initialize(address _roles, address _vault, uint256 _minimumUpdateInterval)
-        public
-        initializer
-    {
+    function initialize(
+        address _roles,
+        address _vault,
+        uint256 _minimumUpdateInterval
+    ) public initializer {
         require(_roles != address(0), "roles cannot be null address");
         require(_vault != address(0), "vault cannot be null address");
 
@@ -95,23 +96,23 @@ contract BalancerV2PriceOracle is IPriceOracle, ExodiaAccessControlUpgradeable {
             .getTimeWeightedAverage(query);
         uint256 tokenPairPrice = prices[0];
 
-        int256 denominatedTokenPrice = AggregatorV3Interface(denominatedOracles[_token])
-            .latestAnswer();
-        uint8 denominatedTokenPriceDecimals = AggregatorV3Interface(
-            denominatedOracles[_token]
-        ).decimals();
         bytes32 poolId = IBPoolV2(tokenPools[_token]).getPoolId();
         (IERC20[] memory tokens, , ) = IBVaultV2(vault).getPoolTokens(poolId);
 
         if (_token == address(tokens[0])) {
             price =
-                (uint256(denominatedTokenPrice) * (10**36)) /
-                tokenPairPrice /
-                (10**denominatedTokenPriceDecimals);
+                (_denominatedTokenPrice(
+                    IPriceOracle(denominatedOracles[_token]),
+                    tokens[1]
+                ) * (10**18)) /
+                tokenPairPrice;
         } else if (_token == address(tokens[1])) {
             price =
-                (uint256(denominatedTokenPrice) * tokenPairPrice) /
-                (10**denominatedTokenPriceDecimals);
+                (_denominatedTokenPrice(
+                    IPriceOracle(denominatedOracles[_token]),
+                    tokens[0]
+                ) * tokenPairPrice) /
+                (10**18);
         }
     }
 
@@ -124,39 +125,29 @@ contract BalancerV2PriceOracle is IPriceOracle, ExodiaAccessControlUpgradeable {
             "UNSUPPORTED"
         );
 
-        int256 denominatedTokenPrice = AggregatorV3Interface(denominatedOracles[_token])
-            .latestAnswer();
-        uint8 denominatedTokenPriceDecimals = AggregatorV3Interface(
-            denominatedOracles[_token]
-        ).decimals();
-
         bytes32 poolId = IBPoolV2(tokenPools[_token]).getPoolId();
         uint256[] memory weights = IBPoolV2(tokenPools[_token]).getNormalizedWeights();
         (IERC20[] memory tokens, uint256[] memory balances, ) = IBVaultV2(vault)
             .getPoolTokens(poolId);
 
         if (_token == address(tokens[0])) {
-            // price = balance1 / balance0 * weight0 / weight1 * usdPrice1
-            // in denominated token price decimals
-            uint256 assetValue = (balances[1] * uint256(denominatedTokenPrice)) /
-                (10**tokens[1].decimals());
-            // in denominated token price decimals
-            uint256 tokenPrice = (assetValue * weights[0] * (10**tokens[0].decimals())) /
-                weights[1] /
-                balances[0];
-
-            price = (tokenPrice * (10**18)) / (10**denominatedTokenPriceDecimals);
+            price = _tokenPriceFromWeights(
+                tokens[0],
+                tokens[1],
+                balances[0],
+                balances[1],
+                weights[0],
+                weights[1]
+            );
         } else if (_token == address(tokens[1])) {
-            // price = balance0 / balance1 * weight1 / weight0 * usdPrice0
-            // in denominated token price decimals
-            uint256 assetValue = (balances[0] * uint256(denominatedTokenPrice)) /
-                (10**tokens[0].decimals());
-            // in denominated token price decimals
-            uint256 tokenPrice = (assetValue * weights[1] * (10**tokens[1].decimals())) /
-                weights[0] /
-                balances[1];
-
-            price = (tokenPrice * (10**18)) / (10**denominatedTokenPriceDecimals);
+            price = _tokenPriceFromWeights(
+                tokens[1],
+                tokens[0],
+                balances[1],
+                balances[0],
+                weights[1],
+                weights[0]
+            );
         }
     }
 
@@ -165,5 +156,42 @@ contract BalancerV2PriceOracle is IPriceOracle, ExodiaAccessControlUpgradeable {
      */
     function updateSafePrice(address _token) external returns (uint256) {
         return getSafePrice(_token);
+    }
+
+    // internal functions
+
+    function _denominatedTokenPrice(IPriceOracle oracle, IERC20 token)
+        internal
+        view
+        returns (uint256 price)
+    {
+        price = 10**18;
+        if (FTM != address(token)) {
+            price = IPriceOracle(oracle).getSafePrice(address(token));
+        }
+    }
+
+    /**
+     * @dev return token price (token0/token1)
+     */
+    function _tokenPriceFromWeights(
+        IERC20 token0,
+        IERC20 token1,
+        uint256 balance0,
+        uint256 balance1,
+        uint256 weight0,
+        uint256 weight1
+    ) internal view returns (uint256) {
+        uint256 pairTokenPrice = _denominatedTokenPrice(
+            IPriceOracle(denominatedOracles[address(token0)]),
+            token1
+        );
+
+        // price = balance1 / balance0 * weight0 / weight1 * usdPrice1
+
+        // in denominated token price decimals
+        uint256 assetValue = (balance1 * pairTokenPrice) / (10**token1.decimals());
+        // in denominated token price decimals
+        return (assetValue * weight0 * (10**token0.decimals())) / weight1 / balance0;
     }
 }
