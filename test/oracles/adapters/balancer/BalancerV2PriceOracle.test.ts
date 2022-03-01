@@ -1,15 +1,15 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
+import axios from "axios";
 import { expect } from "chai";
 import hre from "hardhat";
-import axios from "axios";
 
 import { EXODIA_ROLES_DID } from "../../../../deploy/38_deployExodiaRoles";
 import { BALANCER_V2_PRICE_ORACLE_DID } from "../../../../deploy/41_deployBalancerV2PriceOracle";
+import { externalAddressRegistry } from "../../../../src/contracts";
 import {
     IExodiaContractsRegistry,
     IExternalContractsRegistry,
 } from "../../../../src/contracts/exodiaContracts";
-import { externalAddressRegistry } from "../../../../src/contracts";
 import { IExtendedHRE } from "../../../../src/HardhatRegistryExtension/ExtendedHRE";
 import { ZERO_ADDRESS } from "../../../../src/utils";
 import {
@@ -228,7 +228,7 @@ describe("Balancer V2 Price Oracle", function () {
             });
         });
 
-        describe.only("After token oracle setting: wsSCR-DAI", function () {
+        describe("After token oracle setting: wsSCR-DAI", function () {
             beforeEach(async function () {
                 const ChainlinkPriceOracle = await xhre.ethers.getContractFactory(
                     "ChainlinkPriceOracle"
