@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../IStrategy.sol";
 import "../../mocks/MockERC20.sol";
+import "hardhat/console.sol";
 
 contract MockWinningStrategy is IStrategy{
 
@@ -24,10 +25,6 @@ contract MockWinningStrategy is IStrategy{
     }
 
     function withdrawTo(address _token, uint _amount, address _to) external override returns (uint) {
-        int roi = int(balance(_token)) - int(depositedAmounts[_token]);
-        if (int(_amount) > roi) {
-            depositedAmounts[_token] = uint(int(depositedAmounts[_token])-(int(_amount) - roi));
-        }
         _mintProfits(_token);
         IERC20(_token).transfer(_to, _amount);
         depositedAmounts[_token] = IERC20(_token).balanceOf(address(this));

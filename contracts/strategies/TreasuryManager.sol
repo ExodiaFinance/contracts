@@ -53,7 +53,9 @@ contract TreasuryManager is ExodiaAccessControl {
     
     function addARFVToTreasury(address _token, uint _amount) external onlyMachine onlyContract returns (uint) {
         uint valueOfAmount = _getTreasury().valueOf(_token, _amount);
-        _addArfvToTreasury(valueOfAmount);
+        if(valueOfAmount > 0){
+            _addArfvToTreasury(valueOfAmount);
+        }
         return valueOfAmount;
     }
     

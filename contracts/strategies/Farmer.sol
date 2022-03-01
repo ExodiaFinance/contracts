@@ -50,30 +50,34 @@ contract Farmer is ExodiaAccessControl{
     }
     
     function _work(address _token) internal {
-        uint limit = _getLimit(_token);
+        IERC20 token = IERC20(_token);
+        (uint target, int delta) = _getTargetAllocation(_token);
+        if(delta > 0) {
+            _getTreasuryManager().manage(_token, uint(delta));   
+        }
+        token.approve(address(allocator), target);
+        uint balance = allocator.rebalance(_token, target);
         uint allocated = farmingData[_token].allocated;
-        if (allocated > limit) {
-            allocator.rebalance(_token, limit);
-            uint expectedToWithdraw = allocated - limit;
-            uint withdrawn = IERC20(_token).balanceOf(address(this));
-            IERC20(_token).approve(treasuryDepositorAddress, withdrawn);
-            if (withdrawn > expectedToWithdraw){
-                _getTreasuryDepositor().returnWithProfits(_token, expectedToWithdraw, withdrawn - expectedToWithdraw);
-            } else if (withdrawn < expectedToWithdraw) {
-                _getTreasuryDepositor().returnWithLoss(_token, expectedToWithdraw, expectedToWithdraw - withdrawn);
+        int pnl = int(target) - delta - int(allocated);
+        int slippage = int(target) - int(balance);
+        _syncPNLWithTreasury(_token, pnl - slippage);
+        if (delta < 0) { // Reduced allocation
+            uint withdrawn = uint(delta*-1);
+            if(slippage > 0) {
+                _getTreasuryDepositor().returnWithLoss(_token, withdrawn, uint(slippage));
+            } else if(slippage < 0){
+                _getTreasuryDepositor().returnWithProfits(_token, withdrawn, uint(slippage * -1));
             } else {
-                _getTreasuryDepositor().returnFunds(_token, expectedToWithdraw);
+                _getTreasuryDepositor().returnFunds(_token, withdrawn);
             }
-        } else {
-            _getTreasuryManager().manage(_token, limit - allocated);
-            allocator.rebalance(_token, limit);
-        }       
+        }  
+        farmingData[_token].allocated = balance;
     }
     
-    function _getLimit(address _token) internal view returns(uint){
+    function _getTargetAllocation(address _token) internal view returns(uint, int){
         FarmingData storage limit = farmingData[_token];
         uint balance = _getTreasuryManager().balance(_token);
-        uint allocated = farmingData[_token].allocated;
+        uint allocated = allocator.allocatedBalance(_token);
         uint amount = (balance + allocated) * limit.relativeLimit / 100_000;
         if (amount > balance - limit.reserves){
             amount = balance - limit.reserves;
@@ -81,11 +85,21 @@ contract Farmer is ExodiaAccessControl{
         if (limit.max > 0 && amount > limit.max){
             amount = limit.max;
         }
-        return amount;
+        int delta = int(amount) - int(allocated) ;
+        return (amount, delta);
+    }
+    
+    function _syncPNLWithTreasury(address _token, int pnl) internal {
+        if(pnl > 0){
+            _getTreasuryManager().addARFVToTreasury(_token, uint(pnl));
+        } else if (pnl < 0) {
+            _getTreasuryDepositor().removeARFVFromTreasury(_token, uint(pnl*-1));
+        }
     }
     
     function getLimit(address _token) external view returns(uint){
-        return _getLimit(_token);
+        (uint limit,) = _getTargetAllocation(_token);
+        return limit;
     }
     
     function setLimit(address _token, uint _relativeLimit, uint _max) external onlyStrategist {

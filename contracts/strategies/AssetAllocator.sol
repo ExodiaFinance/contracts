@@ -45,9 +45,12 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
         address[] memory strategies = _getStrategies(_token);
         (uint allocatedBalance, uint[] memory balances) = _balance(_token, strategies);
         (uint[] memory targetAllocations,) = _calculateAllocations(_token, _amount);
-        (uint actuallyWithdrawn, uint expectedToWithdraw, uint allocated) = _withdrawTargetExcess(_token, balances, targetAllocations, strategies);
-        (targetAllocations,) = _calculateAllocations(_token, _amount + actuallyWithdrawn - expectedToWithdraw);
-        allocated += _allocateToTarget(_token, balances, targetAllocations, strategies);
+        (uint available, uint expected, uint allocated) = _withdrawTargetExcess(_token, balances, targetAllocations, strategies);
+        if(_amount > allocatedBalance){
+            available = _amount - allocatedBalance + available;
+            expected = _amount - allocatedBalance + expected;
+        }
+        allocated += _allocateToTarget(_token, balances, targetAllocations, strategies, available, expected);
         return allocated;
     }
     
@@ -75,12 +78,18 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
         address _token,
         uint[] memory _balances,
         uint[] memory _targetAllocations,
-        address[] memory _strategies
+        address[] memory _strategies,
+        uint _actual,
+        uint _expected
     ) internal returns (uint){
         uint allocated = 0;
         for(uint i = 0; i < _strategies.length; i++){
             if(_balances[i] < _targetAllocations[i]){
                 uint amount = _targetAllocations[i] - _balances[i];
+                if(_actual != _expected){
+                    // Adjust amount for slippage
+                    amount = _actual * amount / _expected;
+                }
                 allocated += _balances[i] + amount;
                 address strategyAddress = _strategies[i];
                 IERC20(_token).transferFrom(msg.sender, strategyAddress, amount);
@@ -102,7 +111,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
         address[] memory strategies = _getStrategies(_token);
         (, uint[] memory balances) = _deposits(_token, strategies);
         (uint[] memory allocations, uint allocated) = _calculateAllocations(_token, _amount);
-        _allocateToTarget(_token, balances, allocations, strategies);
+        _allocateToTarget(_token, balances, allocations, strategies,0,0);
     }
     
     function _getTreasuryDepositor() internal view returns (TreasuryDepositor){

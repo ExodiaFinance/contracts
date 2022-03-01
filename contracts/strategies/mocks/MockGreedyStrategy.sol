@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../IStrategy.sol";
 
+import "hardhat/console.sol";
 
 //This strategy does not return all the funds to simulate slippage
 contract MockGreedyStrategy is IStrategy{
@@ -18,7 +19,7 @@ contract MockGreedyStrategy is IStrategy{
     }
 
     function deploy(address _token) external override {
-        depositedAmounts[_token] += IERC20(_token).balanceOf(address(this));
+        depositedAmounts[_token] = IERC20(_token).balanceOf(address(this));
     }
 
     function withdrawTo(address _token, uint _amount, address _to) external override returns (uint) {
