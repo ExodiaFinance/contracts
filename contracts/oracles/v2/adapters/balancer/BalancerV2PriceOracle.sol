@@ -19,7 +19,7 @@ contract BalancerV2PriceOracle is IPriceOracle, ExodiaAccessControlInitializable
 
     address public vault;
     uint256 public minimumUpdateInterval = 5 minutes;
-    mapping(address => address) public denominatedOracles; // token => denominated oracle
+    mapping(address => IPriceOracle) public denominatedOracles; // token => denominated oracle
     mapping(address => address) public tokenPools; // token => balancer pool
 
     event SetTokenOracle(
@@ -64,11 +64,17 @@ contract BalancerV2PriceOracle is IPriceOracle, ExodiaAccessControlInitializable
 
         require(tokens.length == 2, "INVALID POOL");
         require(
-            _token == address(tokens[0]) || _token == address(tokens[1]),
+            _token != FTM &&
+                (_token == address(tokens[0]) || _token == address(tokens[1])),
             "INVALID TOKENS"
         );
+        require(
+            _denominatedOracle != address(0) ||
+                FTM == address(tokens[0]) ||
+                FTM == address(tokens[1])
+        );
 
-        denominatedOracles[_token] = _denominatedOracle;
+        denominatedOracles[_token] = IPriceOracle(_denominatedOracle);
         tokenPools[_token] = _tokenPool;
 
         emit SetTokenOracle(_token, _tokenPool, _denominatedOracle);
@@ -80,10 +86,7 @@ contract BalancerV2PriceOracle is IPriceOracle, ExodiaAccessControlInitializable
      * @dev returns the TWAP for the provided pair as of the last update
      */
     function getSafePrice(address _token) public view returns (uint256 price) {
-        require(
-            tokenPools[_token] != address(0) && denominatedOracles[_token] != address(0),
-            "UNSUPPORTED"
-        );
+        require(tokenPools[_token] != address(0), "UNSUPPORTED");
 
         IBalV2PriceOracle.OracleAverageQuery[]
             memory query = new IBalV2PriceOracle.OracleAverageQuery[](1);
@@ -101,17 +104,12 @@ contract BalancerV2PriceOracle is IPriceOracle, ExodiaAccessControlInitializable
 
         if (_token == address(tokens[0])) {
             price =
-                (_denominatedTokenPrice(
-                    IPriceOracle(denominatedOracles[_token]),
-                    tokens[1]
-                ) * (10**18)) /
+                (_getTokenSafePrice(denominatedOracles[_token], tokens[1]) * (10**18)) /
                 tokenPairPrice;
         } else if (_token == address(tokens[1])) {
             price =
-                (_denominatedTokenPrice(
-                    IPriceOracle(denominatedOracles[_token]),
-                    tokens[0]
-                ) * tokenPairPrice) /
+                (_getTokenSafePrice(denominatedOracles[_token], tokens[0]) *
+                    tokenPairPrice) /
                 (10**18);
         }
     }
@@ -120,10 +118,7 @@ contract BalancerV2PriceOracle is IPriceOracle, ExodiaAccessControlInitializable
      * @dev returns the current "unsafe" price that can be easily manipulated
      */
     function getCurrentPrice(address _token) external view returns (uint256 price) {
-        require(
-            tokenPools[_token] != address(0) && denominatedOracles[_token] != address(0),
-            "UNSUPPORTED"
-        );
+        require(tokenPools[_token] != address(0), "UNSUPPORTED");
 
         bytes32 poolId = IBPoolV2(tokenPools[_token]).getPoolId();
         uint256[] memory weights = IBPoolV2(tokenPools[_token]).getNormalizedWeights();
@@ -160,7 +155,7 @@ contract BalancerV2PriceOracle is IPriceOracle, ExodiaAccessControlInitializable
 
     // internal functions
 
-    function _denominatedTokenPrice(IPriceOracle oracle, IERC20 token)
+    function _getTokenSafePrice(IPriceOracle oracle, IERC20 token)
         internal
         view
         returns (uint256 price)
@@ -168,6 +163,17 @@ contract BalancerV2PriceOracle is IPriceOracle, ExodiaAccessControlInitializable
         price = 10**18;
         if (FTM != address(token)) {
             price = IPriceOracle(oracle).getSafePrice(address(token));
+        }
+    }
+
+    function _getTokenCurrentPrice(IPriceOracle oracle, IERC20 token)
+        internal
+        view
+        returns (uint256 price)
+    {
+        price = 10**18;
+        if (FTM != address(token)) {
+            price = IPriceOracle(oracle).getCurrentPrice(address(token));
         }
     }
 
@@ -182,7 +188,7 @@ contract BalancerV2PriceOracle is IPriceOracle, ExodiaAccessControlInitializable
         uint256 weight0,
         uint256 weight1
     ) internal view returns (uint256) {
-        uint256 pairTokenPrice = _denominatedTokenPrice(
+        uint256 pairTokenPrice = _getTokenCurrentPrice(
             IPriceOracle(denominatedOracles[address(token0)]),
             token1
         );

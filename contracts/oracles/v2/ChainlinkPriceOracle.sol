@@ -1,40 +1,55 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
-import "../../librairies/Initializable.sol";
+import "../../ExodiaAccessControlInitializable.sol";
 import "./IPriceOracle.sol";
 
-contract ChainlinkPriceOracle is IPriceOracle, Initializable, Ownable {
+contract ChainlinkPriceOracle is IPriceOracle, ExodiaAccessControlInitializable {
     uint256 public constant VERSION = 2022021401;
 
     address public BASE_PRICE_FEED;
 
     uint8 public decimals = 18;
 
+    mapping(address => address) public priceFeed; // token => chainlink price feed
+
     event UpdateValues(address indexed feed);
     event OutputDecimalsUpdated(uint8 _old, uint8 _new);
+    event SetPriceFeed(address indexed token, address indexed feed);
 
-    function initialize(address _base_price_feed, uint256 _unused) public initializer {
+    function initialize(address _roles, address _base_price_feed) public initializer {
+        require(_roles != address(0), "roles cannot be null address");
         require(
             _base_price_feed != address(0),
             "FTM PRICE FEED cannot be the null address"
         );
+
         BASE_PRICE_FEED = _base_price_feed;
-        _unused; // maintain compatability with interface
-        _transferOwnership(_msgSender());
+        __ExodiaAccessControl__init(_roles);
     }
 
-    function getSafePrice(address _feed) public view returns (uint256 _amountOut) {
-        return getCurrentPrice(_feed);
+    function setPriceFeed(address _token, address _feed) external onlyArchitect {
+        priceFeed[_token] = _feed;
+
+        emit SetPriceFeed(_token, _feed);
     }
 
-    function getCurrentPrice(address _feed) public view returns (uint256 _amountOut) {
-        _amountOut = _divide(_feedPrice(_feed), _feedPrice(BASE_PRICE_FEED), decimals);
+    function getSafePrice(address _token) public view returns (uint256 _amountOut) {
+        return getCurrentPrice(_token);
     }
 
-    function setOutputDecimals(uint8 _decimals) public onlyOwner {
+    function getCurrentPrice(address _token) public view returns (uint256 _amountOut) {
+        require(priceFeed[_token] != address(0), "UNSUPPORTED");
+
+        _amountOut = _divide(
+            _feedPrice(priceFeed[_token]),
+            _feedPrice(BASE_PRICE_FEED),
+            decimals
+        );
+    }
+
+    function setOutputDecimals(uint8 _decimals) public onlyArchitect {
         uint8 _old = _decimals;
         decimals = _decimals;
         emit OutputDecimalsUpdated(_old, _decimals);

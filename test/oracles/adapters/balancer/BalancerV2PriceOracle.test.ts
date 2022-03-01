@@ -22,9 +22,11 @@ import {
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNetwork } = xhre;
 
-const WBTC = "0x321162Cd933E2Be498Cd2267a90534A804051b11";
 const MINIMUM_UPDATE_INTERVAL = 60 * 5; // 5 mins
+const WBTC = "0x321162Cd933E2Be498Cd2267a90534A804051b11";
+const WSSCR = "0xA7727db8DB5afcA6d88eb7FB9E8e322dc043325a";
 const USDC_WFTM_BTC_ETH_POOL = "0xf3A602d30dcB723A74a0198313a7551FEacA7DAc";
+const WSSCR_DAI_POOL = "0x43d668c6F709C9D7f05C9404707A10d968B0348c";
 
 describe("Balancer V2 Price Oracle", function () {
     let addressRegistry: IExternalContractsRegistry;
@@ -104,7 +106,7 @@ describe("Balancer V2 Price Oracle", function () {
                     .setTokenOracle(
                         addressRegistry.BEETS,
                         addressRegistry.FIDELIO_DUETTO,
-                        addressRegistry.FTM_USD_FEED
+                        ZERO_ADDRESS
                     )
             ).to.revertedWith("caller is not an architect");
         });
@@ -116,7 +118,7 @@ describe("Balancer V2 Price Oracle", function () {
                     .setTokenOracle(
                         addressRegistry.BEETS,
                         USDC_WFTM_BTC_ETH_POOL,
-                        addressRegistry.FTM_USD_FEED
+                        ZERO_ADDRESS
                     )
             ).to.revertedWith("INVALID POOL");
         });
@@ -125,11 +127,7 @@ describe("Balancer V2 Price Oracle", function () {
             await expect(
                 oracle
                     .connect(architect)
-                    .setTokenOracle(
-                        WBTC,
-                        addressRegistry.FIDELIO_DUETTO,
-                        addressRegistry.FTM_USD_FEED
-                    )
+                    .setTokenOracle(WBTC, addressRegistry.FIDELIO_DUETTO, ZERO_ADDRESS)
             ).to.revertedWith("INVALID TOKENS");
         });
 
@@ -139,14 +137,14 @@ describe("Balancer V2 Price Oracle", function () {
                 .setTokenOracle(
                     addressRegistry.BEETS,
                     addressRegistry.FIDELIO_DUETTO,
-                    addressRegistry.FTM_USD_FEED
+                    ZERO_ADDRESS
                 );
 
             expect(await oracle.tokenPools(addressRegistry.BEETS)).to.equal(
                 addressRegistry.FIDELIO_DUETTO
             );
             expect(await oracle.denominatedOracles(addressRegistry.BEETS)).to.equal(
-                addressRegistry.FTM_USD_FEED
+                ZERO_ADDRESS
             );
         });
 
@@ -162,28 +160,35 @@ describe("Balancer V2 Price Oracle", function () {
             );
         });
 
-        describe("After token oracle setting", function () {
+        describe("After token oracle setting: BEETS-FTM", function () {
             beforeEach(async function () {
                 await oracle
                     .connect(architect)
                     .setTokenOracle(
                         addressRegistry.BEETS,
                         addressRegistry.FIDELIO_DUETTO,
-                        addressRegistry.FTM_USD_FEED
+                        ZERO_ADDRESS
                     );
             });
 
             it("Should be able to get current price", async function () {
                 const price = await oracle.getCurrentPrice(addressRegistry.BEETS);
-                const priceFromCoingecko = xhre.ethers.utils.parseUnits(
-                    (await getTokenPriceFromCoingecko(addressRegistry.BEETS)).toString(),
-                    18
-                ).mul(xhre.ethers.utils.parseUnits("1", 18)).div(
-                    xhre.ethers.utils.parseUnits(
-                        (await getTokenPriceFromCoingecko(addressRegistry.WFTM)).toString(),
+                const priceFromCoingecko = xhre.ethers.utils
+                    .parseUnits(
+                        (
+                            await getTokenPriceFromCoingecko(addressRegistry.BEETS)
+                        ).toString(),
                         18
                     )
-                );
+                    .mul(xhre.ethers.utils.parseUnits("1", 18))
+                    .div(
+                        xhre.ethers.utils.parseUnits(
+                            (
+                                await getTokenPriceFromCoingecko(addressRegistry.WFTM)
+                            ).toString(),
+                            18
+                        )
+                    );
                 console.log("current price from oracle = ", price.toString());
                 console.log("price from coingecko = ", priceFromCoingecko.toString());
                 expect(price).to.be.closeTo(
@@ -194,15 +199,22 @@ describe("Balancer V2 Price Oracle", function () {
 
             it("Should be able to get safe price", async function () {
                 const price = await oracle.getSafePrice(addressRegistry.BEETS);
-                const priceFromCoingecko = xhre.ethers.utils.parseUnits(
-                    (await getTokenPriceFromCoingecko(addressRegistry.BEETS)).toString(),
-                    18
-                ).mul(xhre.ethers.utils.parseUnits("1", 18)).div(
-                    xhre.ethers.utils.parseUnits(
-                        (await getTokenPriceFromCoingecko(addressRegistry.WFTM)).toString(),
+                const priceFromCoingecko = xhre.ethers.utils
+                    .parseUnits(
+                        (
+                            await getTokenPriceFromCoingecko(addressRegistry.BEETS)
+                        ).toString(),
                         18
                     )
-                );
+                    .mul(xhre.ethers.utils.parseUnits("1", 18))
+                    .div(
+                        xhre.ethers.utils.parseUnits(
+                            (
+                                await getTokenPriceFromCoingecko(addressRegistry.WFTM)
+                            ).toString(),
+                            18
+                        )
+                    );
                 console.log("safe price from oracle = ", price.toString());
                 console.log("price from coingecko = ", priceFromCoingecko.toString());
                 expect(price).to.be.closeTo(
@@ -213,6 +225,73 @@ describe("Balancer V2 Price Oracle", function () {
 
             it("Should be able to update safe price", async function () {
                 await oracle.updateSafePrice(addressRegistry.BEETS);
+            });
+        });
+
+        describe.only("After token oracle setting: wsSCR-DAI", function () {
+            beforeEach(async function () {
+                const ChainlinkPriceOracle = await xhre.ethers.getContractFactory(
+                    "ChainlinkPriceOracle"
+                );
+                const chainlinkPrice = await ChainlinkPriceOracle.deploy();
+                await chainlinkPrice.initialize(
+                    roles.address,
+                    addressRegistry.FTM_USD_FEED
+                );
+
+                await chainlinkPrice
+                    .connect(architect)
+                    .setPriceFeed(addressRegistry.DAI, addressRegistry.DAI_USD_FEED);
+
+                await oracle
+                    .connect(architect)
+                    .setTokenOracle(WSSCR, WSSCR_DAI_POOL, chainlinkPrice.address);
+            });
+
+            it("Should be able to get current price", async function () {
+                const price = await oracle.getCurrentPrice(WSSCR);
+                const priceFromCoingecko = xhre.ethers.utils
+                    .parseUnits((await getTokenPriceFromCoingecko(WSSCR)).toString(), 18)
+                    .mul(xhre.ethers.utils.parseUnits("1", 18))
+                    .div(
+                        xhre.ethers.utils.parseUnits(
+                            (
+                                await getTokenPriceFromCoingecko(addressRegistry.WFTM)
+                            ).toString(),
+                            18
+                        )
+                    );
+                console.log("current price from oracle = ", price.toString());
+                console.log("price from coingecko = ", priceFromCoingecko.toString());
+                expect(price).to.be.closeTo(
+                    priceFromCoingecko,
+                    price.mul(4).div(100) as any
+                ); // 4% diff
+            });
+
+            it("Should be able to get safe price", async function () {
+                const price = await oracle.getSafePrice(WSSCR);
+                const priceFromCoingecko = xhre.ethers.utils
+                    .parseUnits((await getTokenPriceFromCoingecko(WSSCR)).toString(), 18)
+                    .mul(xhre.ethers.utils.parseUnits("1", 18))
+                    .div(
+                        xhre.ethers.utils.parseUnits(
+                            (
+                                await getTokenPriceFromCoingecko(addressRegistry.WFTM)
+                            ).toString(),
+                            18
+                        )
+                    );
+                console.log("safe price from oracle = ", price.toString());
+                console.log("price from coingecko = ", priceFromCoingecko.toString());
+                expect(price).to.be.closeTo(
+                    priceFromCoingecko,
+                    price.mul(4).div(100) as any
+                ); // 4% diff
+            });
+
+            it("Should be able to update safe price", async function () {
+                await oracle.updateSafePrice(WSSCR);
             });
         });
     });
