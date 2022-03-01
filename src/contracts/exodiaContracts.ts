@@ -73,6 +73,8 @@ import {
     WFTMBondDepository__factory,
     WOHM,
     WOHM__factory,
+    BalancerV2PriceOracle,
+    BalancerV2PriceOracle__factory,
 } from "../../typechain";
 
 import { ContractVersions, NetworksContractsRegistry, version } from "./contractRegistry";
@@ -142,6 +144,7 @@ export interface IExodiaContractsRegistry {
     ExodiaRoles: ContractVersions<ExodiaRoles>;
     TreasuryManager: ContractVersions<TreasuryManager>;
     TreasuryDepositor: ContractVersions<TreasuryDepositor>;
+    BalancerV2PriceOracle: ContractVersions<BalancerV2PriceOracle>;
     Farmer: ContractVersions<Farmer>;
     ExodiaBalanceAggregator: ContractVersions<ExodiaBalanceAggregator>;
 }
@@ -330,6 +333,9 @@ const mainOperaContract: IExodiaContractsRegistry = {
     TreasuryDepositor: new ContractVersions<TreasuryDepositor>([
         version(TreasuryDepositor__factory.connect),
     ]),
+    BalancerV2PriceOracle: new ContractVersions<BalancerV2PriceOracle>([
+        version(BalancerV2PriceOracle__factory.connect),
+    ]),
     Farmer: new ContractVersions<Farmer>([version(Farmer__factory.connect)]),
     ExodiaBalanceAggregator: new ContractVersions<ExodiaBalanceAggregator>([
         version(
@@ -470,6 +476,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     ]),
     TreasuryDepositor: new ContractVersions<TreasuryDepositor>([
         version(TreasuryDepositor__factory.connect),
+    ]),
+    BalancerV2PriceOracle: new ContractVersions<BalancerV2PriceOracle>([
+        version(BalancerV2PriceOracle__factory.connect),
     ]),
     Farmer: new ContractVersions<Farmer>([version(Farmer__factory.connect)]),
     ExodiaBalanceAggregator: new ContractVersions<ExodiaBalanceAggregator>([
