@@ -11,7 +11,7 @@ import { OHM_DID } from "../../deploy/01_deployOhm";
 import { TREASURY_DID } from "../../deploy/03_deployTreasury";
 import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
 import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
-import mint from "../../src/subdeploy/mint";
+import mint from "../../src/mint";
 import {
     AbsorptionBond,
     AbsorptionBond__factory,

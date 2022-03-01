@@ -1,5 +1,6 @@
-import { OlympusTreasury } from "../../typechain";
-import { ZERO_ADDRESS } from "./deployBasics";
+import { OlympusTreasury } from "../typechain";
+
+import { ZERO_ADDRESS } from "./utils";
 
 export enum MANAGING {
     RESERVEDEPOSITOR = 0,

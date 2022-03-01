@@ -7,8 +7,8 @@ import { STAKING_DID } from "../deploy/05_deployStaking";
 import { WOHM_DID } from "../deploy/17_deployWOHM";
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import mint from "../src/subdeploy/mint";
-import toggleRights, { MANAGING } from "../src/subdeploy/toggleRights";
+import mint from "../src/mint";
+import toggleRights, { MANAGING } from "../src/toggleRights";
 import { DAI_DECIMALS, OHM_DECIMALS, toWei, WOHM_DECIMALS } from "../src/utils";
 import {
     DAI__factory,

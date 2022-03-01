@@ -1,7 +1,7 @@
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import toggleRights, { MANAGING } from "../src/subdeploy/toggleRights";
+import toggleRights, { MANAGING } from "../src/toggleRights";
 import { DAI_DECIMALS, toWei } from "../src/utils";
 import { DAI__factory, OlympusTreasury__factory } from "../typechain";
 

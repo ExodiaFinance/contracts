@@ -1,7 +1,7 @@
 {
-    "name": "typescript-eth-solidity-hardhat-template",
-    "version": "1.0.0",
-    "description": "",
+    "name": "@exodiafi/exodia-sdk",
+    "version": "0.1.2",
+    "description": "exodia.fi contracts bindings and addresses",
     "scripts": {
         "compile": "hardhat compile",
         "test": "cross-env NODE_ENV=test hardhat test",
@@ -20,7 +20,7 @@
         "LICENSE",
         "README.md"
     ],
-    "author": "Kristjan Kosic <kristjan@protokol.com>",
+    "author": "HOVOH <hovoh@exodia.fi>",
     "license": "MIT",
     "devDependencies": {
         "@balancer-labs/typechain": "^1.0.0",

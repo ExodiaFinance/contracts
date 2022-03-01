@@ -1,7 +1,7 @@
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import toggleRights, { MANAGING } from "../src/subdeploy/toggleRights";
+import toggleRights, { MANAGING } from "../src/toggleRights";
 import { exec, ifNotProd, log } from "../src/utils";
 import {
     AllocatedRiskFreeValue__factory,

@@ -1,8 +1,7 @@
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import { ZERO_ADDRESS } from "../src/subdeploy/deployBasics";
-import { log } from "../src/utils";
+import { log, ZERO_ADDRESS } from "../src/utils";
 import {
     DAI__factory,
     OlympusBondDepository__factory,

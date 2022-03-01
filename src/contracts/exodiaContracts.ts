@@ -15,6 +15,8 @@ import {
     DAI__factory,
     Distributor,
     Distributor__factory,
+    ExodiaBalanceAggregator,
+    ExodiaBalanceAggregator__factory,
     ExodiaRoles,
     ExodiaRoles__factory,
     Farmer,
@@ -141,6 +143,7 @@ export interface IExodiaContractsRegistry {
     TreasuryManager: ContractVersions<TreasuryManager>;
     TreasuryDepositor: ContractVersions<TreasuryDepositor>;
     Farmer: ContractVersions<Farmer>;
+    ExodiaBalanceAggregator: ContractVersions<ExodiaBalanceAggregator>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -328,6 +331,12 @@ const mainOperaContract: IExodiaContractsRegistry = {
         version(TreasuryDepositor__factory.connect),
     ]),
     Farmer: new ContractVersions<Farmer>([version(Farmer__factory.connect)]),
+    ExodiaBalanceAggregator: new ContractVersions<ExodiaBalanceAggregator>([
+        version(
+            ExodiaBalanceAggregator__factory.connect,
+            "0xa3Cbd851460477C7b7aAA381da7ee4043462657F"
+        ),
+    ]),
 };
 
 const testNetOperaContract: IExodiaContractsRegistry = {
@@ -463,6 +472,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
         version(TreasuryDepositor__factory.connect),
     ]),
     Farmer: new ContractVersions<Farmer>([version(Farmer__factory.connect)]),
+    ExodiaBalanceAggregator: new ContractVersions<ExodiaBalanceAggregator>([
+        version(ExodiaBalanceAggregator__factory.connect),
+    ]),
 };
 
 contracts.addNetwork(Network.OPERA_MAIN_NET, mainOperaContract);

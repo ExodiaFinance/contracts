@@ -5,7 +5,7 @@ import { TREASURY_DID } from "../deploy/03_deployTreasury";
 import { STAKING_DID } from "../deploy/05_deployStaking";
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import mint from "../src/subdeploy/mint";
+import mint from "../src/mint";
 import { DAI_DECIMALS, OHM_DECIMALS, toWei } from "../src/utils";
 import {
     DAI__factory,

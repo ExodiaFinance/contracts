@@ -1,7 +1,7 @@
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import mint from "../src/subdeploy/mint";
+import mint from "../src/mint";
 import { DAI_DECIMALS, OHM_DECIMALS, toWei } from "../src/utils";
 import {
     DAI__factory,

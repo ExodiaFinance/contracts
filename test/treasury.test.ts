@@ -4,8 +4,8 @@ import hre from "hardhat";
 import { TREASURY_DID } from "../deploy/03_deployTreasury";
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import mint from "../src/subdeploy/mint";
-import toggleRights, { MANAGING } from "../src/subdeploy/toggleRights";
+import mint from "../src/mint";
+import toggleRights, { MANAGING } from "../src/toggleRights";
 import { DAI_DECIMALS, OHM_DECIMALS, toWei } from "../src/utils";
 import {
     DAI__factory,

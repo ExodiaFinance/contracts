@@ -8,7 +8,7 @@ import hre from "hardhat";
 import { TREASURY_DEPOSITOR_DID } from "../../deploy/40_deployTreasuryDepositor";
 import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
 import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
-import toggleRights, { MANAGING } from "../../src/subdeploy/toggleRights";
+import toggleRights, { MANAGING } from "../../src/toggleRights";
 import {
     AllocatedRiskFreeValue,
     AllocatedRiskFreeValue__factory,

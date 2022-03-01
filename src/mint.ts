@@ -1,6 +1,6 @@
 import { BigNumberish } from "ethers";
 
-import { DAI, OlympusTreasury } from "../../typechain";
+import { DAI, OlympusTreasury } from "../typechain";
 
 import toggleRights, { MANAGING } from "./toggleRights";
 

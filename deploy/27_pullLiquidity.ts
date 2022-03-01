@@ -2,7 +2,7 @@ import { externalAddressRegistry } from "../src/contracts";
 import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import toggleRights, { MANAGING } from "../src/subdeploy/toggleRights";
+import toggleRights, { MANAGING } from "../src/toggleRights";
 import { ifNotProd } from "../src/utils";
 import { OlympusTreasury__factory, RemoveUniLp__factory } from "../typechain";
 

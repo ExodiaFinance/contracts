@@ -2,7 +2,7 @@ import { ethers } from "hardhat";
 
 import deployBasics from "../subdeploy/deployBasics";
 import deployDai from "../subdeploy/deployDai";
-import mint from "../subdeploy/mint";
+import mint from "../mint";
 import { DAI_DECIMALS, toWei } from "../utils";
 
 async function main() {
