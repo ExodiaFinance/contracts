@@ -125,7 +125,7 @@ contract ChainlinkRegistry is IChainlinkRegistry, Initializable, Ownable {
         decimals = _getDecimals(info.feed);
     }
 
-    function remove(address feed) public onlyOwner whenInitialized {
+    function remove(address feed) public onlyOwner {
         require(feeds.contains(feed), "ChainlinkRegistry: feed does not exist");
 
         uint256 index = feedByFeed[feed];
