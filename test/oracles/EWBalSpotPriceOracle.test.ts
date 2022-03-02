@@ -3,10 +3,13 @@ import { BaseProvider } from "@ethersproject/providers";
 import { ethers } from "ethers";
 import hre from "hardhat";
 
-import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
-import { Network } from "../../src/contracts/Network";
-import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
-import { EWBalSpotPriceOracle, EWBalSpotPriceOracle__factory } from "../../typechain";
+import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
+import { Network } from "../../packages/sdk/contracts/Network";
+import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
+import {
+    EWBalSpotPriceOracle,
+    EWBalSpotPriceOracle__factory,
+} from "../../packages/sdk/typechain";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNamedAccounts, deploy } = xhre;

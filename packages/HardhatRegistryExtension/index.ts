@@ -4,14 +4,14 @@ import { DeployOptions } from "hardhat-deploy/types";
 import { extendEnvironment } from "hardhat/config";
 import { HttpNetworkConfig, NetworksConfig } from "hardhat/types";
 
-import { ContractFactory } from "../contracts/ContractFactory";
+import { ContractFactory } from "../sdk/contracts/ContractFactory";
 import {
     ContractVersions,
     IContract,
     NetworksContractsRegistry,
-} from "../contracts/contractRegistry";
-import { Network } from "../contracts/Network";
-import { ProvidersRegistry } from "../contracts/providersRegistry";
+} from "../sdk/contracts/contractRegistry";
+import { Network } from "../sdk/contracts/Network";
+import { ProvidersRegistry } from "../sdk/contracts/providersRegistry";
 
 import { IExtendedHRE } from "./ExtendedHRE";
 

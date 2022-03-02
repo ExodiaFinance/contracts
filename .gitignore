@@ -10,9 +10,9 @@ abi
 
 cache/
 artifacts/
-
+dist/
 coverage*
-typechain/
+packages/sdk/typechain/
 
 .vscode/*
 !.vscode/settings.json.default

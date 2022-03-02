@@ -1,15 +1,15 @@
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import toggleRights, { MANAGING } from "../src/toggleRights";
-import { log } from "../src/utils";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import toggleRights, { MANAGING } from "../packages/utils/toggleRights";
+import { log } from "../packages/utils/utils";
 import {
     AssetAllocator__factory,
     ExodiaRoles__factory,
     Farmer__factory,
     TreasuryDepositor__factory,
     TreasuryManager__factory,
-} from "../typechain";
+} from "../packages/sdk/typechain";
 
 import { ASSET_ALLOCATOR_DID } from "./30_deployAssetAllocator";
 import { EXODIA_ROLES_DID } from "./38_deployExodiaRoles";

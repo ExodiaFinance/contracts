@@ -5,6 +5,8 @@ import {
     AllocationCalculator__factory,
     AssetAllocator,
     AssetAllocator__factory,
+    BalancerV2PriceOracle,
+    BalancerV2PriceOracle__factory,
     BeethovenXFarming,
     BeethovenXFarming__factory,
     BPTMNLTBondDepository,
@@ -73,9 +75,7 @@ import {
     WFTMBondDepository__factory,
     WOHM,
     WOHM__factory,
-    BalancerV2PriceOracle,
-    BalancerV2PriceOracle__factory,
-} from "../../typechain";
+} from "../typechain";
 
 import { ContractVersions, NetworksContractsRegistry, version } from "./contractRegistry";
 import { Network } from "./Network";

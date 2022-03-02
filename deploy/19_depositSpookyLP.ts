@@ -1,7 +1,7 @@
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import toggleRights, { MANAGING } from "../src/toggleRights";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import toggleRights, { MANAGING } from "../packages/utils/toggleRights";
 import {
     DAI__factory,
     ERC20__factory,
@@ -9,7 +9,7 @@ import {
     OlympusBondingCalculator__factory,
     OlympusERC20Token__factory,
     OlympusTreasury__factory,
-} from "../typechain";
+} from "../packages/sdk/typechain";
 
 import { TREASURY_DID } from "./03_deployTreasury";
 import { OHM_SET_VAULT_DID } from "./04_setVault";

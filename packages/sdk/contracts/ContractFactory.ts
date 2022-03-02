@@ -1,9 +1,8 @@
-import { JsonRpcProvider, Provider } from "@ethersproject/providers";
-import { ethers, Signer, Wallet } from "ethers";
+import { Provider } from "@ethersproject/providers";
+import { Signer } from "ethers";
 
 import {
     ContractVersions,
-    IContract,
     IContractsRegistry,
     NetworksContractsRegistry,
 } from "./contractRegistry";

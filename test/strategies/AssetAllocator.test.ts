@@ -5,8 +5,8 @@ import { BigNumber, BigNumberish } from "ethers";
 import { parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
 import { ASSET_ALLOCATOR_DID } from "../../deploy/30_deployAssetAllocator";
-import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
+import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
+import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
 import {
     AllocatedRiskFreeValue,
     AllocatedRiskFreeValue__factory,
@@ -33,7 +33,7 @@ import {
     OlympusERC20Token__factory,
     OlympusTreasury,
     OlympusTreasury__factory,
-} from "../../typechain";
+} from "../../packages/sdk/typechain";
 import "../chai-setup";
 import { increaseTime } from "../testUtils";
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;

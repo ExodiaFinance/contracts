@@ -9,9 +9,9 @@ import { DAI_DID } from "../../deploy/00_deployDai";
 
 import { OHM_DID } from "../../deploy/01_deployOhm";
 import { TREASURY_DID } from "../../deploy/03_deployTreasury";
-import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
-import mint from "../../src/mint";
+import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
+import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
+import mint from "../../packages/utils/mint";
 import {
     AbsorptionBond,
     AbsorptionBond__factory,
@@ -23,7 +23,7 @@ import {
     OlympusERC20Token__factory,
     OlympusTreasury,
     OlympusTreasury__factory,
-} from "../../typechain";
+} from "../../packages/sdk/typechain";
 import { increaseTime, mine } from "../testUtils";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;

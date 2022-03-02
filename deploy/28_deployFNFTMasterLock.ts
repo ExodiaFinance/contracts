@@ -1,9 +1,9 @@
-import { externalAddressRegistry } from "../src/contracts";
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import { log } from "../src/utils";
-import { MasterLock__factory } from "../typechain";
+import { externalAddressRegistry } from "../packages/sdk/contracts";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import { log } from "../packages/utils/utils";
+import { MasterLock__factory } from "../packages/sdk/typechain";
 
 export const FNFT_MASTER_LOCK_DID = "liquid_lock_staking";
 

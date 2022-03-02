@@ -1,14 +1,14 @@
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import mint from "../src/mint";
-import { DAI_DECIMALS, OHM_DECIMALS, toWei } from "../src/utils";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import mint from "../packages/utils/mint";
+import { DAI_DECIMALS, OHM_DECIMALS, toWei } from "../packages/utils/utils";
 import {
     DAI__factory,
     IUniswapV2Router__factory,
     OlympusERC20Token__factory,
     OlympusTreasury__factory,
-} from "../typechain";
+} from "../packages/sdk/typechain";
 
 import { TREASURY_DID } from "./03_deployTreasury";
 import { OHM_SET_VAULT_DID } from "./04_setVault";

@@ -1,7 +1,7 @@
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import { log, ZERO_ADDRESS } from "../src/utils";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import { log, ZERO_ADDRESS } from "../packages/utils/utils";
 import {
     DAI__factory,
     OlympusBondDepository__factory,
@@ -10,7 +10,7 @@ import {
     OlympusTreasury__factory,
     RedeemHelper__factory,
     StakingHelperV2__factory,
-} from "../typechain";
+} from "../packages/sdk/typechain";
 import { DAI_DID } from "./00_deployDai";
 import { OHM_DID } from "./01_deployOhm";
 import { TREASURY_DID } from "./03_deployTreasury";

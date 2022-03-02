@@ -3,13 +3,13 @@ import { parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
 
 import { ARFV_TOKEN_DID } from "../../deploy/31_deployARFVToken";
-import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
+import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
+import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
 import {
     AllocatedRiskFreeValue,
     AllocatedRiskFreeValue__factory,
     AssetAllocator__factory,
-} from "../../typechain";
+} from "../../packages/sdk/typechain";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNamedAccounts, getUnnamedAccounts } = xhre;

@@ -7,9 +7,9 @@ import hre from "hardhat";
 import { TREASURY_DID } from "../../deploy/03_deployTreasury";
 import { WOHM_DID } from "../../deploy/17_deployWOHM";
 import { FNFT_MASTER_LOCK_DID } from "../../deploy/28_deployFNFTMasterLock";
-import { externalAddressRegistry } from "../../src/contracts";
-import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
+import { externalAddressRegistry } from "../../packages/sdk/contracts";
+import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
+import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
 import {
     DAI,
     DAI__factory,
@@ -23,7 +23,7 @@ import {
     OlympusTreasury__factory,
     WOHM,
     WOHM__factory,
-} from "../../typechain";
+} from "../../packages/sdk/typechain";
 import "../chai-setup";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;

@@ -14,9 +14,9 @@ import "hardhat-deploy";
 import "solidity-coverage";
 
 // import "hardhat-watcher";
-import { Network } from "./src/contracts/Network";
-import { providers } from "./src/contracts/providers";
-import "./src/HardhatRegistryExtension";
+import { Network } from "./packages/sdk/contracts/Network";
+import { providers } from "./packages/sdk/contracts/providers";
+import "./packages/HardhatRegistryExtension";
 
 const FTMSCAN_API_KEY = process.env.FTMSCAN_API_KEY as string;
 const DEPLOYER_SECRET_KEY = process.env.DEPLOYER_SECRET_KEY as string;
@@ -87,6 +87,9 @@ module.exports = {
     },
     xhre: {
         contractRegistryPath: "../contracts/exodiaContracts.ts",
+    },
+    typechain: {
+        outDir: "packages/sdk/typechain",
     },
     mocha: {
         timeout: 100000,

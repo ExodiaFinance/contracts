@@ -5,19 +5,19 @@ import hre from "hardhat";
 
 import { EXODIA_ROLES_DID } from "../../../../deploy/38_deployExodiaRoles";
 import { BALANCER_V2_PRICE_ORACLE_DID } from "../../../../deploy/41_deployBalancerV2PriceOracle";
-import { externalAddressRegistry } from "../../../../src/contracts";
+import { externalAddressRegistry } from "../../../../packages/sdk/contracts";
 import {
     IExodiaContractsRegistry,
     IExternalContractsRegistry,
-} from "../../../../src/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../../../src/HardhatRegistryExtension/ExtendedHRE";
-import { ZERO_ADDRESS } from "../../../../src/utils";
+} from "../../../../packages/sdk/contracts/exodiaContracts";
+import { IExtendedHRE } from "../../../../packages/HardhatRegistryExtension/ExtendedHRE";
+import { ZERO_ADDRESS } from "../../../../packages/utils/utils";
 import {
     BalancerV2PriceOracle,
     BalancerV2PriceOracle__factory,
     ExodiaRoles,
     ExodiaRoles__factory,
-} from "../../../../typechain";
+} from "../../../../packages/sdk/typechain";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNetwork } = xhre;

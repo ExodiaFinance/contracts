@@ -6,9 +6,9 @@ import {
 import { DeployOptions } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
-import { ContractFactory } from "../contracts/ContractFactory";
-import { IContract, NetworksContractsRegistry } from "../contracts/contractRegistry";
-import { Network } from "../contracts/Network";
+import { ContractFactory } from "../sdk/contracts/ContractFactory";
+import { IContract, NetworksContractsRegistry } from "../sdk/contracts/contractRegistry";
+import { Network } from "../sdk/contracts/Network";
 
 export interface IDeployable {
     deploy(...string: any): any;

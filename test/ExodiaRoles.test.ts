@@ -6,9 +6,9 @@ import { parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
 
 import { EXODIA_ROLES_DID } from "../deploy/38_deployExodiaRoles";
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import { ExodiaRoles, ExodiaRoles__factory } from "../typechain";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import { ExodiaRoles, ExodiaRoles__factory } from "../packages/sdk/typechain";
 
 import "./chai-setup";
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;

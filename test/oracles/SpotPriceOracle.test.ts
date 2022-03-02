@@ -8,15 +8,15 @@ import {
     SPIRIT_ROUTER,
     USDC_ADDRESS,
 } from "../../deploy/21_deployGOHMPriceOracle";
-import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
-import { toWei, WOHM_DECIMALS } from "../../src/utils";
+import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
+import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
+import { toWei, WOHM_DECIMALS } from "../../packages/utils/utils";
 import {
     GOHMSpotPriceOracle,
     GOHMSpotPriceOracle__factory,
     IUniswapV2Router__factory,
     SpotPriceOracle__factory,
-} from "../../typechain";
+} from "../../packages/sdk/typechain";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNamedAccounts, deploy } = xhre;

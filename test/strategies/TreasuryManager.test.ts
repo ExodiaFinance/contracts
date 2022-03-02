@@ -6,9 +6,9 @@ import { BigNumber } from "ethers";
 import { parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
 import { TREASURY_MANAGER_DID } from "../../deploy/39_deployTreasuryManager";
-import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
-import toggleRights, { MANAGING } from "../../src/toggleRights";
+import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
+import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
+import toggleRights, { MANAGING } from "../../packages/utils/toggleRights";
 import {
     AllocatedRiskFreeValue,
     AllocatedRiskFreeValue__factory,
@@ -20,7 +20,7 @@ import {
     OlympusTreasury__factory,
     TreasuryManager,
     TreasuryManager__factory,
-} from "../../typechain";
+} from "../../packages/sdk/typechain";
 import "../chai-setup";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;

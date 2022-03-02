@@ -1,4 +1,4 @@
-import { OlympusTreasury } from "../typechain";
+import { OlympusTreasury } from "../sdk/typechain";
 
 import { ZERO_ADDRESS } from "./utils";
 

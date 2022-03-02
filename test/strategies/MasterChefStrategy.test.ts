@@ -6,12 +6,12 @@ import hre from "hardhat";
 import { DAI_DID } from "../../deploy/00_deployDai";
 import { ASSET_ALLOCATOR_DID } from "../../deploy/30_deployAssetAllocator";
 import { ARFV_TOKEN_DID } from "../../deploy/31_deployARFVToken";
-import { externalAddressRegistry } from "../../src/contracts";
+import { externalAddressRegistry } from "../../packages/sdk/contracts";
 import {
     IExodiaContractsRegistry,
     IExternalContractsRegistry,
-} from "../../src/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
+} from "../../packages/sdk/contracts/exodiaContracts";
+import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
 import {
     AssetAllocator,
     AssetAllocator__factory,
@@ -25,7 +25,7 @@ import {
     OlympusERC20Token__factory,
     OlympusTreasury,
     OlympusTreasury__factory,
-} from "../../typechain";
+} from "../../packages/sdk/typechain";
 import "../chai-setup";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;

@@ -1,14 +1,14 @@
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import { ifNotProd, log } from "../src/utils";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import { ifNotProd, log } from "../packages/utils/utils";
 import {
     GOHMBondDepository__factory,
     GOHMPriceOracle__factory,
     OlympusERC20Token__factory,
     OlympusTreasury__factory,
     RedeemHelper__factory,
-} from "../typechain";
+} from "../packages/sdk/typechain";
 import { OHM_DID } from "./01_deployOhm";
 import { TREASURY_DID } from "./03_deployTreasury";
 import { REDEEM_HELPER_DID } from "./10_deployRedeemHelper";

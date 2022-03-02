@@ -7,10 +7,10 @@ import { TREASURY_DID } from "../deploy/03_deployTreasury";
 import { OHM_CIRCULATING_SUPPLY_DID } from "../deploy/14_deployOhmCirculatingSupply";
 import { MINT_OHM_DID } from "../deploy/16_mintOHM";
 import { GOHM_ORACLE_DID } from "../deploy/21_deployGOHMPriceOracle";
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import toggleRights, { MANAGING } from "../src/toggleRights";
-import { OHM_DECIMALS, toWei } from "../src/utils";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import toggleRights, { MANAGING } from "../packages/utils/toggleRights";
+import { OHM_DECIMALS, toWei } from "../packages/utils/utils";
 import {
     DAI,
     DAI__factory,
@@ -23,7 +23,7 @@ import {
     OlympusTreasury,
     OlympusTreasury__factory,
     StakingHelperV2__factory,
-} from "../typechain";
+} from "../packages/sdk/typechain";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, deploy, getNamedAccounts } = xhre;

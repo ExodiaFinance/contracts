@@ -1,8 +1,8 @@
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import { DAI_DECIMALS, toWei } from "../src/utils";
-import { DAI__factory } from "../typechain";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import { DAI_DECIMALS, toWei } from "../packages/utils/utils";
+import { DAI__factory } from "../packages/sdk/typechain";
 
 import { DAI_DID } from "./00_deployDai";
 

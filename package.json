@@ -1,9 +1,13 @@
 {
     "name": "@exodiafi/exodia-sdk",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "description": "exodia.fi contracts bindings and addresses",
+    "main": "dist/sdk/index.js",
+    "types": "dist/sdk/index.d.ts",
     "scripts": {
         "compile": "hardhat compile",
+        "compile:package": "tsc --project tsconfig.npm.json",
+        "prepublish": "npm run compile:package",
         "test": "cross-env NODE_ENV=test hardhat test",
         "deploy-mainnet": "cross-env NODE_ENV=prod hardhat deploy --network ftm_mainnet",
         "deploy": "hardhat deploy",
@@ -12,7 +16,7 @@
         "lint": "tslint --config tslint.json --project tsconfig.json && solhint contracts/**/*.sol",
         "format": "prettier --check \"**/*.{ts,js,sol}\"",
         "format:fix": "prettier --write \"**/*.{ts,js,sol}\"",
-        "typechain:spookyswap": "typechain --target ethers-v5 --out-dir typechain/spookyswap './node_modules/@hovoh/spookyswap-core/build/*.json'"
+        "typechain:spookyswap": "packages/sdk/typechain --target ethers-v5 --out-dir typechain/spookyswap './node_modules/@hovoh/spookyswap-core/build/*.json'"
     },
     "files": [
         "dist/src/",

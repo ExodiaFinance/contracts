@@ -6,9 +6,9 @@ import { parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
 
 import { TREASURY_DEPOSITOR_DID } from "../../deploy/40_deployTreasuryDepositor";
-import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
-import toggleRights, { MANAGING } from "../../src/toggleRights";
+import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
+import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
+import toggleRights, { MANAGING } from "../../packages/utils/toggleRights";
 import {
     AllocatedRiskFreeValue,
     AllocatedRiskFreeValue__factory,
@@ -20,7 +20,7 @@ import {
     OlympusTreasury__factory,
     TreasuryDepositor,
     TreasuryDepositor__factory,
-} from "../../typechain";
+} from "../../packages/sdk/typechain";
 import "../chai-setup";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;

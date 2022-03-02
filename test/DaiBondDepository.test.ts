@@ -6,15 +6,15 @@ import { DAI_BOND_DID } from "../deploy/11_deployDaiBond";
 import { DAI_BOND_SET_STAKING_DID } from "../deploy/12_daiBondSetStaking";
 import { ALLOW_DAI_BOND_TREASURY } from "../deploy/13_allowDaiBondsTreasuryAccess";
 import { MINT_OHM_DID } from "../deploy/16_mintOHM";
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import { DAI_DECIMALS, OHM_DECIMALS, toWei } from "../src/utils";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import { DAI_DECIMALS, OHM_DECIMALS, toWei } from "../packages/utils/utils";
 import {
     DAI,
     DAI__factory,
     DAIBondDepository,
     DAIBondDepository__factory,
-} from "../typechain";
+} from "../packages/sdk/typechain";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, deploy, getNamedAccounts } = xhre;
