@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../../../../ExodiaAccessControlInitializable.sol";
 
-import "../../IPriceOracle.sol";
+import "../IPriceOracle.sol";
 import "../../../interfaces/IBalV2PriceOracle.sol";
 import "../../../../interfaces/IBPoolV2.sol";
 import "../../../../interfaces/IBVaultV2.sol";
