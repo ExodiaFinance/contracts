@@ -21,8 +21,6 @@ contract PriceProvider is ExodiaAccessControlInitializable {
      * @param _roles exodia roles address
      */
     function initialize(address _roles) public initializer {
-        require(_roles != address(0), "roles cannot be null address");
-
         __ExodiaAccessControl__init(_roles);
     }
 
