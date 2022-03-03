@@ -7,8 +7,6 @@ import {
     AssetAllocator__factory,
     BalancerV2PriceOracle,
     BalancerV2PriceOracle__factory,
-    BeethovenXFarming,
-    BeethovenXFarming__factory,
     BPTMNLTBondDepository,
     BPTMNLTBondDepository__factory,
     BPTMNLTPriceOracle,
@@ -75,6 +73,8 @@ import {
     WFTMBondDepository__factory,
     WOHM,
     WOHM__factory,
+    PriceProvider,
+    PriceProvider__factory,
 } from "../typechain";
 
 import { ContractVersions, NetworksContractsRegistry, version } from "./contractRegistry";
@@ -134,7 +134,6 @@ export interface IExodiaContractsRegistry {
     fBEETSPriceOracle: ContractVersions<FBEETSPriceOracle>;
     fBEETSBondDepository: ContractVersions<FBEETSBondDepository>;
     AssetAllocator: ContractVersions<AssetAllocator>;
-    BeethovenXFarming: ContractVersions<BeethovenXFarming>;
     AllocatedRiskFreeValue: ContractVersions<AllocatedRiskFreeValue>;
     wFTMBondDepository: ContractVersions<WFTMBondDepository>;
     WenAbsorptionBondDepository: ContractVersions<WenAbsorptionBondDepository>;
@@ -145,6 +144,7 @@ export interface IExodiaContractsRegistry {
     TreasuryManager: ContractVersions<TreasuryManager>;
     TreasuryDepositor: ContractVersions<TreasuryDepositor>;
     BalancerV2PriceOracle: ContractVersions<BalancerV2PriceOracle>;
+    PriceProvider: ContractVersions<PriceProvider>;
     Farmer: ContractVersions<Farmer>;
     ExodiaBalanceAggregator: ContractVersions<ExodiaBalanceAggregator>;
 }
@@ -283,9 +283,6 @@ const mainOperaContract: IExodiaContractsRegistry = {
     AssetAllocator: new ContractVersions<AssetAllocator>([
         version(AssetAllocator__factory.connect),
     ]),
-    BeethovenXFarming: new ContractVersions<BeethovenXFarming>([
-        version(BeethovenXFarming__factory.connect),
-    ]),
     AllocatedRiskFreeValue: new ContractVersions<AllocatedRiskFreeValue>([
         version(
             AllocatedRiskFreeValue__factory.connect,
@@ -335,6 +332,9 @@ const mainOperaContract: IExodiaContractsRegistry = {
     ]),
     BalancerV2PriceOracle: new ContractVersions<BalancerV2PriceOracle>([
         version(BalancerV2PriceOracle__factory.connect),
+    ]),
+    PriceProvider: new ContractVersions<PriceProvider>([
+        version(PriceProvider__factory.connect),
     ]),
     Farmer: new ContractVersions<Farmer>([version(Farmer__factory.connect)]),
     ExodiaBalanceAggregator: new ContractVersions<ExodiaBalanceAggregator>([
@@ -447,9 +447,6 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     AssetAllocator: new ContractVersions<AssetAllocator>([
         version(AssetAllocator__factory.connect),
     ]),
-    BeethovenXFarming: new ContractVersions<BeethovenXFarming>([
-        version(BeethovenXFarming__factory.connect),
-    ]),
     AllocatedRiskFreeValue: new ContractVersions<AllocatedRiskFreeValue>([
         version(AllocatedRiskFreeValue__factory.connect),
     ]),
@@ -479,6 +476,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     ]),
     BalancerV2PriceOracle: new ContractVersions<BalancerV2PriceOracle>([
         version(BalancerV2PriceOracle__factory.connect),
+    ]),
+    PriceProvider: new ContractVersions<PriceProvider>([
+        version(PriceProvider__factory.connect),
     ]),
     Farmer: new ContractVersions<Farmer>([version(Farmer__factory.connect)]),
     ExodiaBalanceAggregator: new ContractVersions<ExodiaBalanceAggregator>([

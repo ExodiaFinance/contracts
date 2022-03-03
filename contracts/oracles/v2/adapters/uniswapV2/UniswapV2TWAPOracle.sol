@@ -3,9 +3,9 @@ pragma solidity ^0.8.10;
 
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import "./IPriceOracle.sol";
-import "../../librairies/Initializable.sol";
-import "../../librairies/FixedPoint.sol";
+import "../../../../librairies/Initializable.sol";
+import "../../../../librairies/FixedPoint.sol";
+import "../IPriceOracle.sol";
 
 /**
 See https://github.com/Uniswap/v2-periphery/blob/master/contracts/examples/ExampleOracleSimple.sol

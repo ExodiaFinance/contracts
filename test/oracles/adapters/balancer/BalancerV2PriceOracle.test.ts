@@ -4,7 +4,7 @@ import { expect } from "chai";
 import hre from "hardhat";
 
 import { EXODIA_ROLES_DID } from "../../../../deploy/38_deployExodiaRoles";
-import { BALANCER_V2_PRICE_ORACLE_DID } from "../../../../deploy/41_deployBalancerV2PriceOracle";
+import { BALANCER_V2_PRICE_ORACLE_DID } from "../../../../deploy/42_deployBalancerV2PriceOracle";
 import { externalAddressRegistry } from "../../../../packages/sdk/contracts";
 import {
     IExodiaContractsRegistry,

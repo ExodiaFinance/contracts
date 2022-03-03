@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../../../../ExodiaAccessControlInitializable.sol";
 
-import "../../IPriceOracle.sol";
+import "../IPriceOracle.sol";
 import "../../../interfaces/IBalV2PriceOracle.sol";
 import "../../../../interfaces/IBPoolV2.sol";
 import "../../../../interfaces/IBVaultV2.sol";
@@ -40,7 +40,6 @@ contract BalancerV2PriceOracle is IPriceOracle, ExodiaAccessControlInitializable
         address _vault,
         uint256 _minimumUpdateInterval
     ) public initializer {
-        require(_roles != address(0), "roles cannot be null address");
         require(_vault != address(0), "vault cannot be null address");
 
         __ExodiaAccessControl__init(_roles);
