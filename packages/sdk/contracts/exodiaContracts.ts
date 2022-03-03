@@ -7,8 +7,6 @@ import {
     AssetAllocator__factory,
     BalancerV2PriceOracle,
     BalancerV2PriceOracle__factory,
-    BeethovenXFarming,
-    BeethovenXFarming__factory,
     BPTMNLTBondDepository,
     BPTMNLTBondDepository__factory,
     BPTMNLTPriceOracle,
@@ -136,7 +134,6 @@ export interface IExodiaContractsRegistry {
     fBEETSPriceOracle: ContractVersions<FBEETSPriceOracle>;
     fBEETSBondDepository: ContractVersions<FBEETSBondDepository>;
     AssetAllocator: ContractVersions<AssetAllocator>;
-    BeethovenXFarming: ContractVersions<BeethovenXFarming>;
     AllocatedRiskFreeValue: ContractVersions<AllocatedRiskFreeValue>;
     wFTMBondDepository: ContractVersions<WFTMBondDepository>;
     WenAbsorptionBondDepository: ContractVersions<WenAbsorptionBondDepository>;
@@ -285,9 +282,6 @@ const mainOperaContract: IExodiaContractsRegistry = {
     ]),
     AssetAllocator: new ContractVersions<AssetAllocator>([
         version(AssetAllocator__factory.connect),
-    ]),
-    BeethovenXFarming: new ContractVersions<BeethovenXFarming>([
-        version(BeethovenXFarming__factory.connect),
     ]),
     AllocatedRiskFreeValue: new ContractVersions<AllocatedRiskFreeValue>([
         version(
@@ -452,9 +446,6 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     ]),
     AssetAllocator: new ContractVersions<AssetAllocator>([
         version(AssetAllocator__factory.connect),
-    ]),
-    BeethovenXFarming: new ContractVersions<BeethovenXFarming>([
-        version(BeethovenXFarming__factory.connect),
     ]),
     AllocatedRiskFreeValue: new ContractVersions<AllocatedRiskFreeValue>([
         version(AllocatedRiskFreeValue__factory.connect),
