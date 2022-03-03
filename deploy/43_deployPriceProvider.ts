@@ -1,8 +1,8 @@
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import { log } from "../src/utils";
-import { PriceProvider__factory } from "../typechain";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import { log } from "../packages/utils/utils";
+import { PriceProvider__factory } from "../packages/sdk/typechain";
 import { EXODIA_ROLES_DID } from "./38_deployExodiaRoles";
 
 export const PRICE_PROVIDER_DID = "price_provider";

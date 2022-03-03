@@ -1,18 +1,17 @@
 import hre from "hardhat";
-import axios from "axios";
 import { expect } from "chai";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 
 import { EXODIA_ROLES_DID } from "../../deploy/38_deployExodiaRoles";
 import { BALANCER_V2_PRICE_ORACLE_DID } from "../../deploy/42_deployBalancerV2PriceOracle";
 import { PRICE_PROVIDER_DID } from "../../deploy/43_deployPriceProvider";
-import { externalAddressRegistry } from "../../src/contracts";
+import { externalAddressRegistry } from "../../packages/sdk/contracts";
 import {
     IExodiaContractsRegistry,
     IExternalContractsRegistry,
-} from "../../src/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
-import { ZERO_ADDRESS } from "../../src/utils";
+} from "../../packages/sdk/contracts/exodiaContracts";
+import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
+import { ZERO_ADDRESS } from "../../packages/utils/utils";
 import {
     BalancerV2PriceOracle,
     BalancerV2PriceOracle__factory,
@@ -21,7 +20,7 @@ import {
     ExodiaRoles__factory,
     PriceProvider,
     PriceProvider__factory,
-} from "../../typechain";
+} from "../../packages/sdk/typechain";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNetwork } = xhre;
@@ -93,46 +92,33 @@ describe("PriceProvider", function () {
     });
 
     it("Can't initialize with zero addresses", async function () {
-        await expect(
-            priceProvider.initialize(
-                ZERO_ADDRESS,
-            )
-        ).to.revertedWith("roles cannot be null address");
+        await expect(priceProvider.initialize(ZERO_ADDRESS)).to.revertedWith(
+            "roles cannot be null address"
+        );
     });
 
     it("Should be able to initialize", async function () {
-        await priceProvider.initialize(
-            roles.address,
-        );
+        await priceProvider.initialize(roles.address);
     });
 
     it("Can't initialize twice", async function () {
-        await priceProvider.initialize(
-            roles.address,
-        );
+        await priceProvider.initialize(roles.address);
 
-        await expect(
-            priceProvider.initialize(
-                ZERO_ADDRESS,
-            )
-        ).to.revertedWith("Initializable: contract is already initialized");
+        await expect(priceProvider.initialize(ZERO_ADDRESS)).to.revertedWith(
+            "Initializable: contract is already initialized"
+        );
     });
 
     describe("After initialization", function () {
         beforeEach(async function () {
-            await priceProvider.initialize(
-                roles.address,
-            );
+            await priceProvider.initialize(roles.address);
         });
 
         it("Only architect can set token oracle settings", async function () {
             await expect(
                 priceProvider
                     .connect(user)
-                    .setTokenOracle(
-                        addressRegistry.BEETS,
-                        balancerOracle.address
-                    )
+                    .setTokenOracle(addressRegistry.BEETS, balancerOracle.address)
             ).to.revertedWith("caller is not an architect");
         });
 
@@ -140,62 +126,19 @@ describe("PriceProvider", function () {
             beforeEach(async function () {
                 await priceProvider
                     .connect(architect)
-                    .setTokenOracle(
-                        addressRegistry.BEETS,
-                        balancerOracle.address
-                    );
+                    .setTokenOracle(addressRegistry.BEETS, balancerOracle.address);
             });
 
             it("Should be able to get current price", async function () {
-                const price = await priceProvider.getCurrentPrice(addressRegistry.BEETS);
-                const priceFromCoingecko = xhre.ethers.utils
-                    .parseUnits(
-                        (
-                            await getTokenPriceFromCoingecko(addressRegistry.BEETS)
-                        ).toString(),
-                        18
-                    )
-                    .mul(xhre.ethers.utils.parseUnits("1", 18))
-                    .div(
-                        xhre.ethers.utils.parseUnits(
-                            (
-                                await getTokenPriceFromCoingecko(addressRegistry.WFTM)
-                            ).toString(),
-                            18
-                        )
-                    );
-                console.log("current price from priceProvider = ", price.toString());
-                console.log("price from coingecko = ", priceFromCoingecko.toString());
-                expect(price).to.be.closeTo(
-                    priceFromCoingecko,
-                    price.mul(2).div(100) as any
-                ); // 2% diff
+                expect(
+                    await priceProvider.getCurrentPrice(addressRegistry.BEETS)
+                ).to.equal(await balancerOracle.getCurrentPrice(addressRegistry.BEETS));
             });
 
             it("Should be able to get safe price", async function () {
-                const price = await priceProvider.getSafePrice(addressRegistry.BEETS);
-                const priceFromCoingecko = xhre.ethers.utils
-                    .parseUnits(
-                        (
-                            await getTokenPriceFromCoingecko(addressRegistry.BEETS)
-                        ).toString(),
-                        18
-                    )
-                    .mul(xhre.ethers.utils.parseUnits("1", 18))
-                    .div(
-                        xhre.ethers.utils.parseUnits(
-                            (
-                                await getTokenPriceFromCoingecko(addressRegistry.WFTM)
-                            ).toString(),
-                            18
-                        )
-                    );
-                console.log("safe price from priceProvider = ", price.toString());
-                console.log("price from coingecko = ", priceFromCoingecko.toString());
-                expect(price).to.be.closeTo(
-                    priceFromCoingecko,
-                    price.mul(2).div(100) as any
-                ); // 2% diff
+                expect(await priceProvider.getSafePrice(addressRegistry.BEETS)).to.equal(
+                    await balancerOracle.getSafePrice(addressRegistry.BEETS)
+                );
             });
 
             it("Should be able to update safe price", async function () {
@@ -211,45 +154,15 @@ describe("PriceProvider", function () {
             });
 
             it("Should be able to get current price", async function () {
-                const price = await priceProvider.getCurrentPrice(WSSCR);
-                const priceFromCoingecko = xhre.ethers.utils
-                    .parseUnits((await getTokenPriceFromCoingecko(WSSCR)).toString(), 18)
-                    .mul(xhre.ethers.utils.parseUnits("1", 18))
-                    .div(
-                        xhre.ethers.utils.parseUnits(
-                            (
-                                await getTokenPriceFromCoingecko(addressRegistry.WFTM)
-                            ).toString(),
-                            18
-                        )
-                    );
-                console.log("current price from priceProvider = ", price.toString());
-                console.log("price from coingecko = ", priceFromCoingecko.toString());
-                expect(price).to.be.closeTo(
-                    priceFromCoingecko,
-                    price.mul(4).div(100) as any
-                ); // 4% diff
+                expect(await priceProvider.getCurrentPrice(WSSCR)).to.equal(
+                    await balancerOracle.getCurrentPrice(WSSCR)
+                );
             });
 
             it("Should be able to get safe price", async function () {
-                const price = await priceProvider.getSafePrice(WSSCR);
-                const priceFromCoingecko = xhre.ethers.utils
-                    .parseUnits((await getTokenPriceFromCoingecko(WSSCR)).toString(), 18)
-                    .mul(xhre.ethers.utils.parseUnits("1", 18))
-                    .div(
-                        xhre.ethers.utils.parseUnits(
-                            (
-                                await getTokenPriceFromCoingecko(addressRegistry.WFTM)
-                            ).toString(),
-                            18
-                        )
-                    );
-                console.log("safe price from priceProvider = ", price.toString());
-                console.log("price from coingecko = ", priceFromCoingecko.toString());
-                expect(price).to.be.closeTo(
-                    priceFromCoingecko,
-                    price.mul(4).div(100) as any
-                ); // 4% diff
+                expect(await priceProvider.getSafePrice(WSSCR)).to.equal(
+                    await balancerOracle.getSafePrice(WSSCR)
+                );
             });
 
             it("Should be able to update safe price", async function () {
@@ -265,45 +178,15 @@ describe("PriceProvider", function () {
             });
 
             it("Should be able to get current price", async function () {
-                const price = await priceProvider.getCurrentPrice(addressRegistry.DAI);
-                const priceFromCoingecko = xhre.ethers.utils
-                    .parseUnits((await getTokenPriceFromCoingecko(addressRegistry.DAI)).toString(), 18)
-                    .mul(xhre.ethers.utils.parseUnits("1", 18))
-                    .div(
-                        xhre.ethers.utils.parseUnits(
-                            (
-                                await getTokenPriceFromCoingecko(addressRegistry.WFTM)
-                            ).toString(),
-                            18
-                        )
-                    );
-                console.log("current price from priceProvider = ", price.toString());
-                console.log("price from coingecko = ", priceFromCoingecko.toString());
-                expect(price).to.be.closeTo(
-                    priceFromCoingecko,
-                    price.mul(4).div(100) as any
-                ); // 4% diff
+                expect(await priceProvider.getCurrentPrice(addressRegistry.DAI)).to.equal(
+                    await chainlinkOracle.getCurrentPrice(addressRegistry.DAI)
+                );
             });
 
             it("Should be able to get safe price", async function () {
-                const price = await priceProvider.getSafePrice(addressRegistry.DAI);
-                const priceFromCoingecko = xhre.ethers.utils
-                    .parseUnits((await getTokenPriceFromCoingecko(addressRegistry.DAI)).toString(), 18)
-                    .mul(xhre.ethers.utils.parseUnits("1", 18))
-                    .div(
-                        xhre.ethers.utils.parseUnits(
-                            (
-                                await getTokenPriceFromCoingecko(addressRegistry.WFTM)
-                            ).toString(),
-                            18
-                        )
-                    );
-                console.log("safe price from priceProvider = ", price.toString());
-                console.log("price from coingecko = ", priceFromCoingecko.toString());
-                expect(price).to.be.closeTo(
-                    priceFromCoingecko,
-                    price.mul(4).div(100) as any
-                ); // 4% diff
+                expect(await priceProvider.getSafePrice(addressRegistry.DAI)).to.equal(
+                    await chainlinkOracle.getSafePrice(addressRegistry.DAI)
+                );
             });
 
             it("Should be able to update safe price", async function () {
@@ -312,9 +195,3 @@ describe("PriceProvider", function () {
         });
     });
 });
-
-const getTokenPriceFromCoingecko = async function (tokenAddr: string) {
-    const apiUrl = `https://api.coingecko.com/api/v3/simple/token_price/fantom?contract_addresses=${tokenAddr}&vs_currencies=usd`;
-    const response = await axios.get(apiUrl);
-    return response.data[tokenAddr.toLocaleLowerCase()].usd;
-};
