@@ -12,7 +12,5 @@ import "./ExodiaAccessControlInitializable.sol";
  * contract or by a keeper we know the address.
  */
 abstract contract ExodiaAccessControl is ExodiaAccessControlInitializable {
-    constructor(address _roles) {
-        __ExodiaAccessControl__init(_roles);
-    }
+
 }

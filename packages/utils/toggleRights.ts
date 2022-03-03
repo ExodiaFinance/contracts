@@ -22,5 +22,5 @@ export default async function toggleRights(
     calculator = ZERO_ADDRESS
 ) {
     await treasury.queue(managing, address);
-    await treasury.toggle(managing, address, calculator);
+    return treasury.toggle(managing, address, calculator);
 }

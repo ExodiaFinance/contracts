@@ -2,7 +2,7 @@ import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContra
 import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
 import toggleRights, { MANAGING } from "../packages/utils/toggleRights";
-import { log } from "../packages/utils/utils";
+import { exec, log } from "../packages/utils/utils";
 import {
     AllocatedRiskFreeValue__factory,
     ExodiaRoles__factory,
@@ -27,13 +27,22 @@ const deployAssetManager: IExtendedDeployFunction<IExodiaContractsRegistry> = as
     const { contract: roles } = await get<ExodiaRoles__factory>("ExodiaRoles");
     const { contract: manager, deployment } = await deploy<TreasuryManager__factory>(
         "TreasuryManager",
-        [treasury.address, arfv.address, roles.address]
+        []
     );
     if (deployment?.newlyDeployed) {
-        await toggleRights(treasury, MANAGING.RESERVEMANAGER, manager.address);
-        await toggleRights(treasury, MANAGING.RESERVEDEPOSITOR, manager.address);
-        await toggleRights(treasury, MANAGING.LIQUIDITYMANAGER, manager.address);
-        await arfv.addMinter(manager.address);
+        await exec(() =>
+            manager.initialize(treasury.address, arfv.address, roles.address)
+        );
+        await exec(() =>
+            toggleRights(treasury, MANAGING.RESERVEMANAGER, manager.address)
+        );
+        await exec(() =>
+            toggleRights(treasury, MANAGING.RESERVEDEPOSITOR, manager.address)
+        );
+        await exec(() =>
+            toggleRights(treasury, MANAGING.LIQUIDITYMANAGER, manager.address)
+        );
+        await exec(() => arfv.addMinter(manager.address));
     }
     log("Treasury Manager: ", manager.address);
 };

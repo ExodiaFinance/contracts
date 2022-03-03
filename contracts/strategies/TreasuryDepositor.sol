@@ -16,10 +16,12 @@ contract TreasuryDepositor is ExodiaAccessControl {
     address public treasuryAddress;
     address public arfvAddress;
 
-    constructor(address _treasury, address _arfv, address _roles) ExodiaAccessControl(_roles) {
+    function initialize(address _treasury, address _arfv, address _roles) public initializer {
         treasuryAddress = _treasury;
         arfvAddress = _arfv;
+        __ExodiaAccessControl__init(_roles);
     }
+    
     /**
      * It is the machine's job to keep track of how much fund they manage and only return the amount they
      * took out using this function.

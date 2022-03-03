@@ -2,7 +2,7 @@ import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContra
 import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
 import toggleRights, { MANAGING } from "../packages/utils/toggleRights";
-import { log } from "../packages/utils/utils";
+import { exec, log } from "../packages/utils/utils";
 import {
     AssetAllocator__factory,
     ExodiaRoles__factory,
@@ -30,12 +30,20 @@ const deployTreasuryDepositor: IExtendedDeployFunction<IExodiaContractsRegistry>
             "TreasuryDepositor"
         );
         const { contract: roles } = await get<ExodiaRoles__factory>("ExodiaRoles");
-        const { contract: farmer, deployment } = await deploy<Farmer__factory>("Farmer", [
-            allocator.address,
-            manager.address,
-            depositor.address,
-            roles.address,
-        ]);
+        const { contract: farmer, deployment } = await deploy<Farmer__factory>(
+            "Farmer",
+            []
+        );
+        if (deployment?.newlyDeployed) {
+            await exec(() =>
+                farmer.initialize(
+                    allocator.address,
+                    manager.address,
+                    depositor.address,
+                    roles.address
+                )
+            );
+        }
         log("Farmer: ", farmer.address);
     };
 

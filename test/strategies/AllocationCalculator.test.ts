@@ -6,15 +6,15 @@ import { BigNumber } from "ethers";
 import { parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
 
-import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
 import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
-import "../chai-setup";
+import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
 import {
     AllocationCalculator,
     AllocationCalculator__factory,
     AssetAllocator__factory,
     MockToken__factory,
 } from "../../packages/sdk/typechain";
+import "../chai-setup";
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNamedAccounts, getUnnamedAccounts } = xhre;
 

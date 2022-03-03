@@ -2,7 +2,7 @@ import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContra
 import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
 import toggleRights, { MANAGING } from "../packages/utils/toggleRights";
-import { ifNotProd, log, ZERO_ADDRESS } from "../packages/utils/utils";
+import { exec, ifNotProd, log, ZERO_ADDRESS } from "../packages/utils/utils";
 import {
     AllocatedRiskFreeValue,
     AllocatedRiskFreeValue__factory,
@@ -36,13 +36,12 @@ const deployAssetAllocator: IExtendedDeployFunction<IExodiaContractsRegistry> = 
         "TreasuryDepositor"
     );
     const { contract: assetAllocator, deployment } =
-        await deploy<AssetAllocator__factory>("AssetAllocator", [
-            depositor.address,
-            allocCalc.address,
-            roles.address,
-        ]);
+        await deploy<AssetAllocator__factory>("AssetAllocator", []);
     if (deployment?.newlyDeployed) {
-        await depositor.addMachine(assetAllocator.address);
+        await exec(() =>
+            assetAllocator.initialize(depositor.address, allocCalc.address, roles.address)
+        );
+        await exec(() => depositor.addMachine(assetAllocator.address));
     }
     log("Asset Allocator", assetAllocator.address);
 };
