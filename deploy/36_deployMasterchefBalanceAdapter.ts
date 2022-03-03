@@ -1,12 +1,12 @@
-import { externalAddressRegistry } from "../src/contracts";
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import { exec, log } from "../src/utils";
+import { externalAddressRegistry } from "../packages/sdk/contracts";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import { exec, log } from "../packages/utils/utils";
 import {
     MasterchefBalanceAdapter__factory,
     TreasuryTracker__factory,
-} from "../typechain";
+} from "../packages/sdk/typechain";
 
 export const MASTERCHEF_BALANCE_ADAPTER_DID = "masterchef_balance";
 

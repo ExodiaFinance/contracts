@@ -1,9 +1,9 @@
 import { parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
 
-import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
-import { BPTPriceOracle, BPTPriceOracle__factory } from "../../typechain";
+import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
+import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
+import { BPTPriceOracle, BPTPriceOracle__factory } from "../../packages/sdk/typechain";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNamedAccounts, deploy } = xhre;

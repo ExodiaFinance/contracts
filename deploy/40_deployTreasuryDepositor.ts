@@ -1,14 +1,14 @@
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import toggleRights, { MANAGING } from "../src/toggleRights";
-import { log } from "../src/utils";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import toggleRights, { MANAGING } from "../packages/utils/toggleRights";
+import { exec, log } from "../packages/utils/utils";
 import {
     AllocatedRiskFreeValue__factory,
     ExodiaRoles__factory,
     OlympusTreasury__factory,
     TreasuryDepositor__factory,
-} from "../typechain";
+} from "../packages/sdk/typechain";
 
 import { TREASURY_DID } from "./03_deployTreasury";
 import { ARFV_TOKEN_DID } from "./31_deployARFVToken";
@@ -26,16 +26,21 @@ const deployTreasuryDepositor: IExtendedDeployFunction<IExodiaContractsRegistry>
         );
         const { contract: roles } = await get<ExodiaRoles__factory>("ExodiaRoles");
         const { contract: depositor, deployment } =
-            await deploy<TreasuryDepositor__factory>("TreasuryDepositor", [
-                treasury.address,
-                arfv.address,
-                roles.address,
-            ]);
+            await deploy<TreasuryDepositor__factory>("TreasuryDepositor", []);
         if (deployment?.newlyDeployed) {
-            await toggleRights(treasury, MANAGING.RESERVEMANAGER, depositor.address);
-            await toggleRights(treasury, MANAGING.LIQUIDITYDEPOSITOR, depositor.address);
-            await toggleRights(treasury, MANAGING.RESERVEDEPOSITOR, depositor.address);
-            await arfv.addMinter(depositor.address);
+            await exec(() =>
+                depositor.initialize(treasury.address, arfv.address, roles.address)
+            );
+            await exec(() =>
+                toggleRights(treasury, MANAGING.RESERVEMANAGER, depositor.address)
+            );
+            await exec(() =>
+                toggleRights(treasury, MANAGING.LIQUIDITYDEPOSITOR, depositor.address)
+            );
+            await exec(() =>
+                toggleRights(treasury, MANAGING.RESERVEDEPOSITOR, depositor.address)
+            );
+            await exec(() => arfv.addMinter(depositor.address));
         }
         log("Treasury Depositor: ", depositor.address);
     };

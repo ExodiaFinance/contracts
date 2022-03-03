@@ -3,17 +3,17 @@ import hre from "hardhat";
 
 import { TREASURY_DID } from "../deploy/03_deployTreasury";
 import { STAKING_DID } from "../deploy/05_deployStaking";
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import mint from "../src/mint";
-import { DAI_DECIMALS, OHM_DECIMALS, toWei } from "../src/utils";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import mint from "../packages/utils/mint";
+import { DAI_DECIMALS, OHM_DECIMALS, toWei } from "../packages/utils/utils";
 import {
     DAI__factory,
     OlympusERC20Token__factory,
     OlympusTreasury__factory,
     SOlympus__factory,
     StakingHelperV2__factory,
-} from "../typechain";
+} from "../packages/sdk/typechain";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNamedAccounts } = xhre;

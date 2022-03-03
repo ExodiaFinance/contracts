@@ -7,9 +7,9 @@ import { BONDING_CALCULATOR_DID } from "../../deploy/09_deployOlympusBondingCalc
 import { SPOOKY_SWAP_ROUTER } from "../../deploy/18_addSpookyLP";
 import { DEPOSIT_SPOOKY_LP, SPOOKY_SWAP_FACTORY } from "../../deploy/19_depositSpookyLP";
 import { DEPLOY_REMOVE_UNI_LP_STRATEGY_DID } from "../../deploy/20_deployRemoveUniLPStrategy";
-import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
-import { DAI_DECIMALS, OHM_DECIMALS, toWei } from "../../src/utils";
+import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
+import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
+import { DAI_DECIMALS, OHM_DECIMALS, toWei } from "../../packages/utils/utils";
 import {
     DAI,
     DAI__factory,
@@ -24,7 +24,7 @@ import {
     UniswapV2Pair__factory,
     UniswapV2Router02,
     UniswapV2Router02__factory,
-} from "../../typechain";
+} from "../../packages/sdk/typechain";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNamedAccounts, deploy } = xhre;

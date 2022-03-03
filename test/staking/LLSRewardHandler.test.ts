@@ -4,10 +4,10 @@ import hre from "hardhat";
 
 import { MINT_OHM_DID } from "../../deploy/16_mintOHM";
 import { LIQUID_LOCK_STAKING_DID } from "../../deploy/24_liquidLockStakingDeployment";
-import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
-import mint from "../../src/mint";
-import { DAI_DECIMALS, OHM_DECIMALS, toWei } from "../../src/utils";
+import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
+import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
+import mint from "../../packages/utils/mint";
+import { DAI_DECIMALS, OHM_DECIMALS, toWei } from "../../packages/utils/utils";
 import {
     DAI,
     DAI__factory,
@@ -21,7 +21,7 @@ import {
     OlympusTreasury__factory,
     WOHM,
     WOHM__factory,
-} from "../../typechain";
+} from "../../packages/sdk/typechain";
 import "../chai-setup";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;

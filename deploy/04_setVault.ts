@@ -1,8 +1,11 @@
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import { log } from "../src/utils";
-import { OlympusERC20Token__factory, OlympusTreasury__factory } from "../typechain";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import { log } from "../packages/utils/utils";
+import {
+    OlympusERC20Token__factory,
+    OlympusTreasury__factory,
+} from "../packages/sdk/typechain";
 import { OHM_DID } from "./01_deployOhm";
 
 import { SOHM_DID } from "./02_deploysOhm";

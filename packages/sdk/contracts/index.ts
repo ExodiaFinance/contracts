@@ -1,4 +1,4 @@
-import { ZERO_ADDRESS } from "../utils";
+import { ZERO_ADDRESS } from "../../utils/utils";
 
 import { ContractFactory } from "./ContractFactory";
 import { NetworksContractsRegistry } from "./contractRegistry";

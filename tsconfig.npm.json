@@ -4,17 +4,12 @@
         "module": "commonjs",
         "strict": true,
         "esModuleInterop": true,
-        "outDir": "dist-dev",
+        "outDir": "dist",
         "resolveJsonModule": true,
-        "baseUrl": "./"
+        "baseUrl": "./",
+        "declaration": true
     },
     "include": [
-        "./scripts",
-        "./test",
-        "./deploy"
-    ],
-    "files": [
-        "./hardhat.config.ts",
-        "./helper-hardhat-config.ts"
+        "./packages/sdk"
     ]
 }

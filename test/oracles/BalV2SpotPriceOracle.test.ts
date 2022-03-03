@@ -3,15 +3,15 @@ import { BigNumber } from "ethers";
 import { parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
 
-import { externalAddressRegistry } from "../../src/contracts";
-import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
-import { ZERO_ADDRESS } from "../../src/utils";
+import { externalAddressRegistry } from "../../packages/sdk/contracts";
+import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
+import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
+import { ZERO_ADDRESS } from "../../packages/utils/utils";
 import {
     AggregatorV3Interface__factory,
     BalV2SpotPriceOracle__factory,
     IVault__factory,
-} from "../../typechain";
+} from "../../packages/sdk/typechain";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNamedAccounts, deploy, getNetwork } = xhre;

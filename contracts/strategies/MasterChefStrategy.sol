@@ -54,15 +54,16 @@ contract MasterChefStrategy is IStrategy, ExodiaAccessControl {
     address rewardToken;
     address allocator;
     
-    constructor(
-        address _masterChef, 
-        address _rewardToken, 
+    function initialize(
+        address _masterChef,
+        address _rewardToken,
         address _allocator,
         address _roles
-    ) ExodiaAccessControl(_roles) {
+    ) public initializer {
         masterChef = _masterChef;
         rewardToken = _rewardToken;
         allocator = _allocator;
+        __ExodiaAccessControl__init(_roles);
     }
     
     function getPid(address _token) external view returns(uint){

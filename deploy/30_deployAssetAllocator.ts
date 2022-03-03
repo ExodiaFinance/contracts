@@ -1,8 +1,8 @@
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import toggleRights, { MANAGING } from "../src/toggleRights";
-import { ifNotProd, log, ZERO_ADDRESS } from "../src/utils";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import toggleRights, { MANAGING } from "../packages/utils/toggleRights";
+import { exec, ifNotProd, log, ZERO_ADDRESS } from "../packages/utils/utils";
 import {
     AllocatedRiskFreeValue,
     AllocatedRiskFreeValue__factory,
@@ -11,7 +11,7 @@ import {
     ExodiaRoles__factory,
     OlympusTreasury__factory,
     TreasuryManager__factory,
-} from "../typechain";
+} from "../packages/sdk/typechain";
 
 import { TREASURY_DID } from "./03_deployTreasury";
 import { ARFV_TOKEN_DID } from "./31_deployARFVToken";
@@ -36,13 +36,12 @@ const deployAssetAllocator: IExtendedDeployFunction<IExodiaContractsRegistry> = 
         "TreasuryDepositor"
     );
     const { contract: assetAllocator, deployment } =
-        await deploy<AssetAllocator__factory>("AssetAllocator", [
-            depositor.address,
-            allocCalc.address,
-            roles.address,
-        ]);
+        await deploy<AssetAllocator__factory>("AssetAllocator", []);
     if (deployment?.newlyDeployed) {
-        await depositor.addMachine(assetAllocator.address);
+        await exec(() =>
+            assetAllocator.initialize(depositor.address, allocCalc.address, roles.address)
+        );
+        await exec(() => depositor.addMachine(assetAllocator.address));
     }
     log("Asset Allocator", assetAllocator.address);
 };

@@ -1,12 +1,12 @@
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import { ifNotProd, log } from "../src/utils";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import { ifNotProd, log } from "../packages/utils/utils";
 import {
     AllocatedRiskFreeValue__factory,
     WenAbsorptionBondDepository__factory,
     WOHM__factory,
-} from "../typechain";
+} from "../packages/sdk/typechain";
 
 import { WOHM_DID } from "./17_deployWOHM";
 

@@ -1,7 +1,7 @@
 import { Provider } from "@ethersproject/providers";
 import { Signer } from "ethers";
 
-import { ZERO_ADDRESS } from "../utils";
+import { ZERO_ADDRESS } from "../../utils/utils";
 
 import { Network } from "./Network";
 

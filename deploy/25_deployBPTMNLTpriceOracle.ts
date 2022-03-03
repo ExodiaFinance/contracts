@@ -1,9 +1,9 @@
-import { externalAddressRegistry } from "../src/contracts";
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import { log } from "../src/utils";
-import { BPTMNLTPriceOracle__factory } from "../typechain";
+import { externalAddressRegistry } from "../packages/sdk/contracts";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import { log } from "../packages/utils/utils";
+import { BPTMNLTPriceOracle__factory } from "../packages/sdk/typechain";
 
 export const BPTMNLT_ORACLE_DID = "bptmnlt_oracle_did";
 

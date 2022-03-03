@@ -1,14 +1,14 @@
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import toggleRights, { MANAGING } from "../src/toggleRights";
-import { log } from "../src/utils";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import toggleRights, { MANAGING } from "../packages/utils/toggleRights";
+import { exec, log } from "../packages/utils/utils";
 import {
     AllocatedRiskFreeValue__factory,
     ExodiaRoles__factory,
     OlympusTreasury__factory,
     TreasuryManager__factory,
-} from "../typechain";
+} from "../packages/sdk/typechain";
 import { TREASURY_DID } from "./03_deployTreasury";
 import { ARFV_TOKEN_DID } from "./31_deployARFVToken";
 import { EXODIA_ROLES_DID } from "./38_deployExodiaRoles";
@@ -27,13 +27,22 @@ const deployAssetManager: IExtendedDeployFunction<IExodiaContractsRegistry> = as
     const { contract: roles } = await get<ExodiaRoles__factory>("ExodiaRoles");
     const { contract: manager, deployment } = await deploy<TreasuryManager__factory>(
         "TreasuryManager",
-        [treasury.address, arfv.address, roles.address]
+        []
     );
     if (deployment?.newlyDeployed) {
-        await toggleRights(treasury, MANAGING.RESERVEMANAGER, manager.address);
-        await toggleRights(treasury, MANAGING.RESERVEDEPOSITOR, manager.address);
-        await toggleRights(treasury, MANAGING.LIQUIDITYMANAGER, manager.address);
-        await arfv.addMinter(manager.address);
+        await exec(() =>
+            manager.initialize(treasury.address, arfv.address, roles.address)
+        );
+        await exec(() =>
+            toggleRights(treasury, MANAGING.RESERVEMANAGER, manager.address)
+        );
+        await exec(() =>
+            toggleRights(treasury, MANAGING.RESERVEDEPOSITOR, manager.address)
+        );
+        await exec(() =>
+            toggleRights(treasury, MANAGING.LIQUIDITYMANAGER, manager.address)
+        );
+        await exec(() => arfv.addMinter(manager.address));
     }
     log("Treasury Manager: ", manager.address);
 };

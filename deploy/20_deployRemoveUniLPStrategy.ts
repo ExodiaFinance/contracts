@@ -1,8 +1,8 @@
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import toggleRights, { MANAGING } from "../src/toggleRights";
-import { ifNotProd } from "../src/utils";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import toggleRights, { MANAGING } from "../packages/utils/toggleRights";
+import { ifNotProd } from "../packages/utils/utils";
 import {
     DAI__factory,
     OlympusBondDepository__factory,
@@ -10,7 +10,7 @@ import {
     OlympusERC20Token__factory,
     OlympusTreasury__factory,
     RemoveUniLp__factory,
-} from "../typechain";
+} from "../packages/sdk/typechain";
 
 import { TREASURY_DID } from "./03_deployTreasury";
 

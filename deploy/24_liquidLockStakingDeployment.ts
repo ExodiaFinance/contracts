@@ -1,8 +1,8 @@
-import { externalAddressRegistry } from "../src/contracts";
-import { IExodiaContractsRegistry } from "../src/contracts/exodiaContracts";
-import { IExtendedDeployFunction } from "../src/HardhatRegistryExtension/ExtendedDeployFunction";
-import { IExtendedHRE } from "../src/HardhatRegistryExtension/ExtendedHRE";
-import { log } from "../src/utils";
+import { externalAddressRegistry } from "../packages/sdk/contracts";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
+import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
+import { log } from "../packages/utils/utils";
 import {
     LiquidLockStaking,
     LiquidLockStaking__factory,
@@ -10,7 +10,7 @@ import {
     MasterLock,
     MasterLock__factory,
     WOHM__factory,
-} from "../typechain";
+} from "../packages/sdk/typechain";
 
 import { WOHM_DID } from "./17_deployWOHM";
 import { FNFT_MASTER_LOCK_DID } from "./28_deployFNFTMasterLock";

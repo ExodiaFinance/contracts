@@ -1,4 +1,4 @@
-import { OlympusTreasury } from "../typechain";
+import { OlympusTreasury } from "../sdk/typechain";
 
 import { ZERO_ADDRESS } from "./utils";
 
@@ -22,5 +22,5 @@ export default async function toggleRights(
     calculator = ZERO_ADDRESS
 ) {
     await treasury.queue(managing, address);
-    await treasury.toggle(managing, address, calculator);
+    return treasury.toggle(managing, address, calculator);
 }

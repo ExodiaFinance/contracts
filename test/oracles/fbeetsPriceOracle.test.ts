@@ -3,16 +3,16 @@ import hre from "hardhat";
 
 import { GOHM_ORACLE_DID } from "../../deploy/21_deployGOHMPriceOracle";
 import { FBEETS_ORACLE_DID } from "../../deploy/29_deployFBEETSOracle";
-import { externalAddressRegistry } from "../../src/contracts";
-import { IExodiaContractsRegistry } from "../../src/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../src/HardhatRegistryExtension/ExtendedHRE";
+import { externalAddressRegistry } from "../../packages/sdk/contracts";
+import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
+import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
 import {
     AggregatorV3Interface__factory,
     FBEETSPriceOracle,
     FBEETSPriceOracle__factory,
     IBalV2PriceOracle__factory,
     IERC20__factory,
-} from "../../typechain";
+} from "../../packages/sdk/typechain";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNamedAccounts, deploy, getNetwork } = xhre;
