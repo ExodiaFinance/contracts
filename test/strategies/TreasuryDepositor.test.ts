@@ -254,7 +254,7 @@ describe("TreasuryDepositor", function () {
         });
     });
 
-    describe.only("Permissions", function () {
+    describe("Permissions", function () {
         const testPermissions = (error: string, caller: string) => {
             it(`Should only let ${caller} use returnFunds`, async function () {
                 expect(depositor.returnFunds(dai.address, 1000)).to.be.revertedWith(

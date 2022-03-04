@@ -4,9 +4,10 @@ import { expect } from "chai";
 import { BigNumber, BigNumberish } from "ethers";
 import { parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
+
 import { ASSET_ALLOCATOR_DID } from "../../deploy/30_deployAssetAllocator";
-import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
 import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
+import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
 import {
     AllocatedRiskFreeValue,
     AllocatedRiskFreeValue__factory,
@@ -340,7 +341,12 @@ describe("AssetAllocator", function () {
                         .sub(deployedAmount.mul(100 - returnRate).div(100))
                 );
                 expect(await loosingStrat.balance(dai.address)).to.eq(
-                    deployedAmount.add(newDeposit).mul(returnRate).div(100)
+                    deployedAmount
+                        .mul(returnRate)
+                        .div(100)
+                        .add(newDeposit)
+                        .mul(returnRate)
+                        .div(100)
                 );
                 expect(await dai.balanceOf(deployer)).to.eq(0);
             });
@@ -363,23 +369,18 @@ describe("AssetAllocator", function () {
             const alloc0 = 30_000;
             const alloc1 = 70_000;
             const maxAlloc = 100_000;
-            const factories = [mockStrategyFactory, mockGreedyStrategyFactory];
             let strat0: MockContract<MockStrategy>;
             let strat1: MockContract<MockStrategy>;
-            let balanceTotal = mintAmount;
+            // let balanceTotal = mintAmount;
 
-            const amountAlloc = (allocTo: number) =>
-                balanceTotal.mul(allocTo).div(maxAlloc);
+            const amountAllocReturned =
+                (returnRate: number) => (allocTo: number, balance: BigNumber) =>
+                    balance.mul(returnRate).div(100).mul(allocTo).div(maxAlloc);
 
-            const amountAllocReturned = (returnRate: number) => (allocTo: number) =>
-                balanceTotal.mul(returnRate).div(100).mul(allocTo).div(maxAlloc);
+            const amountAlloc = amountAllocReturned(100);
 
             const loss = (lossPercent: number) => (amount: BigNumber) =>
                 amount.mul(lossPercent).div(100);
-
-            beforeEach(async function () {
-                balanceTotal = mintAmount;
-            });
 
             const expectProperAllocation = async (
                 amountStrat0: BigNumberish,
@@ -394,28 +395,54 @@ describe("AssetAllocator", function () {
             };
 
             const testAllocations = (
-                balance0: (alloc: number) => BigNumber,
-                balance1: (alloc: number) => BigNumber,
+                balance0: (alloc: number, total: BigNumber) => BigNumber,
+                balance1: (alloc: number, total: BigNumber) => BigNumber,
                 loss0: (withdrawn: BigNumber) => BigNumber,
                 loss1: (withdrawn: BigNumber) => BigNumber
             ) => {
                 it("Should return total balance", async function () {
                     expect(await assetAllocator.allocatedBalance(dai.address)).eq(
-                        balance0(alloc0).add(balance1(alloc1))
+                        balance0(alloc0, mintAmount).add(balance1(alloc1, mintAmount))
                     );
                 });
 
                 it("Should allocate between multiples", async function () {
-                    const amountStrat0 = balance0(alloc0);
-                    const amountStrat1 = balance1(alloc1);
+                    const amountStrat0 = balance0(alloc0, mintAmount);
+                    const amountStrat1 = balance1(alloc1, mintAmount);
                     await expectProperAllocation(amountStrat0, amountStrat1);
                 });
 
                 it("Should rebalance if loss/profits", async function () {
-                    balanceTotal = balance0(alloc0).add(balance1(alloc1));
+                    const balanceBefore0 = balance0(alloc0, mintAmount);
+                    const balanceBefore1 = balance1(alloc1, mintAmount);
+                    const balanceTotal = balance0(alloc0, mintAmount).add(
+                        balance1(alloc1, mintAmount)
+                    );
                     await dai.approve(assetAllocator.address, balanceTotal);
                     await assetAllocator.rebalance(dai.address, balanceTotal);
-                    await expectProperAllocation(balance0(alloc0), balance1(alloc1));
+                    const amountWithdrawn0 = balance0(alloc0, balanceTotal)
+                        .sub(balanceBefore0)
+                        .mul(-1);
+                    const amountWithdrawn1 = balance1(alloc1, balanceTotal)
+                        .sub(balanceBefore1)
+                        .mul(-1);
+                    const amountLoss0 = amountWithdrawn0.gt(0)
+                        ? loss0(amountWithdrawn0)
+                        : BigNumber.from(0);
+                    const amountLoss1 = amountWithdrawn1.gt(0)
+                        ? loss1(amountWithdrawn1)
+                        : BigNumber.from(0);
+                    let amount0 = balanceTotal.mul(alloc0).div(maxAlloc);
+                    let amount1 = balanceTotal.mul(alloc1).div(maxAlloc);
+                    if (amountLoss0.gt(0)) {
+                        amount1 = amount1.sub(amountLoss0);
+                    }
+                    if (amountLoss1.gt(0)) {
+                        amount0 = amount0.sub(amountLoss1);
+                    }
+                    amount0 = balance0(maxAlloc, amount0);
+                    amount1 = balance1(maxAlloc, amount1);
+                    await expectProperAllocation(amount0, amount1);
                 });
 
                 it("Should reallocate higher-lower", async function () {
@@ -426,21 +453,33 @@ describe("AssetAllocator", function () {
                         [strat0.address, strat1.address],
                         [newAlloc0, newAlloc1]
                     );
-                    balanceTotal = balance0(alloc0).add(balance1(alloc1));
+                    const balanceBefore0 = balance0(alloc0, mintAmount);
+                    const balanceBefore1 = balance1(alloc1, mintAmount);
+                    const balanceTotal = balanceBefore0.add(balanceBefore1);
                     await dai.approve(assetAllocator.address, balanceTotal);
                     await assetAllocator.rebalance(dai.address, balanceTotal);
-                    const amountWithdrawn0 = balance0(alloc0 - newAlloc0);
-                    const amountWithdrawn1 = balance1(alloc1 - newAlloc1);
-                    const amountLoss0 = loss0(amountWithdrawn0);
-                    const amountLoss1 = loss1(amountWithdrawn1);
-                    let amount0 = balance0(newAlloc0);
-                    let amount1 = balance1(newAlloc1);
+                    const amountWithdrawn0 = balance0(newAlloc0, balanceTotal)
+                        .sub(balanceBefore0)
+                        .mul(-1);
+                    const amountWithdrawn1 = balance1(newAlloc1, balanceTotal)
+                        .sub(balanceBefore1)
+                        .mul(-1);
+                    const amountLoss0 = amountWithdrawn0.gt(0)
+                        ? loss0(amountWithdrawn0)
+                        : BigNumber.from(0);
+                    const amountLoss1 = amountWithdrawn1.gt(0)
+                        ? loss1(amountWithdrawn1)
+                        : BigNumber.from(0);
+                    let amount0 = balanceTotal.mul(newAlloc0).div(maxAlloc);
+                    let amount1 = balanceTotal.mul(newAlloc1).div(maxAlloc);
                     if (amountLoss0.gt(0)) {
                         amount1 = amount1.sub(amountLoss0);
                     }
                     if (amountLoss1.gt(0)) {
                         amount0 = amount0.sub(amountLoss1);
                     }
+                    amount0 = balance0(maxAlloc, amount0);
+                    amount1 = balance1(maxAlloc, amount1);
                     await expectProperAllocation(amount0, amount1);
                 });
 
@@ -452,15 +491,17 @@ describe("AssetAllocator", function () {
                         [strat0.address, strat1.address],
                         [newAlloc0, newAlloc1]
                     );
-                    balanceTotal = balance0(alloc0).add(balance1(alloc1));
+                    const balanceTotal = balance0(alloc0, mintAmount).add(
+                        balance1(alloc1, mintAmount)
+                    );
                     await dai.approve(assetAllocator.address, balanceTotal);
                     await assetAllocator.rebalance(dai.address, balanceTotal);
-                    const amountWithdrawn0 = balance0(alloc0 - newAlloc0);
-                    const amountWithdrawn1 = balance1(alloc1 - newAlloc1);
+                    const amountWithdrawn0 = balance0(alloc0 - newAlloc0, balanceTotal);
+                    const amountWithdrawn1 = balance1(alloc1 - newAlloc1, balanceTotal);
                     const amountLoss0 = loss0(amountWithdrawn0);
                     const amountLoss1 = loss1(amountWithdrawn1);
-                    let amount0 = balance0(newAlloc0);
-                    let amount1 = balance1(newAlloc1);
+                    let amount0 = balance0(newAlloc0, balanceTotal);
+                    let amount1 = balance1(newAlloc1, balanceTotal);
                     if (amountLoss0.gt(0)) {
                         amount1 = amount1.sub(amountLoss0);
                     }
@@ -471,23 +512,55 @@ describe("AssetAllocator", function () {
                 });
 
                 it("Should add tokens", async function () {
-                    balanceTotal = balance0(alloc0).add(balance1(alloc1));
+                    const balanceBefore0 = balance0(alloc0, mintAmount);
+                    const balanceBefore1 = balance1(alloc1, mintAmount);
+                    let balanceTotal = balance0(alloc0, mintAmount).add(
+                        balance1(alloc1, mintAmount)
+                    );
                     const newDeposit = parseUnits("1000", "ether");
                     await dai.mint(deployer, newDeposit);
                     balanceTotal = balanceTotal.add(newDeposit);
                     await dai.approve(assetAllocator.address, balanceTotal);
                     await assetAllocator.rebalance(dai.address, balanceTotal);
-                    await expectProperAllocation(balance0(alloc0), balance1(alloc1));
+                    const amountWithdrawn0 = balance0(alloc0, balanceTotal)
+                        .sub(balanceBefore0)
+                        .mul(-1);
+                    const amountWithdrawn1 = balance1(alloc1, balanceTotal)
+                        .sub(balanceBefore1)
+                        .mul(-1);
+                    const amountLoss0 = amountWithdrawn0.gt(0)
+                        ? loss0(amountWithdrawn0)
+                        : BigNumber.from(0);
+                    const amountLoss1 = amountWithdrawn1.gt(0)
+                        ? loss1(amountWithdrawn1)
+                        : BigNumber.from(0);
+                    let amount0 = balanceTotal.mul(alloc0).div(maxAlloc);
+                    let amount1 = balanceTotal.mul(alloc1).div(maxAlloc);
+                    if (amountLoss0.gt(0)) {
+                        amount1 = amount1.sub(amountLoss0);
+                    }
+                    if (amountLoss1.gt(0)) {
+                        amount0 = amount0.sub(amountLoss1);
+                    }
+                    amount0 = balance0(maxAlloc, amount0);
+                    amount1 = balance1(maxAlloc, amount1);
+                    await expectProperAllocation(amount0, amount1);
                 });
 
                 it("Should withdraw tokens", async function () {
-                    balanceTotal = balance0(alloc0).add(balance1(alloc1)).div(2);
-                    const amountStrat0 = balance0(alloc0);
-                    const amountStrat1 = balance1(alloc1);
+                    const balanceTotal = balance0(alloc0, mintAmount)
+                        .add(balance1(alloc1, mintAmount))
+                        .div(2);
+                    const amountStrat0 = balance0(alloc0, balanceTotal);
+                    const amountStrat1 = balance1(alloc1, balanceTotal);
                     await dai.approve(assetAllocator.address, balanceTotal);
                     await assetAllocator.rebalance(dai.address, balanceTotal);
-                    const amountWithdrawn0 = balance0(alloc0);
-                    const amountWithdrawn1 = balance1(alloc1);
+                    const amountWithdrawn0 = balance0(alloc0, mintAmount).sub(
+                        amountStrat0
+                    );
+                    const amountWithdrawn1 = balance1(alloc1, mintAmount).sub(
+                        amountStrat1
+                    );
                     const amountLoss0 = loss0(amountWithdrawn0);
                     const amountLoss1 = loss1(amountWithdrawn1);
                     await expectProperAllocation(
@@ -500,9 +573,11 @@ describe("AssetAllocator", function () {
                 it("Should add and reallocate", async function () {
                     const newAlloc0 = 40_000;
                     const newAlloc1 = 60_000;
-                    const balanceBefore0 = balance0(alloc0);
-                    const balanceBefore1 = balance1(alloc1);
-                    balanceTotal = balance0(alloc0).add(balance1(alloc1));
+                    const balanceBefore0 = balance0(alloc0, mintAmount);
+                    const balanceBefore1 = balance1(alloc1, mintAmount);
+                    let balanceTotal = balance0(alloc0, mintAmount).add(
+                        balance1(alloc1, mintAmount)
+                    );
                     const newDeposit = parseUnits("1000", "ether");
                     await dai.mint(deployer, newDeposit);
                     balanceTotal = balanceTotal.add(newDeposit);
@@ -513,23 +588,37 @@ describe("AssetAllocator", function () {
                     );
                     await dai.approve(assetAllocator.address, balanceTotal);
                     await assetAllocator.rebalance(dai.address, balanceTotal);
-                    let amount0 = balance0(newAlloc0);
-                    let amount1 = balance1(newAlloc1);
-                    const amountLoss0 = loss0(balanceBefore0.sub(amount0));
-                    const amountLoss1 = loss1(balanceBefore1.sub(amount1));
+                    const amountWithdrawn0 = balance0(newAlloc0, balanceTotal)
+                        .sub(balanceBefore0)
+                        .mul(-1);
+                    const amountWithdrawn1 = balance1(newAlloc1, balanceTotal)
+                        .sub(balanceBefore1)
+                        .mul(-1);
+                    const amountLoss0 = amountWithdrawn0.gt(0)
+                        ? loss0(amountWithdrawn0)
+                        : BigNumber.from(0);
+                    const amountLoss1 = amountWithdrawn1.gt(0)
+                        ? loss1(amountWithdrawn1)
+                        : BigNumber.from(0);
+                    let amount0 = balanceTotal.mul(newAlloc0).div(maxAlloc);
+                    let amount1 = balanceTotal.mul(newAlloc1).div(maxAlloc);
                     if (amountLoss0.gt(0)) {
                         amount1 = amount1.sub(amountLoss0);
                     }
                     if (amountLoss1.gt(0)) {
                         amount0 = amount0.sub(amountLoss1);
                     }
+                    amount0 = balance0(maxAlloc, amount0);
+                    amount1 = balance1(maxAlloc, amount1);
                     await expectProperAllocation(amount0, amount1);
                 });
 
                 it("Should remove and reallocate", async function () {
-                    const balanceBefore0 = balance0(alloc0);
-                    const balanceBefore1 = balance1(alloc1);
-                    balanceTotal = balance0(alloc0).add(balance1(alloc1)).div(2);
+                    const balanceBefore0 = balance0(alloc0, mintAmount);
+                    const balanceBefore1 = balance1(alloc1, mintAmount);
+                    const balanceTotal = balance0(alloc0, mintAmount)
+                        .add(balance1(alloc1, mintAmount))
+                        .div(2);
                     const newAlloc0 = 40_000;
                     const newAlloc1 = 60_000;
                     await allocationCalculator.setAllocation(
@@ -539,13 +628,17 @@ describe("AssetAllocator", function () {
                     );
                     await dai.approve(assetAllocator.address, balanceTotal);
                     await assetAllocator.rebalance(dai.address, balanceTotal);
-                    const amountWithdrawn0 = balanceBefore0.sub(balance0(newAlloc0));
-                    const amountWithdrawn1 = balanceBefore1.sub(balance1(newAlloc1));
+                    const amountWithdrawn0 = balanceBefore0.sub(
+                        balance0(newAlloc0, balanceTotal)
+                    );
+                    const amountWithdrawn1 = balanceBefore1.sub(
+                        balance1(newAlloc1, balanceTotal)
+                    );
                     const amountLoss0 = loss0(amountWithdrawn0);
                     const amountLoss1 = loss1(amountWithdrawn1);
                     await expectProperAllocation(
-                        balance0(newAlloc0),
-                        balance1(newAlloc1),
+                        balance0(newAlloc0, balanceTotal),
+                        balance1(newAlloc1, balanceTotal),
                         balanceTotal.sub(amountLoss0).sub(amountLoss1)
                     );
                 });
@@ -560,7 +653,7 @@ describe("AssetAllocator", function () {
                         [strat0.address, strat1.address],
                         [alloc0, alloc1]
                     );
-                    await assetAllocator.rebalance(dai.address, balanceTotal);
+                    await assetAllocator.rebalance(dai.address, mintAmount);
                 });
 
                 beforeEach(async function () {
@@ -584,7 +677,7 @@ describe("AssetAllocator", function () {
                         [strat0.address, strat1.address],
                         [alloc0, alloc1]
                     );
-                    await assetAllocator.rebalance(dai.address, balanceTotal);
+                    await assetAllocator.rebalance(dai.address, mintAmount);
                 });
 
                 beforeEach(async function () {
@@ -617,7 +710,7 @@ describe("AssetAllocator", function () {
                         [strat0.address, strat1.address],
                         [alloc0, alloc1]
                     );
-                    await assetAllocator.rebalance(dai.address, balanceTotal);
+                    await assetAllocator.rebalance(dai.address, mintAmount);
                 });
 
                 beforeEach(async function () {
@@ -648,7 +741,7 @@ describe("AssetAllocator", function () {
                         [alloc0, alloc1]
                     );
                     await dai.addAuth(strat0.address);
-                    await assetAllocator.rebalance(dai.address, balanceTotal);
+                    await assetAllocator.rebalance(dai.address, mintAmount);
                 });
 
                 beforeEach(async function () {
@@ -685,7 +778,7 @@ describe("AssetAllocator", function () {
                     );
                     await dai.addAuth(strat0.address);
                     await dai.addAuth(strat1.address);
-                    await assetAllocator.rebalance(dai.address, balanceTotal);
+                    await assetAllocator.rebalance(dai.address, mintAmount);
                 });
 
                 beforeEach(async function () {
@@ -720,7 +813,7 @@ describe("AssetAllocator", function () {
                         [alloc0, alloc1]
                     );
                     await dai.addAuth(strat1.address);
-                    await assetAllocator.rebalance(dai.address, balanceTotal);
+                    await assetAllocator.rebalance(dai.address, mintAmount);
                 });
 
                 beforeEach(async function () {
@@ -749,7 +842,7 @@ describe("AssetAllocator", function () {
                         [strat0.address, strat1.address],
                         [alloc0, alloc1]
                     );
-                    await assetAllocator.rebalance(dai.address, balanceTotal);
+                    await assetAllocator.rebalance(dai.address, mintAmount);
                 });
 
                 beforeEach(async function () {
@@ -782,7 +875,7 @@ describe("AssetAllocator", function () {
                         [strat0.address, strat1.address],
                         [alloc0, alloc1]
                     );
-                    await assetAllocator.rebalance(dai.address, balanceTotal);
+                    await assetAllocator.rebalance(dai.address, mintAmount);
                 });
 
                 beforeEach(async function () {
@@ -797,7 +890,7 @@ describe("AssetAllocator", function () {
                 );
             });
 
-            describe.only("For winning-slipping strategies", function () {
+            describe("For winning-slipping strategies", function () {
                 const returnRate0 = 110;
                 const returnRate1 = 90;
 
@@ -817,7 +910,41 @@ describe("AssetAllocator", function () {
                         [alloc0, alloc1]
                     );
                     await dai.addAuth(strat0.address);
-                    await assetAllocator.rebalance(dai.address, balanceTotal);
+                    await assetAllocator.rebalance(dai.address, mintAmount);
+                });
+
+                beforeEach(async function () {
+                    await setUpWinningSlipping();
+                });
+
+                testAllocations(
+                    amountAllocReturned(returnRate0),
+                    amountAlloc,
+                    loss(0),
+                    loss(100 - returnRate1)
+                );
+            });
+
+            describe("For loosing-slipping strategies", function () {
+                const returnRate0 = 80;
+                const returnRate1 = 90;
+
+                const setUpWinningSlipping = deployments.createFixture(async (hh) => {
+                    strat0 = await mockLoosingStrategyFactory.deploy(
+                        assetAllocator.address,
+                        returnRate0
+                    );
+                    strat1 = await mockGreedyStrategyFactory.deploy(
+                        assetAllocator.address,
+                        returnRate1
+                    );
+                    await allocationCalculator.setAllocation(
+                        dai.address,
+                        [strat0.address, strat1.address],
+                        [alloc0, alloc1]
+                    );
+                    await dai.addAuth(strat0.address);
+                    await assetAllocator.rebalance(dai.address, mintAmount);
                 });
 
                 beforeEach(async function () {
