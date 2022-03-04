@@ -4,7 +4,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 
 import { EXODIA_ROLES_DID } from "../../deploy/38_deployExodiaRoles";
 import { BALANCER_V2_PRICE_ORACLE_DID } from "../../deploy/42_deployBalancerV2PriceOracle";
-import { PRICE_PROVIDER_DID } from "../../deploy/43_deployPriceProvider";
+import { PRICE_PROVIDER_DID } from "../../deploy/44_deployPriceProvider";
 import { externalAddressRegistry } from "../../packages/sdk/contracts";
 import {
     IExodiaContractsRegistry,
