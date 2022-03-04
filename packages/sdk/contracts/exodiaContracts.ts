@@ -75,6 +75,8 @@ import {
     WOHM__factory,
     PriceProvider,
     PriceProvider__factory,
+    ChainlinkPriceOracle,
+    ChainlinkPriceOracle__factory,
 } from "../typechain";
 
 import { ContractVersions, NetworksContractsRegistry, version } from "./contractRegistry";
@@ -144,6 +146,7 @@ export interface IExodiaContractsRegistry {
     TreasuryManager: ContractVersions<TreasuryManager>;
     TreasuryDepositor: ContractVersions<TreasuryDepositor>;
     BalancerV2PriceOracle: ContractVersions<BalancerV2PriceOracle>;
+    ChainlinkPriceOracle: ContractVersions<ChainlinkPriceOracle>;
     PriceProvider: ContractVersions<PriceProvider>;
     Farmer: ContractVersions<Farmer>;
     ExodiaBalanceAggregator: ContractVersions<ExodiaBalanceAggregator>;
@@ -333,6 +336,9 @@ const mainOperaContract: IExodiaContractsRegistry = {
     BalancerV2PriceOracle: new ContractVersions<BalancerV2PriceOracle>([
         version(BalancerV2PriceOracle__factory.connect),
     ]),
+    ChainlinkPriceOracle: new ContractVersions<ChainlinkPriceOracle>([
+        version(ChainlinkPriceOracle__factory.connect),
+    ]),
     PriceProvider: new ContractVersions<PriceProvider>([
         version(PriceProvider__factory.connect),
     ]),
@@ -476,6 +482,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     ]),
     BalancerV2PriceOracle: new ContractVersions<BalancerV2PriceOracle>([
         version(BalancerV2PriceOracle__factory.connect),
+    ]),
+    ChainlinkPriceOracle: new ContractVersions<ChainlinkPriceOracle>([
+        version(ChainlinkPriceOracle__factory.connect),
     ]),
     PriceProvider: new ContractVersions<PriceProvider>([
         version(PriceProvider__factory.connect),
