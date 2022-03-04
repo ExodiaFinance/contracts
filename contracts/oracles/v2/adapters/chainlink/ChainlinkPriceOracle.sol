@@ -19,7 +19,6 @@ contract ChainlinkPriceOracle is IPriceOracle, ExodiaAccessControlInitializable 
     event SetPriceFeed(address indexed token, address indexed feed);
 
     function initialize(address _roles, address _base_price_feed) public initializer {
-        require(_roles != address(0), "roles cannot be null address");
         require(
             _base_price_feed != address(0),
             "FTM PRICE FEED cannot be the null address"
