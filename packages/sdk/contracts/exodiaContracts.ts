@@ -77,6 +77,8 @@ import {
     PriceProvider__factory,
     ChainlinkPriceOracle,
     ChainlinkPriceOracle__factory,
+    SolidexBalanceAdapter,
+    SolidexBalanceAdapter__factory,
 } from "../typechain";
 
 import { ContractVersions, NetworksContractsRegistry, version } from "./contractRegistry";
@@ -108,6 +110,7 @@ export interface IExternalContractsRegistry {
     GOHM: string;
     DEMETER_DEGREE: string;
     EXODFTM_HLP: string;
+    SOLIDEX_LP_DEPOSITOR: string;
 }
 
 export interface IExodiaContractsRegistry {
@@ -150,6 +153,7 @@ export interface IExodiaContractsRegistry {
     PriceProvider: ContractVersions<PriceProvider>;
     Farmer: ContractVersions<Farmer>;
     ExodiaBalanceAggregator: ContractVersions<ExodiaBalanceAggregator>;
+    SolidexBalanceAdapter: ContractVersions<SolidexBalanceAdapter>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -349,6 +353,9 @@ const mainOperaContract: IExodiaContractsRegistry = {
             "0xa3Cbd851460477C7b7aAA381da7ee4043462657F"
         ),
     ]),
+    SolidexBalanceAdapter: new ContractVersions<SolidexBalanceAdapter>([
+        version(SolidexBalanceAdapter__factory.connect),
+    ]),
 };
 
 const testNetOperaContract: IExodiaContractsRegistry = {
@@ -492,6 +499,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     Farmer: new ContractVersions<Farmer>([version(Farmer__factory.connect)]),
     ExodiaBalanceAggregator: new ContractVersions<ExodiaBalanceAggregator>([
         version(ExodiaBalanceAggregator__factory.connect),
+    ]),
+    SolidexBalanceAdapter: new ContractVersions<SolidexBalanceAdapter>([
+        version(SolidexBalanceAdapter__factory.connect),
     ]),
 };
 
