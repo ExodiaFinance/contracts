@@ -46,6 +46,7 @@ const mainnetRegistry: IExternalContractsRegistry = {
     GOHM: "0x91fa20244Fb509e8289CA630E5db3E9166233FDc",
     DEMETER_DEGREE: "0xf7bf0f161d3240488807ffa23894452246049916",
     EXODFTM_HLP: "0x7c3c2d70de2f9fc87b55e47e579bf55fea0016e9",
+    SOLIDEX_LP_DEPOSITOR: "0x26E1A0d851CF28E697870e1b7F053B605C8b060F",
 };
 externalAddressRegistry.addNetwork(Network.OPERA_MAIN_NET, mainnetRegistry);
 
@@ -75,6 +76,7 @@ externalAddressRegistry.addNetwork(Network.OPERA_TEST_NET, {
     GOHM: ZERO_ADDRESS,
     DEMETER_DEGREE: ZERO_ADDRESS,
     EXODFTM_HLP: ZERO_ADDRESS,
+    SOLIDEX_LP_DEPOSITOR: ZERO_ADDRESS,
 });
 
 externalAddressRegistry.addNetwork(Network.HARDHAT, mainnetRegistry);

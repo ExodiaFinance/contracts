@@ -75,6 +75,10 @@ import {
     WOHM__factory,
     PriceProvider,
     PriceProvider__factory,
+    ChainlinkPriceOracle,
+    ChainlinkPriceOracle__factory,
+    SolidexBalanceAdapter,
+    SolidexBalanceAdapter__factory,
 } from "../typechain";
 
 import { ContractVersions, NetworksContractsRegistry, version } from "./contractRegistry";
@@ -106,6 +110,7 @@ export interface IExternalContractsRegistry {
     GOHM: string;
     DEMETER_DEGREE: string;
     EXODFTM_HLP: string;
+    SOLIDEX_LP_DEPOSITOR: string;
 }
 
 export interface IExodiaContractsRegistry {
@@ -144,9 +149,11 @@ export interface IExodiaContractsRegistry {
     TreasuryManager: ContractVersions<TreasuryManager>;
     TreasuryDepositor: ContractVersions<TreasuryDepositor>;
     BalancerV2PriceOracle: ContractVersions<BalancerV2PriceOracle>;
+    ChainlinkPriceOracle: ContractVersions<ChainlinkPriceOracle>;
     PriceProvider: ContractVersions<PriceProvider>;
     Farmer: ContractVersions<Farmer>;
     ExodiaBalanceAggregator: ContractVersions<ExodiaBalanceAggregator>;
+    SolidexBalanceAdapter: ContractVersions<SolidexBalanceAdapter>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -333,6 +340,9 @@ const mainOperaContract: IExodiaContractsRegistry = {
     BalancerV2PriceOracle: new ContractVersions<BalancerV2PriceOracle>([
         version(BalancerV2PriceOracle__factory.connect),
     ]),
+    ChainlinkPriceOracle: new ContractVersions<ChainlinkPriceOracle>([
+        version(ChainlinkPriceOracle__factory.connect),
+    ]),
     PriceProvider: new ContractVersions<PriceProvider>([
         version(PriceProvider__factory.connect),
     ]),
@@ -342,6 +352,9 @@ const mainOperaContract: IExodiaContractsRegistry = {
             ExodiaBalanceAggregator__factory.connect,
             "0xa3Cbd851460477C7b7aAA381da7ee4043462657F"
         ),
+    ]),
+    SolidexBalanceAdapter: new ContractVersions<SolidexBalanceAdapter>([
+        version(SolidexBalanceAdapter__factory.connect),
     ]),
 };
 
@@ -477,12 +490,18 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     BalancerV2PriceOracle: new ContractVersions<BalancerV2PriceOracle>([
         version(BalancerV2PriceOracle__factory.connect),
     ]),
+    ChainlinkPriceOracle: new ContractVersions<ChainlinkPriceOracle>([
+        version(ChainlinkPriceOracle__factory.connect),
+    ]),
     PriceProvider: new ContractVersions<PriceProvider>([
         version(PriceProvider__factory.connect),
     ]),
     Farmer: new ContractVersions<Farmer>([version(Farmer__factory.connect)]),
     ExodiaBalanceAggregator: new ContractVersions<ExodiaBalanceAggregator>([
         version(ExodiaBalanceAggregator__factory.connect),
+    ]),
+    SolidexBalanceAdapter: new ContractVersions<SolidexBalanceAdapter>([
+        version(SolidexBalanceAdapter__factory.connect),
     ]),
 };
 
