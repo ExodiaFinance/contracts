@@ -25,7 +25,7 @@ contract ChainlinkPriceOracle is IPriceOracle, ExodiaAccessControlInitializable 
         );
 
         BASE_PRICE_FEED = _base_price_feed;
-        __ExodiaAccessControl__init(_roles);
+        ExodiaAccessControlInitializable.initializeAccessControl(_roles);
     }
 
     function setPriceFeed(address _token, address _feed) external onlyArchitect {

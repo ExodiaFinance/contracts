@@ -42,7 +42,7 @@ contract BalancerV2PriceOracle is IPriceOracle, ExodiaAccessControlInitializable
     ) public initializer {
         require(_vault != address(0), "vault cannot be null address");
 
-        __ExodiaAccessControl__init(_roles);
+        ExodiaAccessControlInitializable.initializeAccessControl(_roles);
 
         vault = _vault;
         if (_minimumUpdateInterval != 0) {

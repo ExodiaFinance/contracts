@@ -19,7 +19,7 @@ contract TreasuryDepositor is ExodiaAccessControl {
     function initialize(address _treasury, address _arfv, address _roles) public initializer {
         treasuryAddress = _treasury;
         arfvAddress = _arfv;
-        __ExodiaAccessControl__init(_roles);
+        ExodiaAccessControlInitializable.initializeAccessControl(_roles);
     }
     
     /**

@@ -310,7 +310,7 @@ const mainOperaContract: IExodiaContractsRegistry = {
     WenAbsorptionBondDepository: new ContractVersions<WenAbsorptionBondDepository>([
         version(
             WenAbsorptionBondDepository__factory.connect,
-            "0x23Cd0F3d9eaD6c1B87789a1484380D132ea62Ffe"
+            "0xf74c60fCa30BFbff0d99D5BFcba3A3fCEa8C47FB"
         ),
     ]),
     TreasuryTracker: new ContractVersions<TreasuryTracker>([

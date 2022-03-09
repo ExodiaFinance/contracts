@@ -63,7 +63,7 @@ contract MasterChefStrategy is IStrategy, ExodiaAccessControl {
         masterChef = _masterChef;
         rewardToken = _rewardToken;
         allocator = _allocator;
-        __ExodiaAccessControl__init(_roles);
+        ExodiaAccessControlInitializable.initializeAccessControl(_roles);
     }
     
     function getPid(address _token) external view returns(uint){
