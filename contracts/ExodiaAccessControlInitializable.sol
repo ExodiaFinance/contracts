@@ -16,9 +16,8 @@ abstract contract ExodiaAccessControlInitializable is Initializable {
     ExodiaRoles public roles;
     mapping(address => bool) machines;
 
-    function __ExodiaAccessControl__init(address _roles) internal onlyInitializing {
+    function initializeAccessControl(address _roles) public virtual onlyInitializing {
         require(_roles != address(0), "roles cannot be null address");
-
         roles = ExodiaRoles(_roles);
     }
 

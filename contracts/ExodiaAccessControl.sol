@@ -11,6 +11,6 @@ import "./ExodiaAccessControlInitializable.sol";
  * The Machine role is intended to be used if the contract can only be called from another
  * contract or by a keeper we know the address.
  */
-abstract contract ExodiaAccessControl is ExodiaAccessControlInitializable {
+contract ExodiaAccessControl is ExodiaAccessControlInitializable {
 
 }

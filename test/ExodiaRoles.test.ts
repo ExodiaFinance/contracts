@@ -2,7 +2,7 @@ import { MockContract, MockContractFactory, smock } from "@defi-wonderland/smock
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
-import { parseUnits } from "ethers/lib/utils";
+import { keccak256, parseUnits, toUtf8Bytes } from "ethers/lib/utils";
 import hre from "hardhat";
 
 import { EXODIA_ROLES_DID } from "../deploy/38_deployExodiaRoles";
@@ -14,7 +14,7 @@ import "./chai-setup";
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNamedAccounts, getUnnamedAccounts } = xhre;
 
-describe("Allocation Calculator", function () {
+describe("ExodiaRoles", function () {
     let deployer: SignerWithAddress;
     let noRole: SignerWithAddress;
     let policy: SignerWithAddress;
@@ -41,6 +41,25 @@ describe("Allocation Calculator", function () {
         roles = deployment.contract;
     });
 
+    describe("Custom roles", function () {
+        const newRole = keccak256(toUtf8Bytes("NEW_ROLE"));
+        let noRoleRoles: ExodiaRoles;
+
+        beforeEach(() => {
+            noRoleRoles = ExodiaRoles__factory.connect(roles.address, noRole);
+        });
+
+        it("Should let DAO add new roles", async function () {
+            await roles.grantRole(newRole, deployer.address);
+            expect(await roles.hasRole(newRole, deployer.address)).to.be.true;
+            expect(await roles.hasRole(newRole, noRole.address)).to.be.false;
+        });
+
+        it("Should not let others add new roles", async function () {
+            expect(noRoleRoles.grantRole(newRole, deployer.address)).to.be.reverted;
+        });
+    });
+
     describe("Policy role", function () {
         const setUp = deployments.createFixture(async (hh) => {
             await roles.addPolicy(policy.address);
@@ -53,23 +72,23 @@ describe("Allocation Calculator", function () {
             await setUp();
         });
 
-        it("Should return true if account is machine", async function () {
+        it("Should return true if account is policy", async function () {
             expect(await roles.isPolicy(accounts[POLICY])).to.be.true;
         });
 
-        it("Should return false if account is not a machine", async function () {
+        it("Should return false if account is not a policy", async function () {
             expect(await roles.isPolicy(accounts[ARCHITECT])).to.be.false;
         });
 
-        it("Should not let machine add other machine", async function () {
+        it("Should not let policy add other policy", async function () {
             expect(rolesFromPolicy.addPolicy(noRole.address)).to.be.reverted;
         });
 
-        it("Should not let machine remove other machine", async function () {
+        it("Should not let policy remove other policy", async function () {
             expect(rolesFromPolicy.removePolicy(noRole.address)).to.be.reverted;
         });
 
-        it("Should revoke machine role", async function () {
+        it("Should revoke policy role", async function () {
             await roles.removePolicy(policy.address);
             expect(await roles.isPolicy(policy.address)).to.be.false;
         });

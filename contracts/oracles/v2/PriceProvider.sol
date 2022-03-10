@@ -21,7 +21,7 @@ contract PriceProvider is ExodiaAccessControlInitializable {
      * @param _roles exodia roles address
      */
     function initialize(address _roles) public initializer {
-        __ExodiaAccessControl__init(_roles);
+        ExodiaAccessControlInitializable.initializeAccessControl(_roles);
     }
 
     function setTokenOracle(address token, address oracle) external onlyArchitect {

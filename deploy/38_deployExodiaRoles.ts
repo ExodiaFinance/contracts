@@ -1,8 +1,8 @@
-import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
-import { log } from "../packages/utils/utils";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
 import { ExodiaRoles__factory } from "../packages/sdk/typechain";
+import { log } from "../packages/utils/utils";
 
 export const EXODIA_ROLES_DID = "exodia_roles";
 

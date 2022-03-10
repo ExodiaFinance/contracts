@@ -26,7 +26,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
     ) public initializer {
         treasuryDepositorAddress = _treasuryDepositor;
         allocationCalculator = _allocationCalculator;
-        __ExodiaAccessControl__init(_roles);
+        ExodiaAccessControlInitializable.initializeAccessControl(_roles);
     }
 
     function setAllocationCalculator(address _calculator) external onlyArchitect {
