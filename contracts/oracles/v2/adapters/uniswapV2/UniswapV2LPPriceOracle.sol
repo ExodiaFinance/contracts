@@ -39,7 +39,7 @@ contract UniswapV2LPPriceOracle is IPriceOracle, ExodiaAccessControlInitializabl
      * @param _roles exodia roles address
      */
     function initialize(address _roles) public initializer {
-        __ExodiaAccessControl__init(_roles);
+        ExodiaAccessControlInitializable.initializeAccessControl(_roles);
 
         // set ratio: 5% by default
         ratioDiffLimitNumerator = 500;
