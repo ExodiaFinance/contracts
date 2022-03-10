@@ -34,10 +34,11 @@ contract Farmer is ExodiaAccessControl{
         address _treasuryDepositor,
         address _roles
     ) public initializer{
+        ExodiaAccessControlInitializable.initializeAccessControl(_roles);
+
         allocator = IAssetAllocator(_allocator);
         treasuryManagerAddress = _treasuryManager;
         treasuryDepositorAddress = _treasuryDepositor;
-        __ExodiaAccessControl__init(_roles);
     }
     
     function setMinElapsedTimeRebalance(uint _minElapsedTime) external onlyStrategist {

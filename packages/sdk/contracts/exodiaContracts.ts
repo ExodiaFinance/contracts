@@ -79,6 +79,8 @@ import {
     ChainlinkPriceOracle__factory,
     SolidexBalanceAdapter,
     SolidexBalanceAdapter__factory,
+    UniswapV2LPPriceOracle,
+    UniswapV2LPPriceOracle__factory,
 } from "../typechain";
 
 import { ContractVersions, NetworksContractsRegistry, version } from "./contractRegistry";
@@ -150,6 +152,7 @@ export interface IExodiaContractsRegistry {
     TreasuryDepositor: ContractVersions<TreasuryDepositor>;
     BalancerV2PriceOracle: ContractVersions<BalancerV2PriceOracle>;
     ChainlinkPriceOracle: ContractVersions<ChainlinkPriceOracle>;
+    UniswapV2LPPriceOracle: ContractVersions<UniswapV2LPPriceOracle>;
     PriceProvider: ContractVersions<PriceProvider>;
     Farmer: ContractVersions<Farmer>;
     ExodiaBalanceAggregator: ContractVersions<ExodiaBalanceAggregator>;
@@ -343,6 +346,9 @@ const mainOperaContract: IExodiaContractsRegistry = {
     ChainlinkPriceOracle: new ContractVersions<ChainlinkPriceOracle>([
         version(ChainlinkPriceOracle__factory.connect),
     ]),
+    UniswapV2LPPriceOracle: new ContractVersions<UniswapV2LPPriceOracle>([
+        version(UniswapV2LPPriceOracle__factory.connect),
+    ]),
     PriceProvider: new ContractVersions<PriceProvider>([
         version(PriceProvider__factory.connect),
     ]),
@@ -492,6 +498,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     ]),
     ChainlinkPriceOracle: new ContractVersions<ChainlinkPriceOracle>([
         version(ChainlinkPriceOracle__factory.connect),
+    ]),
+    UniswapV2LPPriceOracle: new ContractVersions<UniswapV2LPPriceOracle>([
+        version(UniswapV2LPPriceOracle__factory.connect),
     ]),
     PriceProvider: new ContractVersions<PriceProvider>([
         version(PriceProvider__factory.connect),
