@@ -40,6 +40,10 @@ contract UniswapV2LPPriceOracle is IPriceOracle, ExodiaAccessControlInitializabl
      */
     function initialize(address _roles) public initializer {
         __ExodiaAccessControl__init(_roles);
+
+        // set ratio: 5% by default
+        ratioDiffLimitNumerator = 500;
+        ratioDiffLimitDenominator = 10000;
     }
 
     /**
@@ -85,42 +89,15 @@ contract UniswapV2LPPriceOracle is IPriceOracle, ExodiaAccessControlInitializabl
     /**
      * @dev returns the TWAP for the provided pair as of the last update
      */
-    function getSafePrice(address _lpToken) public view returns (uint256 price) {
-        LPOracleSetting memory setting = oracleSettings[_lpToken];
-        require(
-            address(setting.token0Oracle) != address(0) ||
-                address(setting.token1Oracle) != address(0),
-            "UNSUPPORTED"
-        );
-        IERC20 token0 = IERC20(IUniswapV2Pair(_lpToken).token0());
-        IERC20 token1 = IERC20(IUniswapV2Pair(_lpToken).token1());
-        uint256 price0 = _getTokenCurrentPrice(
-            IPriceOracle(setting.token0Oracle),
-            token0
-        );
-        uint256 price1 = _getTokenCurrentPrice(
-            IPriceOracle(setting.token1Oracle),
-            token1
-        );
-
-        uint256 totalSupply = IUniswapV2Pair(_lpToken).totalSupply();
-        (uint256 r0, uint256 r1, ) = IUniswapV2Pair(_lpToken).getReserves();
-        uint256 decimal0 = token0.decimals();
-        uint256 decimal1 = token1.decimals();
-
-        r0 = (r0 * (10**18)) / (10**decimal0);
-        r1 = (r1 * (10**18)) / (10**decimal1);
-
-        _checkRatio(r0, r1, price0, price1);
-
-        price = (r0 * price0 + r1 * price1) / totalSupply;
+    function getSafePrice(address _lpToken) public view returns (uint256) {
+        return _getLPPrice(_lpToken, true);
     }
 
     /**
      * @dev returns the current "unsafe" price that can be easily manipulated
      */
-    function getCurrentPrice(address _lpToken) external view returns (uint256 price) {
-        return getSafePrice(_lpToken);
+    function getCurrentPrice(address _lpToken) external view returns (uint256) {
+        return _getLPPrice(_lpToken, false);
     }
 
     /**
@@ -154,16 +131,54 @@ contract UniswapV2LPPriceOracle is IPriceOracle, ExodiaAccessControlInitializabl
         }
     }
 
-    function _checkRatio(
-        uint256 r0,
-        uint256 r1,
-        uint256 p0,
-        uint256 p1
-    ) internal view {
-        uint256 v0 = r0 * p0;
-        uint256 v1 = r1 * p1;
-        uint256 diffLimit = (v0 * ratioDiffLimitNumerator) / ratioDiffLimitDenominator;
+    function _getLPPrice(address _lpToken, bool isSafePrice)
+        internal
+        view
+        returns (uint256 price)
+    {
+        LPOracleSetting memory setting = oracleSettings[_lpToken];
+        require(
+            address(setting.token0Oracle) != address(0) ||
+                address(setting.token1Oracle) != address(0),
+            "UNSUPPORTED"
+        );
 
-        require(v1 < v0 + diffLimit && v0 < v1 + diffLimit, "INVALID RATIO");
+        IERC20 token0 = IERC20(IUniswapV2Pair(_lpToken).token0());
+        IERC20 token1 = IERC20(IUniswapV2Pair(_lpToken).token1());
+        uint256 price0 = isSafePrice
+            ? _getTokenSafePrice(IPriceOracle(setting.token0Oracle), token0)
+            : _getTokenCurrentPrice(IPriceOracle(setting.token0Oracle), token0);
+        uint256 price1 = isSafePrice
+            ? _getTokenSafePrice(IPriceOracle(setting.token1Oracle), token1)
+            : _getTokenCurrentPrice(IPriceOracle(setting.token1Oracle), token1);
+
+        uint256 totalSupply = IUniswapV2Pair(_lpToken).totalSupply();
+        (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(_lpToken).getReserves();
+        uint256 decimal0 = token0.decimals();
+        uint256 decimal1 = token1.decimals();
+
+        reserve0 = (reserve0 * (10**18)) / (10**decimal0);
+        reserve1 = (reserve1 * (10**18)) / (10**decimal1);
+
+        _checkRatio(reserve0, reserve1, price0, price1);
+
+        price = (reserve0 * price0 + reserve1 * price1) / totalSupply;
+    }
+
+    function _checkRatio(
+        uint256 reserve0,
+        uint256 reserve1,
+        uint256 price0,
+        uint256 price1
+    ) internal view {
+        uint256 value0 = reserve0 * price0;
+        uint256 value1 = reserve1 * price1;
+        uint256 diffLimit = (value0 * ratioDiffLimitNumerator) /
+            ratioDiffLimitDenominator;
+
+        require(
+            value1 < value0 + diffLimit && value0 < value1 + diffLimit,
+            "INVALID RATIO"
+        );
     }
 }
