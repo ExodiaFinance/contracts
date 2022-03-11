@@ -67,15 +67,15 @@ contract BackingPriceCalculator is ExodiaAccessControlInitializable {
     function fetchBackingPrice() external returns (uint256) {
         (address[] memory tokens, uint256[] memory balances) = treasuryTracker.balances();
 
-        uint256 treasuryUSDBalance; // 18 decimals
+        uint256 treasuryFTMBalance; // 18 decimals
         for (uint256 i = 0; i < tokens.length; i++) {
-            treasuryUSDBalance +=
+            treasuryFTMBalance +=
                 (balances[i] * priceProvider.getSafePrice(tokens[i])) /
                 (10**IERC20(tokens[i]).decimals());
         }
 
         backingPrice =
-            (treasuryUSDBalance * (10**IERC20(exod).decimals())) /
+            (treasuryFTMBalance * (10**IERC20(exod).decimals())) /
             IERC20(exod).totalSupply();
 
         return backingPrice;
@@ -83,9 +83,5 @@ contract BackingPriceCalculator is ExodiaAccessControlInitializable {
 
     function getBackingPrice() external view returns (uint256) {
         return backingPrice;
-    }
-
-    function getLiquidBackingPrice() external view returns (int256) {
-        return int256(backingPrice) - int256(priceProvider.getSafePrice(exod));
     }
 }
