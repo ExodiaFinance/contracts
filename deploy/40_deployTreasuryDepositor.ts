@@ -7,12 +7,14 @@ import {
     AllocatedRiskFreeValue__factory,
     ExodiaRoles__factory,
     OlympusTreasury__factory,
+    PNLTracker__factory,
     TreasuryDepositor__factory,
 } from "../packages/sdk/typechain";
 
 import { TREASURY_DID } from "./03_deployTreasury";
 import { ARFV_TOKEN_DID } from "./31_deployARFVToken";
 import { EXODIA_ROLES_DID } from "./38_deployExodiaRoles";
+import { PNLTRACKER_DID } from "./46_deployPnlTracker";
 
 export const TREASURY_DEPOSITOR_DID = "treasury_depositor";
 
@@ -24,12 +26,18 @@ const deployTreasuryDepositor: IExtendedDeployFunction<IExodiaContractsRegistry>
         const { contract: arfv } = await get<AllocatedRiskFreeValue__factory>(
             "AllocatedRiskFreeValue"
         );
+        const { contract: pnlTracker } = await get<PNLTracker__factory>("PNLTracker");
         const { contract: roles } = await get<ExodiaRoles__factory>("ExodiaRoles");
         const { contract: depositor, deployment } =
             await deploy<TreasuryDepositor__factory>("TreasuryDepositor", []);
         if (deployment?.newlyDeployed) {
             await exec(() =>
-                depositor.initialize(treasury.address, arfv.address, roles.address)
+                depositor.initialize(
+                    treasury.address,
+                    arfv.address,
+                    pnlTracker.address,
+                    roles.address
+                )
             );
             await exec(() =>
                 toggleRights(treasury, MANAGING.RESERVEMANAGER, depositor.address)
@@ -41,10 +49,16 @@ const deployTreasuryDepositor: IExtendedDeployFunction<IExodiaContractsRegistry>
                 toggleRights(treasury, MANAGING.RESERVEDEPOSITOR, depositor.address)
             );
             await exec(() => arfv.addMinter(depositor.address));
+            await exec(() => pnlTracker.addMachine(depositor.address));
         }
         log("Treasury Depositor: ", depositor.address);
     };
 export default deployTreasuryDepositor;
 deployTreasuryDepositor.id = TREASURY_DEPOSITOR_DID;
 deployTreasuryDepositor.tags = ["local", "test", TREASURY_DEPOSITOR_DID];
-deployTreasuryDepositor.dependencies = [ARFV_TOKEN_DID, TREASURY_DID, EXODIA_ROLES_DID];
+deployTreasuryDepositor.dependencies = [
+    ARFV_TOKEN_DID,
+    TREASURY_DID,
+    EXODIA_ROLES_DID,
+    PNLTRACKER_DID,
+];

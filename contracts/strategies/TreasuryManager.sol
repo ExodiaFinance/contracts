@@ -16,7 +16,11 @@ contract TreasuryManager is ExodiaAccessControl {
     address public treasuryAddress;
     address public arfvAddress;
     
-    function initialize(address _treasury, address _arfv, address _roles) public initializer {
+    function initialize(
+        address _treasury, 
+        address _arfv, 
+        address _roles
+    ) public initializer {
         treasuryAddress = _treasury;
         arfvAddress = _arfv;
         ExodiaAccessControlInitializable.initializeAccessControl(_roles);
@@ -50,14 +54,6 @@ contract TreasuryManager is ExodiaAccessControl {
     function withdraw(address _token, uint _amount) external onlyMachine onlyContract {
         _getTreasury().manage(_token, _amount);
         IERC20(_token).transfer(msg.sender, _amount);
-    }
-    
-    function addARFVToTreasury(address _token, uint _amount) external onlyMachine onlyContract returns (uint) {
-        uint valueOfAmount = _getTreasury().valueOf(_token, _amount);
-        if(valueOfAmount > 0){
-            _addArfvToTreasury(valueOfAmount);
-        }
-        return valueOfAmount;
     }
     
     function balance(address _token) external view returns (uint){

@@ -5,10 +5,10 @@ import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
+
 import { TREASURY_MANAGER_DID } from "../../deploy/39_deployTreasuryManager";
-import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
 import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
-import toggleRights, { MANAGING } from "../../packages/utils/toggleRights";
+import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
 import {
     AllocatedRiskFreeValue,
     AllocatedRiskFreeValue__factory,
@@ -21,6 +21,7 @@ import {
     TreasuryManager,
     TreasuryManager__factory,
 } from "../../packages/sdk/typechain";
+import toggleRights, { MANAGING } from "../../packages/utils/toggleRights";
 import "../chai-setup";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
@@ -82,12 +83,6 @@ describe("AssetManager", function () {
         );
     });
 
-    it("Should only let machine use addARFVToTreasury", async function () {
-        expect(treasuryManager.addARFVToTreasury(dai.address, 1000)).to.be.revertedWith(
-            "caller is not a machine"
-        );
-    });
-
     it("Should not let address call manage", async function () {
         await treasuryManager.addMachine(deployer.address);
         expect(treasuryManager.manage(dai.address, 1000)).to.be.revertedWith(
@@ -98,13 +93,6 @@ describe("AssetManager", function () {
     it("Should not let address call withdraw", async function () {
         await treasuryManager.addMachine(deployer.address);
         expect(treasuryManager.withdraw(dai.address, 1000)).to.be.revertedWith(
-            "caller is not a contract"
-        );
-    });
-
-    it("Should not let address call addARFVToTreasury", async function () {
-        await treasuryManager.addMachine(deployer.address);
-        expect(treasuryManager.addARFVToTreasury(dai.address, 1000)).to.be.revertedWith(
             "caller is not a contract"
         );
     });
@@ -223,24 +211,6 @@ describe("AssetManager", function () {
             await machine.withdraw(rav.address, ravBalance);
             expect(await rav.balanceOf(machine.address)).to.eq(ravBalance);
             expect(await treasury.totalReserves()).to.eq(totalReserve);
-            expect(await arfv.balanceOf(treasury.address)).to.eq(0);
-        });
-    });
-
-    describe("mint ARFV in treasury", function () {
-        beforeEach(async function () {
-            await treasuryManager.addMachine(machine.address);
-        });
-
-        it("Should mint valueOf DAI in treasury", async function () {
-            const amount = parseUnits("1000", "ether");
-            await machine.addARFVToTreasury(dai.address, amount);
-            expect(await arfv.balanceOf(treasury.address)).to.eq(amount.div(1e9));
-        });
-
-        it("Should not mint arfv if token is not RFV", async function () {
-            const amount = parseUnits("1000", "ether");
-            await machine.addARFVToTreasury(deployer.address, amount);
             expect(await arfv.balanceOf(treasury.address)).to.eq(0);
         });
     });
