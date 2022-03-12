@@ -31,4 +31,6 @@ interface IOlympusTreasury {
     ) external returns (bool);
     function isReserveToken(address _token) external view returns(bool);
     function isLiquidityToken(address _token) external view returns(bool);
+    function excessReserves() external view returns (uint256);
+    function auditReserves() external;
 }
