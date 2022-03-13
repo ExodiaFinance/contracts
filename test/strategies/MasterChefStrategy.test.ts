@@ -6,13 +6,15 @@ import hre from "hardhat";
 import { DAI_DID } from "../../deploy/00_deployDai";
 import { ASSET_ALLOCATOR_DID } from "../../deploy/30_deployAssetAllocator";
 import { ARFV_TOKEN_DID } from "../../deploy/31_deployARFVToken";
+import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
 import { externalAddressRegistry } from "../../packages/sdk/contracts";
 import {
     IExodiaContractsRegistry,
     IExternalContractsRegistry,
 } from "../../packages/sdk/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
 import {
+    AllocationCalculator,
+    AllocationCalculator__factory,
     AssetAllocator,
     AssetAllocator__factory,
     DAI,
@@ -43,6 +45,7 @@ describe("MasterChefStrategy", function () {
     let beets: ERC20;
     let bptBalance: BigNumber;
     let assetAllocator: AssetAllocator;
+    let allocationCalculator: AllocationCalculator;
     let masterChefStrat: MasterChefStrategy;
     let addressRegistry: IExternalContractsRegistry;
 
@@ -62,6 +65,11 @@ describe("MasterChefStrategy", function () {
             "AssetAllocator"
         );
         assetAllocator = assetAllocateDeployment.contract;
+        const allocCalcDeployment = await get<AllocationCalculator__factory>(
+            "AllocationCalculator"
+        );
+        allocationCalculator = allocCalcDeployment.contract;
+
         addressRegistry = await externalAddressRegistry.forNetwork(await getNetwork());
         const { BEETS_MASTERCHEF, BEETS, FBEETS_BAR } = addressRegistry;
         const deployment = await deployments.deploy("MasterChefStrategy", {
@@ -74,7 +82,7 @@ describe("MasterChefStrategy", function () {
             deployerSigner
         );
         beets = ERC20__factory.connect(BEETS, deployerSigner);
-        const quartetHolderAddress = "0x6d3133c5ecbbf44fdf135abaeb5eae2ab3a1e894";
+        const quartetHolderAddress = "0xf3A602d30dcB723A74a0198313a7551FEacA7DAc";
         await hre.network.provider.request({
             method: "hardhat_impersonateAccount",
             params: [quartetHolderAddress],
@@ -83,7 +91,7 @@ describe("MasterChefStrategy", function () {
         bptQuartet = ERC20__factory.connect(A_LATE_QUARTET, quartetHolder);
         bptBalance = await bptQuartet.balanceOf(quartetHolderAddress);
         await bptQuartet.transfer(treasury.address, bptBalance);
-        await assetAllocator.setAllocation(
+        await allocationCalculator.setAllocation(
             A_LATE_QUARTET,
             [masterChefStrat.address],
             [100_000]
@@ -97,13 +105,16 @@ describe("MasterChefStrategy", function () {
     });
 
     it("Should allocate and deposit", async function () {
-        await assetAllocator.reallocate(A_LATE_QUARTET);
+        await bptQuartet.approve(assetAllocator.address, bptBalance);
+        await assetAllocator.rebalance(A_LATE_QUARTET, bptBalance);
         expect(await masterChefStrat.deposited(A_LATE_QUARTET)).to.eq(bptBalance);
+        expect(await masterChefStrat.balance(A_LATE_QUARTET)).to.eq(bptBalance);
     });
 
     it("Should collect rewards", async function () {
         const beetsBal = await beets.balanceOf(treasury.address);
-        await assetAllocator.reallocate(A_LATE_QUARTET);
+        await bptQuartet.approve(assetAllocator.address, bptBalance);
+        await assetAllocator.rebalance(A_LATE_QUARTET, bptBalance);
         await xhre.ethers.provider.send("evm_increaseTime", [3600]);
         await xhre.ethers.provider.send("evm_mine", []);
         await masterChefStrat.collectRewards(A_LATE_QUARTET);
@@ -128,11 +139,11 @@ describe("MasterChefStrategy", function () {
         expect(await beets.balanceOf(treasury.address)).to.be.gt(beetsBal);
     });
 
-    it("Should only let policy update PID", async function () {
+    it("Should only let strategist update PID", async function () {
         const signer = await xhre.ethers.getSigner(randomAddress);
         const mcs = MasterChefStrategy__factory.connect(masterChefStrat.address, signer);
         expect(mcs.setPid(bptQuartet.address, 17)).to.be.revertedWith(
-            "Ownable: caller is not the owner"
+            "caller is not a strategist"
         );
     });
 
@@ -140,7 +151,7 @@ describe("MasterChefStrategy", function () {
         const signer = await xhre.ethers.getSigner(randomAddress);
         const mcs = MasterChefStrategy__factory.connect(masterChefStrat.address, signer);
         expect(mcs.setPid(bptQuartet.address, 17)).to.be.revertedWith(
-            "Ownable: caller is not the owner"
+            "caller is not policy"
         );
     });
 });

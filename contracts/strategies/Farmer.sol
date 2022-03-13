@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 pragma abicoder v2;
 
-// import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 
 import "./IAssetAllocator.sol";
 import "../ExodiaAccessControl.sol";
@@ -18,7 +18,7 @@ struct FarmingData {
     uint lastRebalance;
 }
 
-contract Farmer is ExodiaAccessControl{
+contract Farmer is ExodiaAccessControl, Pausable{
     
     mapping(address => FarmingData) farmingData;
     IAssetAllocator public allocator;
@@ -37,14 +37,14 @@ contract Farmer is ExodiaAccessControl{
         allocator = IAssetAllocator(_allocator);
         treasuryManagerAddress = _treasuryManager;
         treasuryDepositorAddress = _treasuryDepositor;
-        __ExodiaAccessControl__init(_roles);
+        ExodiaAccessControlInitializable.initializeAccessControl(_roles);
     }
     
     function setMinElapsedTimeRebalance(uint _minElapsedTime) external onlyStrategist {
         minElapsedTime = _minElapsedTime;
     }
     
-    function rebalance(address _token) external {
+    function rebalance(address _token) whenNotPaused external {
         require(farmingData[_token].lastRebalance + minElapsedTime < block.timestamp, "Farmer: cool down active");
         _rebalance(_token);
     }
@@ -64,10 +64,7 @@ contract Farmer is ExodiaAccessControl{
         uint allocated = farmingData[_token].allocated;
         int pnl = int(target) - delta - int(allocated);
         _syncPNLWithTreasury(_token, pnl);
-        //console.log("target:", target);
-        //console.log("allocated:", allocated);
-        //console.log("balance:", balance);
-        if (delta < 0){ // withdrew token, check for slippage
+        if (delta < 0){ // withdrew token, check for slippage and return tokens
             uint returning = uint(delta * -1);
             uint withdrawn = token.balanceOf(address(this));
             int slippage = int(withdrawn) + delta; //amount of token gained or lost
@@ -101,9 +98,9 @@ contract Farmer is ExodiaAccessControl{
     
     function _syncPNLWithTreasury(address _token, int pnl) internal {
         if(pnl > 0){
-            _getTreasuryManager().addARFVToTreasury(_token, uint(pnl));
+            _getTreasuryDepositor().registerProfit(_token, uint(pnl));
         } else if (pnl < 0) {
-            _getTreasuryDepositor().removeARFVFromTreasury(_token, uint(pnl*-1));
+            _getTreasuryDepositor().registerLoss(_token, uint(pnl*-1));
         }
     }
     
@@ -118,11 +115,11 @@ contract Farmer is ExodiaAccessControl{
         farmingData[_token].reserves = _reserves;
     }
 
-    function harvest() external {
-        
+    function harvest(address _token) external whenNotPaused {
+        allocator.collectRewards(_token);
     }
     
-    function withdraw(address _token) external onlyStrategist{
+    function withdraw(address _token) external onlyStrategist {
         
     }
     

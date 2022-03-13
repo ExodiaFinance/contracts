@@ -24,6 +24,8 @@ import {
     MockGreedyStrategy__factory,
     MockLoosingStrategy,
     MockLoosingStrategy__factory,
+    MockRewardingStrategy,
+    MockRewardingStrategy__factory,
     MockStrategy,
     MockStrategy__factory,
     MockToken,
@@ -104,6 +106,7 @@ describe("AssetAllocator", function () {
         await setup();
     });
 
+    /*    
     it("Should send non-depositable assets to the treasury with transfer", async function () {
         const depositAmount = parseUnits("10", "ether");
         const token = await mockTokenFactory.deploy(0);
@@ -114,6 +117,7 @@ describe("AssetAllocator", function () {
         const tokenTreasuryBalance1 = await token.balanceOf(treasury.address);
         expect(tokenTreasuryBalance1).to.eq(depositAmount);
     });
+    */
 
     describe("Rebalancing", function () {
         const mintAmount = parseUnits("100000", "ether");
@@ -960,96 +964,45 @@ describe("AssetAllocator", function () {
             });
         });
     });
-    /*
-        describe("Rebalance from loosing strategy", async function () {
-            let loosingStrategy: MockContract<MockLoosingStrategy>;
-            const returnRate = BigNumber.from("20");
-            beforeEach(async function () {
-                loosingStrategy = await mockLoosingStrategyFactory.deploy(
-                    assetAllocator.address,
-                    returnRate
-                );
-                await allocationCalculator.setAllocation(
-                    dai.address,
-                    [loosingStrategy.address],
-                    [50_000]
-                );
-                await assetAllocator.rebalance(dai.address);
-            });
 
-            it("Should reallocate and reduce excess reserve", async function () {
-                await allocationCalculator.setAllocation(
-                    dai.address,
-                    [loosingStrategy.address, strategy.address],
-                    [0, 50_000]
-                );
-                await assetAllocator.rebalance(dai.address);
-                const deployedAmount = daiTreasuryBalance0.mul(50_000).div(100_000);
-                const lostAmount = deployedAmount.sub(
-                    deployedAmount.mul(returnRate).div(100)
-                );
-                const expectedAmountLeft = daiTreasuryBalance0.sub(lostAmount);
-                const stratBalance = await dai.balanceOf(strategy.address);
-                const treasuryBalance = await dai.balanceOf(treasury.address);
-                const amountLeft = stratBalance.add(treasuryBalance);
-                expect(expectedAmountLeft).to.eq(amountLeft);
-                expect(treasuryBalance).to.eq(expectedAmountLeft.div(2));
-                expect(stratBalance).to.eq(expectedAmountLeft.div(2));
-                const allocated = await assetAllocator.allocatedTokens(dai.address);
-                expect(allocated).to.eq(stratBalance);
-            });
+    describe.only("CollectRewards", function () {
+        const amount0 = parseUnits("1", "ether");
+        const amount1 = parseUnits("3", "ether");
+        const amount2 = parseUnits("7", "ether");
+        const amount3 = parseUnits("12", "ether");
+        let tok0: MockContract<MockToken>;
+        let tok1: MockContract<MockToken>;
+        let tok2: MockContract<MockToken>;
+        let strat0: MockContract<MockRewardingStrategy>;
+        let strat1: MockContract<MockRewardingStrategy>;
 
-            it("Should withdraw to rebalance and reduce excess reserve", async function () {
-                await allocationCalculator.setAllocation(
-                    dai.address,
-                    [loosingStrategy.address, strategy.address],
-                    [50_000, 50_000]
-                );
-                await assetAllocator.rebalance(dai.address);
-                const deployedAmount = daiTreasuryBalance0.mul(50_000).div(100_000);
-                const lostAmount = deployedAmount.sub(
-                    deployedAmount.mul(returnRate).div(100)
-                );
-                const amountLeft = daiTreasuryBalance0.sub(lostAmount);
-                const stratBalance = await dai.balanceOf(strategy.address);
-                const treasuryBalance = await dai.balanceOf(treasury.address);
-                expect(stratBalance).to.eq(amountLeft.div(2));
-                expect(treasuryBalance).to.eq(0);
-                const allocated = await assetAllocator.allocatedTokens(dai.address);
-                expect(allocated).to.eq(amountLeft);
-            });
+        const setupRewards = deployments.createFixture(async (hh) => {
+            tok0 = await mockTokenFactory.deploy(18);
+            tok1 = await mockTokenFactory.deploy(17);
+            tok2 = await mockTokenFactory.deploy(5);
+            const rewardStratFactory = await smock.mock<MockRewardingStrategy__factory>(
+                "MockRewardingStrategy"
+            );
+            strat0 = await rewardStratFactory.deploy(tok0.address, tok1.address);
+            strat1 = await rewardStratFactory.deploy(tok1.address, tok2.address);
+            await strat0.setRewards(amount0, amount1);
+            await strat1.setRewards(amount2, amount3);
+            await allocationCalculator.setAllocation(
+                dai.address,
+                [strat0.address, strat1.address],
+                [50_000, 50_000]
+            );
+        });
+
+        beforeEach(async function () {
+            await setupRewards();
+        });
+
+        it("Should collect rewards and deposit in treasury", async function () {
+            await assetAllocator.collectRewards(dai.address);
+            expect(await tok0.balanceOf(treasury.address)).to.eq(amount0);
+            expect(await tok1.balanceOf(treasury.address)).to.eq(amount1.add(amount2));
+            expect(await tok2.balanceOf(treasury.address)).to.eq(amount3);
         });
     });
-
-    describe("Time between rebalance", async function () {
-        beforeEach(async function () {
-            await assetAllocator.setMinElapsedTimeRebalance(1000);
-            await assetAllocator.rebalance(dai.address);
-        });
-
-        it("Should not let rebalance", async function () {
-            expect(assetAllocator.rebalance(dai.address)).to.be.revertedWith(
-                "Exceeding rebalance time treshold"
-            );
-        });
-
-        it("Should let rebalance after min time", async function () {
-            await increaseTime(hre, 1000);
-            await assetAllocator.rebalance(dai.address);
-        });
-
-        it("Should let policy force rebalance", async function () {
-            await assetAllocator.forceRebalance(dai.address);
-        });
-
-        it("Should revert if not policy updates min. time", async function () {
-            const allocator = AssetAllocator__factory.connect(
-                assetAllocator.address,
-                randomSigner
-            );
-            expect(allocator.setMinElapsedTimeRebalance(100)).to.be.revertedWith(
-                "caller is not an architect"
-            );
-        });
-    });*/
 });

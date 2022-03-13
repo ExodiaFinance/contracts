@@ -51,7 +51,6 @@ contract AllocationCalculator is Policy, IAllocationCalculator {
     
     function calculateAllocation(address _token, uint _manageable)external view override returns (uint[] memory, uint){
         Strategies memory strategies = tokenStrategies[_token];
-        require(strategies.addresses.length > 0, "no strategies");
         uint[] memory allocations = new uint[](strategies.allocations.length);
         uint allocated = 0;
         for(uint i = 0; i < allocations.length; i++){

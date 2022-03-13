@@ -4,12 +4,12 @@ pragma abicoder v2;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-import "../interfaces/IOlympusTreasury.sol";
+// import "../interfaces/IOlympusTreasury.sol";
 import "../ExodiaAccessControl.sol";
 import "./IStrategy.sol";
 import "./IAssetAllocator.sol";
 import "./IAllocationCalculator.sol";
-import "./IAllocatedRiskFreeValue.sol";
+// import "./IAllocatedRiskFreeValue.sol";
 import "./TreasuryDepositor.sol";
 import "hardhat/console.sol";
 
@@ -38,12 +38,33 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
         return IAllocationCalculator(allocationCalculator);
     }
     
-    function collectProfits(address _token) external override {}
+    function collectProfits(address _token) external override onlyMachine {
+        address[] memory strategies = _getStrategies(_token);
+        for (uint i = 0; i < strategies.length; i++){
+            address[] memory rewardTokens = IStrategy(strategies[i]).collectRewards(_token, address(this));
+        }
+        IERC20 token = IERC20(_token);
+        uint balance = token.balanceOf(address(this));
+        token.approve(treasuryDepositorAddress, balance);
+        _getTreasuryDepositor().returnWithProfits(_token, 0, balance);
+    }
     
-    function collectRewards(address _token) external override {}
+    function collectRewards(address _token) external override onlyMachine {
+        address[] memory strategies = _getStrategies(_token);
+        for (uint i = 0; i < strategies.length; i++){
+            address[] memory rewardTokens = IStrategy(strategies[i]).collectRewards(_token, address(this));
+            for(uint i = 0; i < rewardTokens.length; i++){
+                IERC20 token = IERC20(rewardTokens[i]);
+                uint balance = token.balanceOf(address(this));
+                token.approve(treasuryDepositorAddress, balance);
+                _getTreasuryDepositor().returnWithProfits(rewardTokens[i], 0, balance);
+            }
+        }
+    }
     
     function rebalance(address _token, uint _amount) external override onlyMachine returns (uint) {
         address[] memory strategies = _getStrategies(_token);
+        require(strategies.length > 0, "no strategies");
         (uint allocatedBalance, uint[] memory balances) = _balance(_token, strategies);
         (uint[] memory targetAllocations,) = _calculateAllocations(_token, _amount);
         (uint available, uint expected, uint allocated) = _withdrawTargetExcess(_token, balances, targetAllocations, strategies);
@@ -131,17 +152,12 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
     function _withdrawFromStrategy(address _token, address _strategy, uint _amount) internal {
         uint amount = IStrategy(_strategy).withdrawTo(_token, _amount, msg.sender);
     }
-    
-    function _amountToAllocation(address _strategy, address _token, uint _amount) internal returns (uint) {
-        IStrategy strategy = IStrategy(_strategy);
-        return strategy.balance(_token).mul(_amount).div(strategy.deposited(_token));
-    }
 
-    function sendToTreasury(address _token, uint _amount) external {
+/*    function sendToTreasury(address _token, uint _amount) external {
         IERC20(_token).transferFrom(msg.sender, address(this), _amount);
         IERC20(_token).approve(treasuryDepositorAddress, _amount);
         _getTreasuryDepositor().deposit(_token, _amount);
-    }
+    }*/
     
     function emergencyWithdrawFromStrategy(
         address[] calldata _tokens, 

@@ -43,6 +43,9 @@ const deployTreasuryDepositor: IExtendedDeployFunction<IExodiaContractsRegistry>
                     roles.address
                 )
             );
+            await exec(() => allocator.addMachine(farmer.address));
+            await exec(() => manager.addMachine(farmer.address));
+            await exec(() => depositor.addMachine(farmer.address));
         }
         log("Farmer: ", farmer.address);
     };

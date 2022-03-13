@@ -64,14 +64,14 @@ contract YearnV2Strategy is IStrategy, Policy {
         return withdrawnAmount;
     }
     
-    function emergencyWithdrawTo(address _token, address _to) external override returns (uint){
+    function emergencyWithdrawTo(address _token, address _to) external override onlyAssetAllocator returns (uint){
         uint withdrawnAmount = IVault(_getVault(_token)).withdraw();
         _sendTo(_token, _to);
         deposited[_token] = 0;
         return withdrawnAmount;
     }
 
-    function collectProfits(address _token, address _to) external override returns (int){
+    function collectProfits(address _token, address _to) external override onlyAssetAllocator returns (int){
         uint balance = balance(_token);
         uint deposit = deposited[_token];
         if (balance > deposit){
@@ -80,8 +80,9 @@ contract YearnV2Strategy is IStrategy, Policy {
         return int(balance) - int(deposit);
     }
 
-    function collectRewards(address _token, address _to) external override {
+    function collectRewards(address _token, address _to) external override onlyAssetAllocator returns (address[] memory) {
         // This farm compounds rewards into the base token
+        return new address[](0);
     }
 
     function balance(address _token) public view override returns(uint256){
@@ -98,15 +99,14 @@ contract YearnV2Strategy is IStrategy, Policy {
             .div(vault.pricePerShare());
     }
     
-    function sendTo(address _token, address _to) external onlyPolicy {
+    function sendTo(address _token, address _to) external onlyAssetAllocator {
         _sendTo(_token, _to);
     }
 
     function _sendTo(address _token, address _to) internal {
         IERC20 token = IERC20(_token);
         uint balance = token.balanceOf(address(this));
-        token.approve(allocator, balance);
-        IAssetAllocator(allocator).sendToTreasury(_token, balance);
+        token.transfer(_to, balance);
     }
 
     modifier onlyAssetAllocator() {

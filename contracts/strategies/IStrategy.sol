@@ -11,7 +11,7 @@ interface IStrategy {
     // Return the difference between amount deposited and balance
     function collectProfits(address _token, address _to) external returns (int);
     // Returns the rewards that are !_token
-    function collectRewards(address _token, address _to) external;
+    function collectRewards(address _token, address _to) external returns (address[] memory);
     // Returns the amount of tokens deposited by the asset allocator
     function deposited(address _token) external view returns (uint);
     // Returns the amount of tokens in the strategy

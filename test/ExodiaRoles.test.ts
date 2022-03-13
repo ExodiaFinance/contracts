@@ -41,7 +41,7 @@ describe("ExodiaRoles", function () {
         roles = deployment.contract;
     });
 
-    describe.only("DAO transfer", function () {
+    describe("DAO transfer", function () {
         let otherRoles: ExodiaRoles;
 
         beforeEach(function () {
