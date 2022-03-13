@@ -34,6 +34,8 @@ contract Farmer is ExodiaAccessControl, Pausable{
         address _treasuryDepositor,
         address _roles
     ) public initializer{
+        ExodiaAccessControlInitializable.initializeAccessControl(_roles);
+
         allocator = IAssetAllocator(_allocator);
         treasuryManagerAddress = _treasuryManager;
         treasuryDepositorAddress = _treasuryDepositor;
