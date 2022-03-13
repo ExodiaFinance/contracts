@@ -18,9 +18,29 @@ contract ExodiaRoles is AccessControl {
     bytes32 public constant POLICY = keccak256("policy");
     bytes32 public constant ARCHITECT = keccak256("architect");
     bytes32 public constant DAO = DEFAULT_ADMIN_ROLE;
+    address public DAO_ADDRESS;
+    address public nextDao;
     
     constructor(address _dao){
+        DAO_ADDRESS = _dao;
         _grantRole(DAO, _dao);
+    }
+    
+    //TODO: Add tests pushDAO/pullDAO
+    function pushDAO(address _newDao) external {
+        require(isDAO(msg.sender), "Not DAO");
+        nextDao = _newDao;
+    }
+    
+    function isDAO(address _address) public view returns(bool) {
+        return hasRole(DAO, _address);
+    }
+    
+    function pullDAO() external {
+        require(msg.sender == nextDao, "not next DAO");
+        _grantRole(DAO, nextDao);
+        _revokeRole(DAO, DAO_ADDRESS);
+        DAO_ADDRESS = nextDao;
     }
     
     function addPolicy(address _address) external {
