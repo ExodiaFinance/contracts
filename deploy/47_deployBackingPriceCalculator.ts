@@ -5,7 +5,7 @@ import { log } from "../packages/utils/utils";
 import { BackingPriceCalculator__factory } from "../packages/sdk/typechain";
 import { EXODIA_ROLES_DID } from "./38_deployExodiaRoles";
 
-export const BACKING_PRICE_CALCULATOR_PID = "backing_price_calculator";
+export const BACKING_PRICE_CALCULATOR_DID = "backing_price_calculator";
 
 const deployBackingPriceCalculator: IExtendedDeployFunction<IExodiaContractsRegistry> =
     async ({ deploy, getNetwork }: IExtendedHRE<IExodiaContractsRegistry>) => {
@@ -14,5 +14,6 @@ const deployBackingPriceCalculator: IExtendedDeployFunction<IExodiaContractsRegi
         log("backing price calculator", backingPriceCalculator.address);
     };
 export default deployBackingPriceCalculator;
-deployBackingPriceCalculator.id = BACKING_PRICE_CALCULATOR_PID;
-deployBackingPriceCalculator.tags = ["local", "test", EXODIA_ROLES_DID];
+deployBackingPriceCalculator.id = BACKING_PRICE_CALCULATOR_DID;
+deployBackingPriceCalculator.tags = ["local", "test", BACKING_PRICE_CALCULATOR_DID];
+deployBackingPriceCalculator.dependencies = [EXODIA_ROLES_DID];

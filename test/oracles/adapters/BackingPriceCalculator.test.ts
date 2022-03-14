@@ -4,7 +4,7 @@ import { expect } from "chai";
 import hre from "hardhat";
 
 import { EXODIA_ROLES_DID } from "../../../deploy/38_deployExodiaRoles";
-import { BACKING_PRICE_CALCULATOR_PID } from "../../../deploy/47_deployBackingPriceCalculator";
+import { BACKING_PRICE_CALCULATOR_DID } from "../../../deploy/47_deployBackingPriceCalculator";
 import { externalAddressRegistry } from "../../../packages/sdk/contracts";
 import {
     IExodiaContractsRegistry,
@@ -36,7 +36,7 @@ describe("Backing Price Calculator", function () {
     let backingPriceCalculator: BackingPriceCalculator;
     let treasuryTracker: MockContract<TreasuryTracker>;
     let priceProvider: MockContract<PriceProvider>;
-    let exod: MockContract<IERC20>, mockFTM: MockContract<IERC20>;
+    let exod: MockContract<IERC20>, mockFTM: MockContract<IERC20>, mockUSDC: MockContract<IERC20>;
     let roles: ExodiaRoles;
 
     before(async function () {
@@ -54,10 +54,11 @@ describe("Backing Price Calculator", function () {
         const MockToken = await smock.mock<MockToken__factory>("MockToken");
         exod = await MockToken.deploy(18);
         mockFTM = await MockToken.deploy(18);
+        mockUSDC = await MockToken.deploy(6);
     });
 
     beforeEach(async function () {
-        await deployments.fixture([EXODIA_ROLES_DID, BACKING_PRICE_CALCULATOR_PID]);
+        await deployments.fixture([EXODIA_ROLES_DID, BACKING_PRICE_CALCULATOR_DID]);
         const oracleDeployment = await get<BackingPriceCalculator__factory>(
             "BackingPriceCalculator"
         );
@@ -178,18 +179,34 @@ describe("Backing Price Calculator", function () {
             expect(await backingPriceCalculator.getBackingPrice()).to.equal(0);
         });
 
-        it("Should return correct backing price: assets available", async function () {
+        it("Should return correct backing price: one asset available", async function () {
             exod.totalSupply.returns(parseUnits("1000000"));
             treasuryTracker.balances.returns([
                 [mockFTM.address],
                 [parseUnits("10000000")],
             ]);
-            priceProvider.getSafePrice.returns(parseUnits("1"));
+            priceProvider.getSafePrice.returns(parseUnits("2"));
 
             await backingPriceCalculator.fetchBackingPrice();
 
             expect(await backingPriceCalculator.getBackingPrice()).to.equal(
-                parseUnits("10")
+                parseUnits("20")
+            );
+        });
+
+        it("Should return correct backing price: more than one assets available", async function () {
+            exod.totalSupply.returns(parseUnits("1000000"));
+            treasuryTracker.balances.returns([
+                [mockFTM.address, mockUSDC.address],
+                [parseUnits("10000000"), parseUnits("10000000", 6)],
+            ]);
+            priceProvider.getSafePrice.whenCalledWith(mockFTM.address).returns(parseUnits("2"))
+            priceProvider.getSafePrice.whenCalledWith(mockUSDC.address).returns(parseUnits("1"))
+
+            await backingPriceCalculator.fetchBackingPrice();
+
+            expect(await backingPriceCalculator.getBackingPrice()).to.equal(
+                parseUnits("30")
             );
         });
     });
