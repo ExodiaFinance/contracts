@@ -42,7 +42,12 @@ interface IMasterchef {
     function harvestAll(uint256[] calldata _pids, address _to) external;
     function userInfo(uint _pid, address _farmer) external view returns(UserInfo memory);
     function lpTokens(uint _pid) external view returns (address);
+    function rewarder(uint _pid) external view returns (address);
     function emergencyWithdraw(uint256 _pid, address _to) external;
+}
+
+interface IRewarder {
+    function rewardToken() external view returns(address);
 }
 
 contract MasterChefStrategy is IStrategy, ExodiaAccessControl {
@@ -79,6 +84,7 @@ contract MasterChefStrategy is IStrategy, ExodiaAccessControl {
         tokenFarmPid[_token] = _pid;
     }
     
+    // tested
     function deploy(address _token) external override {
         uint pid = _getPid(_token);
         IERC20 token = IERC20(_token);
@@ -88,7 +94,7 @@ contract MasterChefStrategy is IStrategy, ExodiaAccessControl {
         deposited[_token] += balance;
     }
     
-    function withdrawTo(address _token, uint _amount, address _to) external override onlyMachine returns (uint) {
+    function withdrawTo(address _token, uint _amount, address _to) external override onlyAssetAllocator returns (uint) {
         uint pid = _getPid(_token);
         IMasterchef(masterChef).withdrawAndHarvest(pid, _amount, address(this));
         _sendTo(rewardToken, _to);
@@ -97,7 +103,7 @@ contract MasterChefStrategy is IStrategy, ExodiaAccessControl {
         return _amount;
     }
 
-    function emergencyWithdrawTo(address _token, address _to) external override returns (uint) {
+    function emergencyWithdrawTo(address _token, address _to) external override onlyAssetAllocator returns (uint) {
         IMasterchef(masterChef).emergencyWithdraw(_getPid(_token), address(this));
         uint balance = IERC20(_token).balanceOf(address(this));
         _sendTo(_token, balance, _to);
@@ -105,23 +111,24 @@ contract MasterChefStrategy is IStrategy, ExodiaAccessControl {
         return balance;
     }
 
-    function collectProfits(address _token, address _to) external override returns (int){
+    function collectProfits(address _token, address _to) external override onlyAssetAllocator returns (int){
         // This farm creates yields from the reward token
         return 0;
     }
     
-    function collectRewards(address[] calldata _tokens, address _to) external {
-        for(uint i = 0; i < _tokens.length; i++){
-            uint pid = _getPid(_tokens[i]);
-            IMasterchef(masterChef).harvest(pid, address(this));
-        }
-        _sendTo(rewardToken, _to);
-    }
-    
-    function collectRewards(address _token, address _to) external override {
+    function collectRewards(address _token, address _to) external override onlyAssetAllocator returns (address[] memory){
         uint pid = _getPid(_token);
-        IMasterchef(masterChef).harvest(pid, address(this));
-        _sendTo(rewardToken, _to);
+        IMasterchef(masterChef).harvest(pid, _to);
+        address rewarder = IMasterchef(masterChef).rewarder(pid);
+        if (rewarder != address(0)) {
+            address[] memory rewardTokens = new address[](2);
+            rewardTokens[0] = rewardToken;
+            rewardTokens[1] = IRewarder(rewarder).rewardToken();
+            return rewardTokens;
+        }
+        address[] memory rewardTokens = new address[](2);
+        rewardTokens[0] = rewardToken;
+        return rewardTokens;
     }
     
     function balance(address _token) external view override returns(uint256){
@@ -133,7 +140,7 @@ contract MasterChefStrategy is IStrategy, ExodiaAccessControl {
         return IMasterchef(masterChef).userInfo(pid, address(this)).amount;
     }
     
-    function sendTo(address _token, address _to) external onlyPolicy {
+    function sendTo(address _token, address _to) external onlyStrategist {
         _sendTo(_token, _to);
     }
     

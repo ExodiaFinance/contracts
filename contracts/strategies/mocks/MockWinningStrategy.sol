@@ -51,7 +51,10 @@ contract MockWinningStrategy is IStrategy{
         return profits;
     }
 
-    function collectRewards(address _token, address _to) external override {}
+    function collectRewards(address _token, address _to) external override returns (address[] memory) {
+        // This farm compounds rewards into the base token
+        return new address[](0);
+    }
 
     function deposited(address _token) public view override returns (uint) {
         return depositedAmounts[_token];

@@ -19,8 +19,4 @@ contract TreasuryManagerMockMachine  {
     function withdraw(address _token, uint _amount) external {
         TreasuryManager(treasuryManager).withdraw(_token, _amount);
     }
-
-    function addARFVToTreasury(address _token, uint _amount) external{
-        TreasuryManager(treasuryManager).addARFVToTreasury(_token, _amount);
-    }
 }

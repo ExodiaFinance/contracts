@@ -36,7 +36,11 @@ contract TreasuryDepositorMockMachine {
         TreasuryDepositor(depositor).deposit(_token, _amount);
     }
     
-    function removeARFVFromTreasury(address _token, uint _amount) external {
-        TreasuryDepositor(depositor).removeARFVFromTreasury(_token, _amount);
+    function registerLoss(address _token, uint _amount) external {
+        TreasuryDepositor(depositor).registerLoss(_token, _amount);
+    }
+
+    function registerProfit(address _token, uint _amount) external {
+        TreasuryDepositor(depositor).registerProfit(_token, _amount);
     }
 }

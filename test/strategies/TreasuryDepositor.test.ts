@@ -6,9 +6,8 @@ import { parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
 
 import { TREASURY_DEPOSITOR_DID } from "../../deploy/40_deployTreasuryDepositor";
-import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
 import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
-import toggleRights, { MANAGING } from "../../packages/utils/toggleRights";
+import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
 import {
     AllocatedRiskFreeValue,
     AllocatedRiskFreeValue__factory,
@@ -21,6 +20,7 @@ import {
     TreasuryDepositor,
     TreasuryDepositor__factory,
 } from "../../packages/sdk/typechain";
+import toggleRights, { MANAGING } from "../../packages/utils/toggleRights";
 import "../chai-setup";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
@@ -109,6 +109,15 @@ describe("TreasuryDepositor", function () {
                 await depositArfv();
             });
 
+            it("Should not fail if losses brings excess reserves under 0", async function () {
+                await toggleRights(treasury, MANAGING.REWARDMANAGER, deployer.address);
+                const mintedAmount = 100e9;
+                await treasury.mintRewards(deployer.address, mintedAmount);
+                await machine.returnWithLoss(dai.address, daiBalance, daiBalance);
+                expect(await treasury.totalReserves()).to.eq(mintedAmount);
+                expect(await treasury.excessReserves()).to.eq(0);
+            });
+
             it("Should withdraw arfv and deposit dai", async function () {
                 await machine.returnFunds(dai.address, daiBalance);
                 expect(await dai.balanceOf(treasury.address)).to.eq(daiBalance);
@@ -122,9 +131,9 @@ describe("TreasuryDepositor", function () {
                 const newBalance = daiBalance.add(newMint);
                 await dai.mint(deployer.address, newMint);
                 await dai.approve(machine.address, newBalance);
-                expect(machine.returnFunds(dai.address, newBalance)).to.be.revertedWith(
-                    "ERC20: transfer amount exceeds balance"
-                );
+                await expect(
+                    machine.returnFunds(dai.address, newBalance)
+                ).to.be.revertedWith("ERC20: transfer amount exceeds balance");
             });
 
             it("Should register profit", async function () {
@@ -242,45 +251,67 @@ describe("TreasuryDepositor", function () {
         });
 
         it("Should remove all ARFV", async function () {
-            await machine.removeARFVFromTreasury(dai.address, arfvBalance.mul(1e9));
+            await machine.registerLoss(dai.address, arfvBalance.mul(1e9));
             expect(await arfv.balanceOf(treasury.address)).to.eq(0);
             expect(await treasury.totalReserves()).to.eq(0);
         });
 
         it("Should not remove ARFV", async function () {
-            await machine.removeARFVFromTreasury(varToken.address, varBalance);
+            await machine.registerLoss(varToken.address, varBalance);
             expect(await arfv.balanceOf(treasury.address)).to.eq(arfvBalance);
             expect(await treasury.totalReserves()).to.eq(arfvBalance);
+        });
+    });
+
+    describe("mint ARFV in treasury", function () {
+        it("Should mint valueOf DAI in treasury", async function () {
+            const amount = parseUnits("1000", "ether");
+            await machine.registerProfit(dai.address, amount);
+            expect(await arfv.balanceOf(treasury.address)).to.eq(amount.div(1e9));
+        });
+
+        it("Should not mint arfv if token is not RFV", async function () {
+            const amount = parseUnits("1000", "ether");
+            await machine.registerProfit(deployer.address, amount);
+            expect(await arfv.balanceOf(treasury.address)).to.eq(0);
         });
     });
 
     describe("Permissions", function () {
         const testPermissions = (error: string, caller: string) => {
             it(`Should only let ${caller} use returnFunds`, async function () {
-                expect(depositor.returnFunds(dai.address, 1000)).to.be.revertedWith(
+                await expect(depositor.returnFunds(dai.address, 1000)).to.be.revertedWith(
                     error
                 );
             });
 
             it(`Should only let ${caller} use returnWithProfits`, async function () {
-                expect(
+                await expect(
                     depositor.returnWithProfits(dai.address, 1000, 10)
                 ).to.be.revertedWith(error);
             });
 
             it(`Should only let ${caller} use returnWithLoss`, async function () {
-                expect(
+                await expect(
                     depositor.returnWithLoss(dai.address, 1000, 10)
                 ).to.be.revertedWith(error);
             });
 
             it(`Should only let ${caller} use deposit`, async function () {
-                expect(depositor.deposit(dai.address, 1000)).to.be.revertedWith(error);
+                await expect(depositor.deposit(dai.address, 1000)).to.be.revertedWith(
+                    error
+                );
             });
 
-            it(`Should only let ${caller} burn ARFV`, async function () {
-                expect(
-                    depositor.removeARFVFromTreasury(dai.address, 1000)
+            it(`Should only let ${caller} register loss`, async function () {
+                await expect(
+                    depositor.registerLoss(dai.address, 1000)
+                ).to.be.revertedWith(error);
+            });
+
+            it(`Should only let ${caller} register profit`, async function () {
+                await expect(
+                    depositor.registerProfit(dai.address, 1000)
                 ).to.be.revertedWith(error);
             });
         };

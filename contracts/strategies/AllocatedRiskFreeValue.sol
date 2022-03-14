@@ -22,6 +22,10 @@ contract AllocatedRiskFreeValue is ERC20, Policy {
         _burn(msg.sender, _amount);
     }
     
+    function burnFrom(address _from, uint _amount) external onlyMinters {
+        _burn(_from, _amount);
+    }
+    
     function addMinter(address _minter) external onlyPolicy {
         minters[_minter] = true;
     }

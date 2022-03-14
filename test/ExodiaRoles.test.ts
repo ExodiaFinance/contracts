@@ -41,6 +41,41 @@ describe("ExodiaRoles", function () {
         roles = deployment.contract;
     });
 
+    describe("DAO transfer", function () {
+        let otherRoles: ExodiaRoles;
+
+        beforeEach(function () {
+            otherRoles = ExodiaRoles__factory.connect(roles.address, noRole);
+        });
+
+        it("Should not let pull DAO if not next DAO", async function () {
+            await expect(roles.pullDAO()).to.be.revertedWith("not next DAO");
+        });
+
+        it("Should only let DAO push to next DAO", async function () {
+            await expect(otherRoles.pushDAO(noRole.address)).to.be.revertedWith(
+                "Not DAO"
+            );
+        });
+
+        describe("Pull/push", function () {
+            beforeEach(async function () {
+                await roles.pushDAO(noRole.address);
+            });
+
+            it("Should set nextDAO", async function () {
+                expect(await roles.nextDao()).to.eq(noRole.address);
+            });
+
+            it("Should be able to pull next DAO", async function () {
+                await otherRoles.pullDAO();
+                expect(await roles.DAO_ADDRESS()).to.eq(noRole.address);
+                expect(await roles.isDAO(noRole.address)).to.be.true;
+                expect(await roles.isDAO(deployer.address)).to.be.false;
+            });
+        });
+    });
+
     describe("Custom roles", function () {
         const newRole = keccak256(toUtf8Bytes("NEW_ROLE"));
         let noRoleRoles: ExodiaRoles;

@@ -11,6 +11,8 @@ import {
     BPTMNLTBondDepository__factory,
     BPTMNLTPriceOracle,
     BPTPriceOracleV2__factory,
+    ChainlinkPriceOracle,
+    ChainlinkPriceOracle__factory,
     DAI,
     DAI__factory,
     Distributor,
@@ -49,10 +51,16 @@ import {
     OlympusStaking__factory,
     OlympusTreasury,
     OlympusTreasury__factory,
+    PNLTracker,
+    PNLTracker__factory,
+    PriceProvider,
+    PriceProvider__factory,
     RedeemHelper,
     RedeemHelper__factory,
     RemoveUniLp,
     RemoveUniLp__factory,
+    SolidexBalanceAdapter,
+    SolidexBalanceAdapter__factory,
     SOlympus,
     SOlympus__factory,
     StakingHelper,
@@ -73,12 +81,6 @@ import {
     WFTMBondDepository__factory,
     WOHM,
     WOHM__factory,
-    PriceProvider,
-    PriceProvider__factory,
-    ChainlinkPriceOracle,
-    ChainlinkPriceOracle__factory,
-    SolidexBalanceAdapter,
-    SolidexBalanceAdapter__factory,
     UniswapV2LPPriceOracle,
     UniswapV2LPPriceOracle__factory,
     BackingPriceCalculator,
@@ -160,6 +162,7 @@ export interface IExodiaContractsRegistry {
     Farmer: ContractVersions<Farmer>;
     ExodiaBalanceAggregator: ContractVersions<ExodiaBalanceAggregator>;
     SolidexBalanceAdapter: ContractVersions<SolidexBalanceAdapter>;
+    PNLTracker: ContractVersions<PNLTracker>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -368,6 +371,7 @@ const mainOperaContract: IExodiaContractsRegistry = {
     SolidexBalanceAdapter: new ContractVersions<SolidexBalanceAdapter>([
         version(SolidexBalanceAdapter__factory.connect),
     ]),
+    PNLTracker: new ContractVersions<PNLTracker>([version(PNLTracker__factory.connect)]),
 };
 
 const testNetOperaContract: IExodiaContractsRegistry = {
@@ -521,6 +525,7 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     SolidexBalanceAdapter: new ContractVersions<SolidexBalanceAdapter>([
         version(SolidexBalanceAdapter__factory.connect),
     ]),
+    PNLTracker: new ContractVersions<PNLTracker>([version(PNLTracker__factory.connect)]),
 };
 
 contracts.addNetwork(Network.OPERA_MAIN_NET, mainOperaContract);

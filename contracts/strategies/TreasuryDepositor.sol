@@ -10,15 +10,23 @@ import "../ExodiaAccessControl.sol";
 import "./IAllocatedRiskFreeValue.sol";
 
 import "hardhat/console.sol";
+import "./PNLTracker.sol";
 
 contract TreasuryDepositor is ExodiaAccessControl {
 
     address public treasuryAddress;
     address public arfvAddress;
+    PNLTracker public pnlTracker;
 
-    function initialize(address _treasury, address _arfv, address _roles) public initializer {
+    function initialize(
+        address _treasury, 
+        address _arfv,
+        address _pnlTracker,
+        address _roles
+    ) public initializer {
         treasuryAddress = _treasury;
         arfvAddress = _arfv;
+        pnlTracker = PNLTracker(_pnlTracker);
         ExodiaAccessControlInitializable.initializeAccessControl(_roles);
     }
     
@@ -36,16 +44,16 @@ contract TreasuryDepositor is ExodiaAccessControl {
     function returnWithProfits(address _token, uint _amount, uint _profits) external onlyMachine onlyContract {
         _deposit(_token, _amount + _profits);
         _removeARFVFromTreasury(_token, _amount);
+        pnlTracker.track(_token, int(_profits));
     }
     /**
      * WARNING: This reduces excess reserve. If your machine looses too much money
      * and the loss makes the excess reserve go to 0 you won't be able to rebase
-     * TODO: make sure transaction does not revert if that is the case by
-     * transferring and auditing treasury
     */
     function returnWithLoss(address _token, uint _amount, uint _loss) external onlyMachine onlyContract {
         _deposit(_token, _amount - _loss);
         _removeARFVFromTreasury(_token, _amount);
+        pnlTracker.track(_token, int(_loss) * -1);
     }
     
     function _getTreasury() internal view returns(IOlympusTreasury){
@@ -73,20 +81,48 @@ contract TreasuryDepositor is ExodiaAccessControl {
         }
     }
     
-    function removeARFVFromTreasury(address _token, uint _amount) external onlyMachine onlyContract {
-        _removeARFVFromTreasury(_token, _amount);
+    /**
+     * this function is to register a loss without returning tokens    
+     */
+    function registerLoss(address _token, uint _loss) external onlyMachine onlyContract {
+        _removeARFVFromTreasury(_token, _loss);
+        pnlTracker.track(_token, int(_loss) * -1);
+    }
+
+    function registerProfit(address _token, uint _amount) external onlyMachine onlyContract returns (uint) {
+        uint valueOfAmount = _getTreasury().valueOf(_token, _amount);
+        if(valueOfAmount > 0){
+            IAllocatedRiskFreeValue arfv = _getARFVToken();
+            arfv.mint(valueOfAmount);
+            arfv.approve(treasuryAddress, valueOfAmount);
+            _getTreasury().deposit(valueOfAmount, arfvAddress, valueOfAmount);
+        }
+        pnlTracker.track(_token, int(_amount));
+        return valueOfAmount;
     }
     
     function _removeARFVFromTreasury(address _token, uint _amount) internal {
         IOlympusTreasury treasury = _getTreasury();
         uint value = treasury.valueOf(_token, _amount);
-        treasury.manage(arfvAddress, value);
-        IAllocatedRiskFreeValue(arfvAddress).burn(value);
+        uint excessReserves = treasury.excessReserves();
+        if(value > excessReserves) {
+            //ohoh, DAO is failing to back every token, manual auditReserves will be needed
+            treasury.manage(arfvAddress, excessReserves);
+            IAllocatedRiskFreeValue(arfvAddress).burn(excessReserves);
+            IAllocatedRiskFreeValue(arfvAddress).burnFrom(treasuryAddress, value - excessReserves);
+        } else {
+            treasury.manage(arfvAddress, value);
+            IAllocatedRiskFreeValue(arfvAddress).burn(value);
+        }
     }
 
     modifier onlyContract(){
         require(Address.isContract(msg.sender), "caller is not a contract");
         _;
+    }
+    
+    function setPnlTracker(address _pnlTracker) external onlyArchitect {
+        pnlTracker = PNLTracker(_pnlTracker);
     }
 
 }
