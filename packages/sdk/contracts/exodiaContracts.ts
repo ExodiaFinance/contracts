@@ -81,6 +81,8 @@ import {
     SolidexBalanceAdapter__factory,
     UniswapV2LPPriceOracle,
     UniswapV2LPPriceOracle__factory,
+    BackingPriceCalculator,
+    BackingPriceCalculator__factory,
 } from "../typechain";
 
 import { ContractVersions, NetworksContractsRegistry, version } from "./contractRegistry";
@@ -145,6 +147,7 @@ export interface IExodiaContractsRegistry {
     wFTMBondDepository: ContractVersions<WFTMBondDepository>;
     WenAbsorptionBondDepository: ContractVersions<WenAbsorptionBondDepository>;
     TreasuryTracker: ContractVersions<TreasuryTracker>;
+    BackingPriceCalculator: ContractVersions<BackingPriceCalculator>;
     MasterchefBalanceAdapter: ContractVersions<MasterchefBalanceAdapter>;
     AllocationCalculator: ContractVersions<AllocationCalculator>;
     ExodiaRoles: ContractVersions<ExodiaRoles>;
@@ -322,6 +325,9 @@ const mainOperaContract: IExodiaContractsRegistry = {
             "0x68f30FEd7a9132832d93fAE18dE717D6533edF97"
         ),
     ]),
+    BackingPriceCalculator: new ContractVersions<BackingPriceCalculator>([
+        version(BackingPriceCalculator__factory.connect),
+    ]),
     MasterchefBalanceAdapter: new ContractVersions<MasterchefBalanceAdapter>([
         version(
             MasterchefBalanceAdapter__factory.connect,
@@ -477,6 +483,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     ]),
     TreasuryTracker: new ContractVersions<TreasuryTracker>([
         version(TreasuryTracker__factory.connect),
+    ]),
+    BackingPriceCalculator: new ContractVersions<BackingPriceCalculator>([
+        version(BackingPriceCalculator__factory.connect),
     ]),
     MasterchefBalanceAdapter: new ContractVersions<MasterchefBalanceAdapter>([
         version(MasterchefBalanceAdapter__factory.connect),
