@@ -7,6 +7,7 @@ import {
     TreasuryTracker__factory,
 } from "../packages/sdk/typechain";
 import { exec, log } from "../packages/utils/utils";
+import { EXODIA_ROLES_DID } from "./38_deployExodiaRoles";
 
 export const PNLTRACKER_DID = "pnl_tracker";
 
@@ -28,3 +29,4 @@ const deployPnlTracker: IExtendedDeployFunction<IExodiaContractsRegistry> = asyn
 export default deployPnlTracker;
 deployPnlTracker.id = PNLTRACKER_DID;
 deployPnlTracker.tags = ["local", "test", PNLTRACKER_DID];
+deployPnlTracker.dependencies = [EXODIA_ROLES_DID];
