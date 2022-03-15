@@ -6,8 +6,9 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../../ExodiaAccessControlInitializable.sol";
 
 import "./adapters/IPriceOracle.sol";
+import "./IPriceProvider.sol";
 
-contract PriceProvider is ExodiaAccessControlInitializable {
+contract PriceProvider is IPriceProvider, ExodiaAccessControlInitializable {
     using SafeMath for uint256;
 
     event SetTokenOracle(address token, address oracle);
@@ -30,19 +31,19 @@ contract PriceProvider is ExodiaAccessControlInitializable {
         emit SetTokenOracle(token, oracle);
     }
 
-    function getSafePrice(address token) external view returns (uint256) {
+    function getSafePrice(address token) external view override returns (uint256) {
         require(priceOracle[token] != address(0), "UNSUPPORTED");
 
         return IPriceOracle(priceOracle[token]).getSafePrice(token);
     }
 
-    function getCurrentPrice(address token) external view returns (uint256) {
+    function getCurrentPrice(address token) external view override returns (uint256) {
         require(priceOracle[token] != address(0), "UNSUPPORTED");
 
         return IPriceOracle(priceOracle[token]).getCurrentPrice(token);
     }
 
-    function updateSafePrice(address token) external returns (uint256) {
+    function updateSafePrice(address token) external override returns (uint256) {
         require(priceOracle[token] != address(0), "UNSUPPORTED");
 
         return IPriceOracle(priceOracle[token]).updateSafePrice(token);
