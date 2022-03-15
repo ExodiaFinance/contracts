@@ -5,13 +5,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../IStrategy.sol";
 
 contract MockStrategy is IStrategy{
-
-    address allocator;
-    mapping(address => uint) depositedAmounts;
     
-    constructor(address _allocator){
-        allocator = _allocator;
-    }
+    mapping(address => uint) depositedAmounts;
     
     function deploy(address _token) external override {
         depositedAmounts[_token] += IERC20(_token).balanceOf(address(this));

@@ -128,19 +128,19 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
     function _calculateAllocations(address _token, uint _manageable) internal view returns (uint[] memory, uint){
         return _getAllocationCalculator().calculateAllocation(_token, _manageable);
     }
-
-    //TODO: add tests
+    
     function allocate(address _token, uint _amount) external {
         address[] memory strategies = _getStrategies(_token);
         (, uint[] memory balances) = _deposits(_token, strategies);
         (uint[] memory allocations, uint allocated) = _calculateAllocations(_token, _amount);
-        _allocateToTarget(_token, balances, allocations, strategies,0,0);
+        _allocateToTarget(_token, balances, allocations, strategies, 0, 0);
     }
     
     function _getTreasuryDepositor() internal view returns (TreasuryDepositor){
         return TreasuryDepositor(treasuryDepositorAddress);
     }
     
+    //TODO: add tests
     function withdrawFromStrategy(
         address _token, 
         address _strategy,
@@ -159,7 +159,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
         IERC20(_token).approve(treasuryDepositorAddress, _amount);
         _getTreasuryDepositor().deposit(_token, _amount);
     }*/
-    
+    //TODO: add tests
     function emergencyWithdrawFromStrategy(
         address[] calldata _tokens, 
         address _strategy
@@ -171,7 +171,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
             _getTreasuryDepositor().deposit(token, balance);
         }
     }
-
+    //TODO: add tests
     function allocatedBalance(address _token) external view override returns (uint) {
         (uint balance,) = _balance(_token, IAllocationCalculator(allocationCalculator).getStrategies(_token));
         return balance;

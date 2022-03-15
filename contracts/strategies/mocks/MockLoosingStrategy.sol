@@ -10,13 +10,11 @@ import "hardhat/console.sol";
 //This strategy does not return all the funds to simulate slippage
 contract MockLoosingStrategy is IStrategy{
 
-    address allocator;
     mapping(address => uint) depositedAmounts;
     uint returnRate;
     uint deployed;
 
-    constructor(address _allocator, uint _returnRate){
-        allocator = _allocator;
+    constructor(uint _returnRate){
         returnRate = _returnRate;
     }
 

@@ -2,7 +2,7 @@ import { MockContract, MockContractFactory, smock } from "@defi-wonderland/smock
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { expect } from "chai";
 import { BigNumber, BigNumberish } from "ethers";
-import { parseUnits } from "ethers/lib/utils";
+import { parseEther, parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
 
 import { ASSET_ALLOCATOR_DID } from "../../deploy/30_deployAssetAllocator";
@@ -91,7 +91,7 @@ describe("AssetAllocator", function () {
         await roles.addStrategist(deployer);
         await assetAllocator.addMachine(deployer);
         mockStrategyFactory = await smock.mock<MockStrategy__factory>("MockStrategy");
-        strategy = await mockStrategyFactory.deploy(assetAllocator.address);
+        strategy = await mockStrategyFactory.deploy();
         mockTokenFactory = await smock.mock<MockToken__factory>("MockToken");
         mockWinningStrategyFactory = await smock.mock<MockWinningStrategy__factory>(
             "MockWinningStrategy"
@@ -306,10 +306,7 @@ describe("AssetAllocator", function () {
             const deployedAmount = mintAmount;
 
             const setUpLoosingContrat = deployments.createFixture(async () => {
-                loosingStrat = await mockLoosingStrategyFactory.deploy(
-                    assetAllocator.address,
-                    returnRate
-                );
+                loosingStrat = await mockLoosingStrategyFactory.deploy(returnRate);
                 await allocationCalculator.setAllocation(
                     dai.address,
                     [loosingStrat.address],
@@ -652,8 +649,8 @@ describe("AssetAllocator", function () {
 
             describe("For regulars strategies", function () {
                 const setupRegularRegular = deployments.createFixture(async (hh) => {
-                    strat0 = await mockStrategyFactory.deploy(assetAllocator.address);
-                    strat1 = await mockStrategyFactory.deploy(assetAllocator.address);
+                    strat0 = await mockStrategyFactory.deploy();
+                    strat1 = await mockStrategyFactory.deploy();
                     await allocationCalculator.setAllocation(
                         dai.address,
                         [strat0.address, strat1.address],
@@ -673,11 +670,8 @@ describe("AssetAllocator", function () {
                 const returnRate = 80;
 
                 const setupRegularLoosing = deployments.createFixture(async (hh) => {
-                    strat0 = await mockStrategyFactory.deploy(assetAllocator.address);
-                    strat1 = await mockLoosingStrategyFactory.deploy(
-                        assetAllocator.address,
-                        80
-                    );
+                    strat0 = await mockStrategyFactory.deploy();
+                    strat1 = await mockLoosingStrategyFactory.deploy(80);
                     await allocationCalculator.setAllocation(
                         dai.address,
                         [strat0.address, strat1.address],
@@ -703,14 +697,8 @@ describe("AssetAllocator", function () {
                 const returnRate1 = 80;
 
                 const setUpLoosingLoosing = deployments.createFixture(async (hh) => {
-                    strat0 = await mockLoosingStrategyFactory.deploy(
-                        assetAllocator.address,
-                        returnRate0
-                    );
-                    strat1 = await mockLoosingStrategyFactory.deploy(
-                        assetAllocator.address,
-                        returnRate1
-                    );
+                    strat0 = await mockLoosingStrategyFactory.deploy(returnRate0);
+                    strat1 = await mockLoosingStrategyFactory.deploy(returnRate1);
                     await allocationCalculator.setAllocation(
                         dai.address,
                         [strat0.address, strat1.address],
@@ -740,7 +728,7 @@ describe("AssetAllocator", function () {
                         dai.address,
                         returnRate0
                     );
-                    strat1 = await mockStrategyFactory.deploy(assetAllocator.address);
+                    strat1 = await mockStrategyFactory.deploy();
                     await allocationCalculator.setAllocation(
                         dai.address,
                         [strat0.address, strat1.address],
@@ -804,10 +792,7 @@ describe("AssetAllocator", function () {
                 const returnRate1 = 200;
 
                 const setUpWinningRegular = deployments.createFixture(async (hh) => {
-                    strat0 = await mockLoosingStrategyFactory.deploy(
-                        assetAllocator.address,
-                        returnRate0
-                    );
+                    strat0 = await mockLoosingStrategyFactory.deploy(returnRate0);
                     strat1 = await mockWinningStrategyFactory.deploy(
                         assetAllocator.address,
                         dai.address,
@@ -838,7 +823,7 @@ describe("AssetAllocator", function () {
                 const returnRate1 = 90;
 
                 const setUpRegularSlipping = deployments.createFixture(async (hh) => {
-                    strat0 = await mockStrategyFactory.deploy(assetAllocator.address);
+                    strat0 = await mockStrategyFactory.deploy();
                     strat1 = await mockGreedyStrategyFactory.deploy(
                         assetAllocator.address,
                         returnRate1
@@ -936,10 +921,7 @@ describe("AssetAllocator", function () {
                 const returnRate1 = 90;
 
                 const setUpWinningSlipping = deployments.createFixture(async (hh) => {
-                    strat0 = await mockLoosingStrategyFactory.deploy(
-                        assetAllocator.address,
-                        returnRate0
-                    );
+                    strat0 = await mockLoosingStrategyFactory.deploy(returnRate0);
                     strat1 = await mockGreedyStrategyFactory.deploy(
                         assetAllocator.address,
                         returnRate1
@@ -1008,7 +990,7 @@ describe("AssetAllocator", function () {
         });
     });
 
-    describe.only("CollectProfits", function () {
+    describe("CollectProfits", function () {
         const amount0 = parseUnits("1", "ether");
         const amount1 = parseUnits("3", "ether");
         let tok0: MockContract<MockToken>;
@@ -1039,6 +1021,67 @@ describe("AssetAllocator", function () {
         it("Should collect rewards and deposit in treasury", async function () {
             await assetAllocator.collectProfits(tok0.address);
             expect(await tok0.balanceOf(treasury.address)).to.eq(amount0.add(amount1));
+        });
+    });
+
+    describe.only("Allocate", function () {
+        const returns0 = 80;
+        const returns1 = 50;
+
+        let tok0: MockContract<MockToken>;
+        let strat0: MockContract<MockStrategy>;
+        let strat1: MockContract<MockStrategy>;
+
+        const alloc0 = 90_000;
+        const alloc1 = 10_000;
+        const totalAlloc = alloc0 + alloc1;
+
+        const amount0 = parseEther("1000");
+        const amount1 = parseEther("200");
+
+        const setupStrats = deployments.createFixture(async (hh) => {
+            tok0 = await mockTokenFactory.deploy(18);
+            const loosingStratFactory = await smock.mock<MockStrategy__factory>(
+                "MockStrategy"
+            );
+            strat0 = await loosingStratFactory.deploy();
+            strat0.balance.returns(parseEther("1")); // sets non-sense value for balance, cause it's not supposed ot be used
+            strat1 = await loosingStratFactory.deploy();
+            strat0.balance.returns(parseEther("10000"));
+            await allocationCalculator.setAllocation(
+                tok0.address,
+                [strat0.address, strat1.address],
+                [alloc0, alloc1]
+            );
+            await tok0.mint(deployer, amount0);
+            await tok0.approve(assetAllocator.address, amount0);
+            await assetAllocator.allocate(tok0.address, amount0);
+        });
+
+        beforeEach(async function () {
+            await setupStrats();
+        });
+
+        it("Should allocate", async function () {
+            expect(await tok0.balanceOf(strat0.address)).to.eq(
+                amount0.mul(alloc0).div(totalAlloc)
+            );
+            expect(await tok0.balanceOf(strat1.address)).to.eq(
+                amount0.mul(alloc1).div(totalAlloc)
+            );
+        });
+
+        it("Should add allocation", async function () {
+            await tok0.mint(deployer, amount1);
+            const totalAmount = amount0.add(amount1);
+            await tok0.approve(assetAllocator.address, totalAmount);
+            await assetAllocator.allocate(tok0.address, totalAmount);
+            expect(await tok0.balanceOf(strat0.address)).to.eq(
+                totalAmount.mul(alloc0).div(totalAlloc)
+            );
+            expect(await tok0.balanceOf(strat1.address)).to.eq(
+                totalAmount.mul(alloc1).div(totalAlloc)
+            );
         });
     });
 });
