@@ -41,7 +41,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
     function collectProfits(address _token) external override onlyMachine {
         address[] memory strategies = _getStrategies(_token);
         for (uint i = 0; i < strategies.length; i++){
-            address[] memory rewardTokens = IStrategy(strategies[i]).collectRewards(_token, address(this));
+            IStrategy(strategies[i]).collectProfits(_token, address(this));
         }
         IERC20 token = IERC20(_token);
         uint balance = token.balanceOf(address(this));
@@ -128,7 +128,8 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
     function _calculateAllocations(address _token, uint _manageable) internal view returns (uint[] memory, uint){
         return _getAllocationCalculator().calculateAllocation(_token, _manageable);
     }
-    
+
+    //TODO: add tests
     function allocate(address _token, uint _amount) external {
         address[] memory strategies = _getStrategies(_token);
         (, uint[] memory balances) = _deposits(_token, strategies);

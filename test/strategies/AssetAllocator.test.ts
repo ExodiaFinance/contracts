@@ -20,6 +20,8 @@ import {
     ExodiaRoles,
     ExodiaRoles__factory,
     IStrategy,
+    MockCollectableProfitsStrategy,
+    MockCollectableProfitsStrategy__factory,
     MockGreedyStrategy,
     MockGreedyStrategy__factory,
     MockLoosingStrategy,
@@ -965,7 +967,7 @@ describe("AssetAllocator", function () {
         });
     });
 
-    describe.only("CollectRewards", function () {
+    describe("CollectRewards", function () {
         const amount0 = parseUnits("1", "ether");
         const amount1 = parseUnits("3", "ether");
         const amount2 = parseUnits("7", "ether");
@@ -1003,6 +1005,40 @@ describe("AssetAllocator", function () {
             expect(await tok0.balanceOf(treasury.address)).to.eq(amount0);
             expect(await tok1.balanceOf(treasury.address)).to.eq(amount1.add(amount2));
             expect(await tok2.balanceOf(treasury.address)).to.eq(amount3);
+        });
+    });
+
+    describe.only("CollectProfits", function () {
+        const amount0 = parseUnits("1", "ether");
+        const amount1 = parseUnits("3", "ether");
+        let tok0: MockContract<MockToken>;
+        let strat0: MockContract<MockCollectableProfitsStrategy>;
+        let strat1: MockContract<MockCollectableProfitsStrategy>;
+
+        const setupRewards = deployments.createFixture(async (hh) => {
+            tok0 = await mockTokenFactory.deploy(18);
+            const profitsStratFactory =
+                await smock.mock<MockCollectableProfitsStrategy__factory>(
+                    "MockCollectableProfitsStrategy"
+                );
+            strat0 = await profitsStratFactory.deploy();
+            strat1 = await profitsStratFactory.deploy();
+            await strat0.setProfits(amount0);
+            await strat1.setProfits(amount1);
+            await allocationCalculator.setAllocation(
+                tok0.address,
+                [strat0.address, strat1.address],
+                [50_000, 50_000]
+            );
+        });
+
+        beforeEach(async function () {
+            await setupRewards();
+        });
+
+        it("Should collect rewards and deposit in treasury", async function () {
+            await assetAllocator.collectProfits(tok0.address);
+            expect(await tok0.balanceOf(treasury.address)).to.eq(amount0.add(amount1));
         });
     });
 });
