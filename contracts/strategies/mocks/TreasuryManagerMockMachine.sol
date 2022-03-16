@@ -4,19 +4,18 @@ pragma abicoder v2;
 
 import "../TreasuryManager.sol";
 
-contract TreasuryManagerMockMachine  {
-
+contract TreasuryManagerMockMachine {
     address public treasuryManager;
 
     constructor(address _treasuryManager) {
         treasuryManager = _treasuryManager;
     }
 
-    function manage(address _token, uint _amount) external {
+    function manage(address _token, uint256 _amount) external {
         TreasuryManager(treasuryManager).manage(_token, _amount);
     }
-    
-    function withdraw(address _token, uint _amount) external {
+
+    function withdraw(address _token, uint256 _amount) external {
         TreasuryManager(treasuryManager).withdraw(_token, _amount);
     }
 }

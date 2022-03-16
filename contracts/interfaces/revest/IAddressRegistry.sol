@@ -8,7 +8,6 @@ pragma solidity >=0.8.0;
  *
  */
 interface IAddressRegistry {
-
     function initialize(
         address lock_manager_,
         address liquidity_,
@@ -45,7 +44,7 @@ interface IAddressRegistry {
 
     function setRevest(address revest) external;
 
-    function getDEX(uint index) external view returns (address);
+    function getDEX(uint256 index) external view returns (address);
 
     function setDex(address dex) external;
 
@@ -53,7 +52,7 @@ interface IAddressRegistry {
 
     function setRevestToken(address token) external;
 
-    function getRewardsHandler() external view returns(address);
+    function getRewardsHandler() external view returns (address);
 
     function setRewardsHandler(address esc) external;
 
@@ -62,5 +61,4 @@ interface IAddressRegistry {
     function getLPs() external view returns (address);
 
     function setLPs(address liquidToken) external;
-
 }

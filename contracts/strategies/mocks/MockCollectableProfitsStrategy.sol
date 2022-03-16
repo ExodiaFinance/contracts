@@ -7,41 +7,54 @@ import "../../mocks/MockERC20.sol";
 import "../IStrategy.sol";
 import "hardhat/console.sol";
 
-contract MockCollectableProfitsStrategy is IStrategy{
+contract MockCollectableProfitsStrategy is IStrategy {
+    uint256 amount0;
 
-    uint amount0;
+    function deploy(address _token) external override {}
 
-    function deploy(address _token) external override {
-
-    }
-
-    function withdrawTo(address _token, uint _amount, address _to) external override returns (uint) {
+    function withdrawTo(
+        address _token,
+        uint256 _amount,
+        address _to
+    ) external override returns (uint256) {
         return 0;
     }
 
-    function emergencyWithdrawTo(address _token, address _to) external override returns (uint) {
+    function emergencyWithdrawTo(address _token, address _to)
+        external
+        override
+        returns (uint256)
+    {
         return 0;
     }
 
-    function collectProfits(address _token, address _to) external override returns (int){
+    function collectProfits(address _token, address _to)
+        external
+        override
+        returns (int256)
+    {
         MockToken(_token).mint(_to, amount0);
-        return int(amount0);
+        return int256(amount0);
     }
 
-    function collectRewards(address _token, address _to) external override returns (address[] memory) {
+    function collectRewards(address _token, address _to)
+        external
+        override
+        returns (address[] memory)
+    {
         address[] memory tokenRewards = new address[](0);
         return tokenRewards;
     }
 
-    function deposited(address _token) public view override returns (uint) {
+    function deposited(address _token) public view override returns (uint256) {
         return 0;
     }
 
-    function balance(address _token) public view override returns (uint) {
+    function balance(address _token) public view override returns (uint256) {
         return 0;
     }
 
-    function setProfits(uint _amount0) external {
+    function setProfits(uint256 _amount0) external {
         amount0 = _amount0;
     }
 }

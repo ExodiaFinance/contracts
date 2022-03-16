@@ -2,27 +2,33 @@
 
 pragma solidity ^0.8.0;
 
-interface IInterestHandler  {
+interface IInterestHandler {
+    function registerDeposit(uint256 fnftId) external;
 
-    function registerDeposit(uint fnftId) external;
+    function getPrincipal(uint256 fnftId) external view returns (uint256);
 
-    function getPrincipal(uint fnftId) external view returns (uint);
+    function getInterest(uint256 fnftId) external view returns (uint256);
 
-    function getInterest(uint fnftId) external view returns (uint);
+    function getAmountToWithdraw(uint256 fnftId) external view returns (uint256);
 
-    function getAmountToWithdraw(uint fnftId) external view returns (uint);
+    function getUnderlyingToken(uint256 fnftId) external view returns (address);
 
-    function getUnderlyingToken(uint fnftId) external view returns (address);
-
-    function getUnderlyingValue(uint fnftId) external view returns (uint);
+    function getUnderlyingValue(uint256 fnftId) external view returns (uint256);
 
     //These methods exist for external operations
-    function getPrincipalDetail(uint historic, uint amount, address asset) external view returns (uint);
+    function getPrincipalDetail(
+        uint256 historic,
+        uint256 amount,
+        address asset
+    ) external view returns (uint256);
 
-    function getInterestDetail(uint historic, uint amount, address asset) external view returns (uint);
+    function getInterestDetail(
+        uint256 historic,
+        uint256 amount,
+        address asset
+    ) external view returns (uint256);
 
     function getUnderlyingTokenDetail(address asset) external view returns (address);
 
-    function getInterestRate(address asset) external view returns (uint);
-
+    function getInterestRate(address asset) external view returns (uint256);
 }

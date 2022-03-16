@@ -3,7 +3,6 @@
 pragma solidity >=0.8.0;
 
 interface IOracleDispatch {
-
     // Attempts to update oracle and returns true if successful. Returns true if update unnecessary
     function updateOracle(address asset, address compareTo) external returns (bool);
 
@@ -22,30 +21,54 @@ interface IOracleDispatch {
         address asset,
         address compareTo,
         bool risingEdge
-    )  external view returns (uint);
+    ) external view returns (uint256);
 
     // Does this oracle need to be updated prior to our reading the price?
     // Return false if we are within desired time period
     // Or if this type of oracle does not require updates
-    function oracleNeedsUpdates(address asset, address compareTo) external view returns (bool);
+    function oracleNeedsUpdates(address asset, address compareTo)
+        external
+        view
+        returns (bool);
 
     // Does this oracle need to be poked prior to update and withdrawal?
-    function oracleNeedsPoking(address asset, address compareTo) external view returns (bool);
+    function oracleNeedsPoking(address asset, address compareTo)
+        external
+        view
+        returns (bool);
 
-    function oracleNeedsInitialization(address asset, address compareTo) external view returns (bool);
+    function oracleNeedsInitialization(address asset, address compareTo)
+        external
+        view
+        returns (bool);
 
     //Only ever called if oracle needs initialization
-    function canOracleBeCreatedForRoute(address asset, address compareTo) external view returns (bool);
+    function canOracleBeCreatedForRoute(address asset, address compareTo)
+        external
+        view
+        returns (bool);
 
     // How long to wait after poking the oracle before you can update it again and withdraw
-    function getTimePeriodAfterPoke(address asset, address compareTo) external view returns (uint);
+    function getTimePeriodAfterPoke(address asset, address compareTo)
+        external
+        view
+        returns (uint256);
 
     // Returns a direct reference to the address that the specific contract for this pair is registered at
-    function getOracleForPair(address asset, address compareTo) external view returns (address);
+    function getOracleForPair(address asset, address compareTo)
+        external
+        view
+        returns (address);
 
     // Returns a boolean if this oracle can provide data for the requested pair, used during FNFT creation
-    function getPairHasOracle(address asset, address compareTo) external view returns (bool);
+    function getPairHasOracle(address asset, address compareTo)
+        external
+        view
+        returns (bool);
 
     //Returns the instantaneous price of asset and the decimals for that price
-    function getInstantPrice(address asset, address compareTo) external view returns (uint);
+    function getInstantPrice(address asset, address compareTo)
+        external
+        view
+        returns (uint256);
 }
