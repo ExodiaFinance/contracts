@@ -5,48 +5,50 @@ pragma solidity >=0.8.0;
 import "./IRevest.sol";
 
 interface ITokenVault {
-
     function createFNFT(
-        uint fnftId,
+        uint256 fnftId,
         IRevest.FNFTConfig memory fnftConfig,
-        uint quantity,
+        uint256 quantity,
         address from
     ) external;
 
     function withdrawToken(
-        uint fnftId,
-        uint quantity,
+        uint256 fnftId,
+        uint256 quantity,
         address user
     ) external;
 
     function depositToken(
-        uint fnftId,
-        uint amount,
-        uint quantity
+        uint256 fnftId,
+        uint256 amount,
+        uint256 quantity
     ) external;
 
-    function cloneFNFTConfig(IRevest.FNFTConfig memory old) external returns (IRevest.FNFTConfig memory);
+    function cloneFNFTConfig(IRevest.FNFTConfig memory old)
+        external
+        returns (IRevest.FNFTConfig memory);
 
-    function mapFNFTToToken(
-        uint fnftId,
-        IRevest.FNFTConfig memory fnftConfig
-    ) external;
+    function mapFNFTToToken(uint256 fnftId, IRevest.FNFTConfig memory fnftConfig)
+        external;
 
     function handleMultipleDeposits(
-        uint fnftId,
-        uint newFNFTId,
-        uint amount
+        uint256 fnftId,
+        uint256 newFNFTId,
+        uint256 amount
     ) external;
 
     function splitFNFT(
-        uint fnftId,
-        uint[] memory newFNFTIds,
-        uint[] memory proportions,
-        uint quantity
+        uint256 fnftId,
+        uint256[] memory newFNFTIds,
+        uint256[] memory proportions,
+        uint256 quantity
     ) external;
 
-    function getFNFT(uint fnftId) external view returns (IRevest.FNFTConfig memory);
-    function getFNFTCurrentValue(uint fnftId) external view returns (uint);
-    function getNontransferable(uint fnftId) external view returns (bool);
-    function getSplitsRemaining(uint fnftId) external view returns (uint);
+    function getFNFT(uint256 fnftId) external view returns (IRevest.FNFTConfig memory);
+
+    function getFNFTCurrentValue(uint256 fnftId) external view returns (uint256);
+
+    function getNontransferable(uint256 fnftId) external view returns (bool);
+
+    function getSplitsRemaining(uint256 fnftId) external view returns (uint256);
 }

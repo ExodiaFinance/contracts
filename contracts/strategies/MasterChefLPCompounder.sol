@@ -107,12 +107,9 @@ contract MonolithAutoCompounder is Ownable {
         IBeethovenxMasterChef(0x8166994d9ebBe5829EC86Bd81258149B87faCfd3);
     IBeethovenVault private immutable beetsVault =
         IBeethovenVault(0x20dd72Ed959b6147912C2e529F0a0C651c33c9ce);
-    IERC20 private immutable beets =
-        IERC20(0xF24Bcf4d1e507740041C9cFd2DddB29585aDCe1e);
-    IERC20 private immutable wftm =
-        IERC20(0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83);
-    IERC20 private immutable bptmnlt =
-        IERC20(0xa216AA5d67Ef95DdE66246829c5103C7843d1AAB);
+    IERC20 private immutable beets = IERC20(0xF24Bcf4d1e507740041C9cFd2DddB29585aDCe1e);
+    IERC20 private immutable wftm = IERC20(0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83);
+    IERC20 private immutable bptmnlt = IERC20(0xa216AA5d67Ef95DdE66246829c5103C7843d1AAB);
     bytes32 private immutable beetsSwapPoolId =
         0xcde5a11a4acb4ee4c805352cec57e236bdbc3837000200000000000000000019; // BEETS-wFTM pool
     bytes32 private immutable monolithPoolId =
@@ -217,9 +214,7 @@ contract MonolithAutoCompounder is Ownable {
         if (balance != 0) {
             wftm.approve(address(beetsVault), wFTMBalance()); // approve the vault to spend the wFTM we have
 
-            (address[] memory poolAssets, , ) = beetsVault.getPoolTokens(
-                monolithPoolId
-            );
+            (address[] memory poolAssets, , ) = beetsVault.getPoolTokens(monolithPoolId);
 
             uint256[] memory amountsIn = new uint256[](poolAssets.length);
 

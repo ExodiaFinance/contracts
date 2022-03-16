@@ -5,20 +5,21 @@ pragma solidity >=0.8.0;
 import "./IRevest.sol";
 
 interface ILockManager {
+    function createLock(uint256 fnftId, IRevest.LockParam memory lock)
+        external
+        returns (uint256);
 
-    function createLock(uint fnftId, IRevest.LockParam memory lock) external returns (uint);
+    function getLock(uint256 lockId) external view returns (IRevest.Lock memory);
 
-    function getLock(uint lockId) external view returns (IRevest.Lock memory);
+    function fnftIdToLockId(uint256 fnftId) external view returns (uint256);
 
-    function fnftIdToLockId(uint fnftId) external view returns (uint);
+    function fnftIdToLock(uint256 fnftId) external view returns (IRevest.Lock memory);
 
-    function fnftIdToLock(uint fnftId) external view returns (IRevest.Lock memory);
+    function pointFNFTToLock(uint256 fnftId, uint256 lockId) external;
 
-    function pointFNFTToLock(uint fnftId, uint lockId) external;
+    function lockTypes(uint256 tokenId) external view returns (IRevest.LockType);
 
-    function lockTypes(uint tokenId) external view returns (IRevest.LockType);
+    function unlockFNFT(uint256 fnftId, address sender) external returns (bool);
 
-    function unlockFNFT(uint fnftId, address sender) external returns (bool);
-
-    function getLockMaturity(uint fnftId) external view returns (bool);
+    function getLockMaturity(uint256 fnftId) external view returns (bool);
 }

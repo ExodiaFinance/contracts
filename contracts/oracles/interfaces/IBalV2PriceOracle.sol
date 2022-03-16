@@ -2,7 +2,6 @@
 pragma solidity >=0.7.5;
 
 interface IBalV2PriceOracle {
-
     // The three values that can be queried:
     //
     // - PAIR_PRICE: the price of the tokens in the Pool, expressed as the price of the second token in units of the
@@ -26,15 +25,15 @@ interface IBalV2PriceOracle {
         uint256 secs;
         uint256 ago;
     }
-    
+
     /**
      * @dev Returns the time average weighted price corresponding to each of `queries`. Prices are represented as 18
      * decimal fixed point values.
      */
     function getTimeWeightedAverage(OracleAverageQuery[] memory queries)
-    external
-    view
-    returns (uint256[] memory results);
+        external
+        view
+        returns (uint256[] memory results);
 
     /**
      * @dev Returns latest sample of `variable`. Prices are represented as 18 decimal fixed point values.
