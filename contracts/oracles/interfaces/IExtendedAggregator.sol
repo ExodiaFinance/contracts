@@ -3,9 +3,18 @@
 pragma solidity >=0.6.12;
 
 interface IExtendedAggregator {
-    enum TokenType {Invalid, Simple, Complex}
+    enum TokenType {
+        Invalid,
+        Simple,
+        Complex
+    }
 
-    enum PlatformId {Invalid, Simple, Uniswap, Balancer}
+    enum PlatformId {
+        Invalid,
+        Simple,
+        Uniswap,
+        Balancer
+    }
 
     /**
      * @dev Returns the LP shares token

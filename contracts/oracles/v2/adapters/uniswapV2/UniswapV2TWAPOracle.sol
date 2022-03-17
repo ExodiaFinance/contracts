@@ -110,11 +110,7 @@ contract UniswapV2TWAPOracle is IPriceOracle, Initializable {
     /**
      * @dev updates the TWAP (if enough time has lapsed) and returns the current safe price
      */
-    function updateSafePrice(address pair)
-        public
-       
-        returns (uint256 _amountOut)
-    {
+    function updateSafePrice(address pair) public returns (uint256 _amountOut) {
         // loads the pair if it is not currently tracked
         _loadPair(IUniswapV2Pair(pair));
 

@@ -12,16 +12,15 @@ import "../ExodiaAccessControlInitializable.sol";
  * contract or by a keeper we know the address.
  */
 contract MockExodiaAccessControl is ExodiaAccessControlInitializable {
-    
     function initialize(address _roles) external initializer {
         ExodiaAccessControlInitializable.initializeAccessControl(_roles);
     }
-    
+
     function forOnlyArchitect() external onlyArchitect {}
-    
+
     function forOnlyPolicy() external onlyPolicy {}
-    
+
     function forOnlyStrategist() external onlyStrategist {}
-    
+
     function forOnlyMachine() external onlyMachine {}
 }

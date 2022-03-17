@@ -13,8 +13,12 @@ contract ExodiaBalanceAggregator is Initializable {
     IERC20 public EXOD = IERC20(address(0));
     IERC20 public sEXOD = IERC20(address(0));
     wIERC20 public wsEXOD = wIERC20(address(0));
-    
-    function __initialize(address _exod, address _sexod, address _wsexod) public initializer {
+
+    function __initialize(
+        address _exod,
+        address _sexod,
+        address _wsexod
+    ) public initializer {
         EXOD = IERC20(_exod);
         sEXOD = IERC20(_sexod);
         wsEXOD = wIERC20(_wsexod);

@@ -12,57 +12,55 @@ import "./IAllocatedRiskFreeValue.sol";
 import "hardhat/console.sol";
 
 contract TreasuryManager is ExodiaAccessControl {
-
     address public treasuryAddress;
     address public arfvAddress;
-    
+
     function initialize(
-        address _treasury, 
-        address _arfv, 
+        address _treasury,
+        address _arfv,
         address _roles
     ) public initializer {
         treasuryAddress = _treasury;
         arfvAddress = _arfv;
         ExodiaAccessControlInitializable.initializeAccessControl(_roles);
     }
-    
-    function manage(address _token, uint _amount) external onlyMachine onlyContract {
+
+    function manage(address _token, uint256 _amount) external onlyMachine onlyContract {
         IOlympusTreasury treasury = _getTreasury();
-        uint valueOfAmount = treasury.valueOf(_token, _amount);
-        if(valueOfAmount > 0) {
+        uint256 valueOfAmount = treasury.valueOf(_token, _amount);
+        if (valueOfAmount > 0) {
             _addArfvToTreasury(valueOfAmount);
         }
         treasury.manage(_token, _amount);
         IERC20(_token).transfer(msg.sender, _amount);
     }
-    
-    function _addArfvToTreasury(uint amount) internal {
+
+    function _addArfvToTreasury(uint256 amount) internal {
         IAllocatedRiskFreeValue arfv = _getARFVToken();
         arfv.mint(amount);
         arfv.approve(treasuryAddress, amount);
         _getTreasury().deposit(amount, arfvAddress, amount);
     }
-    
-    function _getTreasury() internal view returns(IOlympusTreasury){
+
+    function _getTreasury() internal view returns (IOlympusTreasury) {
         return IOlympusTreasury(treasuryAddress);
     }
-    
-    function _getARFVToken() internal view returns (IAllocatedRiskFreeValue){
+
+    function _getARFVToken() internal view returns (IAllocatedRiskFreeValue) {
         return IAllocatedRiskFreeValue(arfvAddress);
     }
-    
-    function withdraw(address _token, uint _amount) external onlyMachine onlyContract {
+
+    function withdraw(address _token, uint256 _amount) external onlyMachine onlyContract {
         _getTreasury().manage(_token, _amount);
         IERC20(_token).transfer(msg.sender, _amount);
     }
-    
-    function balance(address _token) external view returns (uint){
+
+    function balance(address _token) external view returns (uint256) {
         return IERC20(_token).balanceOf(treasuryAddress);
     }
-    
-    modifier onlyContract(){
+
+    modifier onlyContract() {
         require(Address.isContract(msg.sender), "caller is not a contract");
         _;
     }
-    
 }

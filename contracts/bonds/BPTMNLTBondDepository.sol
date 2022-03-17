@@ -10,8 +10,9 @@ contract BPTMNLTBondDepository is wETHOlympusBondDepository {
         address _treasury,
         address _DAO,
         address _feed
-    ) wETHOlympusBondDepository(_OHM, _principle, _treasury, _DAO, _feed){}
+    ) wETHOlympusBondDepository(_OHM, _principle, _treasury, _DAO, _feed) {}
 
     function updateFeed(address _feed) public onlyPolicy {
         priceFeed = AggregatorV3Interface(_feed);
-    }}
+    }
+}

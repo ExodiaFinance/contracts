@@ -36,7 +36,9 @@ describe("Backing Price Calculator", function () {
     let backingPriceCalculator: BackingPriceCalculator;
     let treasuryTracker: MockContract<TreasuryTracker>;
     let priceProvider: MockContract<PriceProvider>;
-    let exod: MockContract<IERC20>, mockFTM: MockContract<IERC20>, mockUSDC: MockContract<IERC20>;
+    let exod: MockContract<IERC20>,
+        mockFTM: MockContract<IERC20>,
+        mockUSDC: MockContract<IERC20>;
     let roles: ExodiaRoles;
 
     before(async function () {
@@ -200,8 +202,12 @@ describe("Backing Price Calculator", function () {
                 [mockFTM.address, mockUSDC.address],
                 [parseUnits("10000000"), parseUnits("10000000", 6)],
             ]);
-            priceProvider.getSafePrice.whenCalledWith(mockFTM.address).returns(parseUnits("2"))
-            priceProvider.getSafePrice.whenCalledWith(mockUSDC.address).returns(parseUnits("1"))
+            priceProvider.getSafePrice
+                .whenCalledWith(mockFTM.address)
+                .returns(parseUnits("2"));
+            priceProvider.getSafePrice
+                .whenCalledWith(mockUSDC.address)
+                .returns(parseUnits("1"));
 
             await backingPriceCalculator.fetchBackingPrice();
 

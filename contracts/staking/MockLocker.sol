@@ -25,74 +25,85 @@ contract MockLocker is Policy, IOutputReceiver, IAddressLock, ILocker {
     address public rewardsHandlerAddress;
     address public revestRegistryAddress;
 
-    uint private constant ONE_DAY = 86400;
+    uint256 private constant ONE_DAY = 86400;
 
     // Default values
-    uint[] public interestRates = [4, 13, 27, 56];
-    uint[] public lockupPeriods = [30 days, 90 days, 180 days, 360 days];
-    uint[] public withdrawalWindows = [1 days, 5 days, 9 days, 14 days];
-    uint private constant MAX_INT = 2**256 - 1;
+    uint256[] public interestRates = [4, 13, 27, 56];
+    uint256[] public lockupPeriods = [30 days, 90 days, 180 days, 360 days];
+    uint256[] public withdrawalWindows = [1 days, 5 days, 9 days, 14 days];
+    uint256 private constant MAX_INT = 2**256 - 1;
 
-    string public customMetadataUrl = "https://revest.mypinata.cloud/ipfs/QmeSaVihizntuDQL5BgsujK2nK6bkkwXXzHATGGjM2uyRr";
-    string public addressMetadataUrl = "https://revest.mypinata.cloud/ipfs/QmY3KUBToJBthPLvN1Knd7Y51Zxx7FenFhXYV8tPEMVAP3";
+    string public customMetadataUrl =
+        "https://revest.mypinata.cloud/ipfs/QmeSaVihizntuDQL5BgsujK2nK6bkkwXXzHATGGjM2uyRr";
+    string public addressMetadataUrl =
+        "https://revest.mypinata.cloud/ipfs/QmY3KUBToJBthPLvN1Knd7Y51Zxx7FenFhXYV8tPEMVAP3";
 
-    event StakedRevest(uint indexed timePeriod, uint indexed amount, uint fnftId);
+    event StakedRevest(
+        uint256 indexed timePeriod,
+        uint256 indexed amount,
+        uint256 fnftId
+    );
 
-
-    constructor(
-        address _revestRegistry
-    ) {
+    constructor(address _revestRegistry) {
         revestRegistryAddress = _revestRegistry;
     }
 
-    function getToken() external view override returns(address){
+    function getToken() external view override returns (address) {
         return REWARD_TOKEN;
     }
 
-    function getRewardsToken() external view override returns(address){
+    function getRewardsToken() external view override returns (address) {
         return REWARD_TOKEN;
     }
 
-    function lock(uint amount, uint8 periodId) external override payable returns (uint) {
+    function lock(uint256 amount, uint8 periodId)
+        external
+        payable
+        override
+        returns (uint256)
+    {
         return 1;
     }
 
-    function addToLock(uint fnftId, uint amount) public {
+    function addToLock(uint256 fnftId, uint256 amount) public {}
 
-    }
-
-    function unlock(uint fnftId, uint quantity) external override returns (bool){
+    function unlock(uint256 fnftId, uint256 quantity) external override returns (bool) {
         return true;
     }
 
-    function getLockupPeriod(uint periodId) public view returns(uint){
+    function getLockupPeriod(uint256 periodId) public view returns (uint256) {
         return lockupPeriods[periodId];
     }
 
-    function getWindow(uint periodId) public view returns (uint) {
+    function getWindow(uint256 periodId) public view returns (uint256) {
         return withdrawalWindows[periodId];
     }
 
-    function getInterestRate(uint periodId) public view returns (uint interest) {
+    function getInterestRate(uint256 periodId) public view returns (uint256 interest) {
         return interestRates[periodId];
     }
 
     function receiveRevestOutput(
-        uint fnftId,
+        uint256 fnftId,
         address asset,
         address payable owner,
-        uint quantity
-    ) external override {
-    }
+        uint256 quantity
+    ) external override {}
 
-    function claimRewards(uint fnftId) external {
-    }
+    function claimRewards(uint256 fnftId) external {}
 
-    function updateLock(uint fnftId, uint, bytes memory) external override {
-    }
+    function updateLock(
+        uint256 fnftId,
+        uint256,
+        bytes memory
+    ) external override {}
 
-    function getOutputDisplayValues(uint fnftId) external view override returns (bytes memory) {
-
+    function getOutputDisplayValues(uint256 fnftId)
+        external
+        view
+        override
+        returns (bytes memory)
+    {
         return abi.encode(0);
     }
 
@@ -112,11 +123,11 @@ contract MockLocker is Policy, IOutputReceiver, IAddressLock, ILocker {
         return IAddressRegistry(revestRegistryAddress);
     }
 
-    function getValue(uint fnftId) external view override returns (uint) {
+    function getValue(uint256 fnftId) external view override returns (uint256) {
         return 0;
     }
 
-    function getAsset(uint fnftId) external view override returns (address) {
+    function getAsset(uint256 fnftId) external view override returns (address) {
         return REWARD_TOKEN;
     }
 
@@ -124,14 +135,24 @@ contract MockLocker is Policy, IOutputReceiver, IAddressLock, ILocker {
         rewardsHandlerAddress = _handler;
     }
 
-    function getDisplayValues(uint fnftId, uint) external view override returns (bytes memory) {
+    function getDisplayValues(uint256 fnftId, uint256)
+        external
+        view
+        override
+        returns (bytes memory)
+    {
         return abi.encode(100, 0);
     }
 
-    function isUnlockable(uint fnftId, uint) external view override returns (bool) {
+    function isUnlockable(uint256 fnftId, uint256) external view override returns (bool) {
         return false;
     }
-    function createLock(uint fnftId, uint lockId, bytes memory arguments) external override {
+
+    function createLock(
+        uint256 fnftId,
+        uint256 lockId,
+        bytes memory arguments
+    ) external override {
         return;
     }
 
@@ -139,7 +160,12 @@ contract MockLocker is Policy, IOutputReceiver, IAddressLock, ILocker {
         customMetadataUrl = _customMetadataUrl;
     }
 
-    function getCustomMetadata(uint fnftId) external view override returns (string memory) {
+    function getCustomMetadata(uint256 fnftId)
+        external
+        view
+        override
+        returns (string memory)
+    {
         return customMetadataUrl;
     }
 
@@ -155,33 +181,26 @@ contract MockLocker is Policy, IOutputReceiver, IAddressLock, ILocker {
         return true;
     }
 
-
     // Admin functions
 
     function manualMapConfig(
-        uint[] memory fnftIds,
-        uint[] memory timePeriod,
-        uint [] memory lockedFrom
-    ) external onlyPolicy {
+        uint256[] memory fnftIds,
+        uint256[] memory timePeriod,
+        uint256[] memory lockedFrom
+    ) external onlyPolicy {}
 
-    }
-
-    function updateInterestRates(uint[4] memory newRates) external onlyPolicy {
+    function updateInterestRates(uint256[4] memory newRates) external onlyPolicy {
         interestRates = newRates;
     }
 
-    function _msgSender() internal view returns (address){
+    function _msgSender() internal view returns (address) {
         return msg.sender;
     }
-
 
     // IERC165 interface function
 
     function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
-        return (
-        interfaceId == type(IOutputReceiver).interfaceId
-    || interfaceId == type(IAddressLock).interfaceId
-        );
+        return (interfaceId == type(IOutputReceiver).interfaceId ||
+            interfaceId == type(IAddressLock).interfaceId);
     }
-
 }

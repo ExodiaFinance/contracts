@@ -6,7 +6,7 @@ interface IPolicy {
 
     function renounceManagement() external;
 
-    function pushManagement( address newOwner_ ) external;
+    function pushManagement(address newOwner_) external;
 
     function pullManagement() external;
 }
