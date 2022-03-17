@@ -26,7 +26,6 @@ contract ExodiaRoles is AccessControl {
         _grantRole(DAO, _dao);
     }
     
-    //TODO: Add tests pushDAO/pullDAO
     function pushDAO(address _newDao) external {
         require(isDAO(msg.sender), "Not DAO");
         nextDao = _newDao;
