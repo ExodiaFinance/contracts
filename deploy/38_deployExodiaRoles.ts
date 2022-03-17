@@ -2,7 +2,7 @@ import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/Ex
 import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
 import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
 import { ExodiaRoles__factory } from "../packages/sdk/typechain";
-import { log } from "../packages/utils/utils";
+import { exec, log } from "../packages/utils/utils";
 
 export const EXODIA_ROLES_DID = "exodia_roles";
 
@@ -14,7 +14,7 @@ const deployExodiaRoles: IExtendedDeployFunction<IExodiaContractsRegistry> = asy
     const { contract: roles } = await deploy<ExodiaRoles__factory>("ExodiaRoles", [
         deployer,
     ]);
-    await roles.addArchitect(deployer);
+    await exec(() => roles.addArchitect(deployer));
     log("Exodia roles: ", roles.address);
 };
 export default deployExodiaRoles;

@@ -15,4 +15,4 @@ const deployChainlinkPriceOracle: IExtendedDeployFunction<IExodiaContractsRegist
     };
 export default deployChainlinkPriceOracle;
 deployChainlinkPriceOracle.id = CHAINLINK_PRICE_ORACLE_DID;
-deployChainlinkPriceOracle.tags = ["local", "test", EXODIA_ROLES_DID];
+deployChainlinkPriceOracle.tags = ["local", "test", CHAINLINK_PRICE_ORACLE_DID];

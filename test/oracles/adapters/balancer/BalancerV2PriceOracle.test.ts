@@ -14,7 +14,7 @@ import { IExtendedHRE } from "../../../../packages/HardhatRegistryExtension/Exte
 import { ZERO_ADDRESS } from "../../../../packages/utils/utils";
 import {
     BalancerV2PriceOracle,
-    BalancerV2PriceOracle__factory,
+    ChainlinkPriceOracle__factory,
     ExodiaRoles,
     ExodiaRoles__factory,
 } from "../../../../packages/sdk/typechain";
@@ -41,7 +41,7 @@ describe("Balancer V2 Price Oracle", function () {
 
     beforeEach(async function () {
         await deployments.fixture([EXODIA_ROLES_DID, BALANCER_V2_PRICE_ORACLE_DID]);
-        const oracleDeployment = await get<BalancerV2PriceOracle__factory>(
+        const oracleDeployment = await get<ChainlinkPriceOracle__factory>(
             "BalancerV2PriceOracle"
         );
         oracle = await oracleDeployment.contract;

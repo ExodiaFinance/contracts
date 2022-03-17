@@ -4,14 +4,11 @@ pragma abicoder v2;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-// import "../interfaces/IOlympusTreasury.sol";
 import "../ExodiaAccessControl.sol";
 import "./IStrategy.sol";
 import "./IAssetAllocator.sol";
 import "./IAllocationCalculator.sol";
-// import "./IAllocatedRiskFreeValue.sol";
 import "./TreasuryDepositor.sol";
-import "hardhat/console.sol";
 
 contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
     using SafeMath for uint256;

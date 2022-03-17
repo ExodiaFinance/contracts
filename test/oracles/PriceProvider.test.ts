@@ -14,7 +14,7 @@ import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHR
 import { ZERO_ADDRESS } from "../../packages/utils/utils";
 import {
     BalancerV2PriceOracle,
-    BalancerV2PriceOracle__factory,
+    ChainlinkPriceOracle__factory,
     ChainlinkPriceOracle,
     ExodiaRoles,
     ExodiaRoles__factory,
@@ -48,7 +48,7 @@ describe("PriceProvider", function () {
             PRICE_PROVIDER_DID,
             BALANCER_V2_PRICE_ORACLE_DID,
         ]);
-        const oracleDeployment = await get<BalancerV2PriceOracle__factory>(
+        const oracleDeployment = await get<ChainlinkPriceOracle__factory>(
             "BalancerV2PriceOracle"
         );
         balancerOracle = await oracleDeployment.contract;

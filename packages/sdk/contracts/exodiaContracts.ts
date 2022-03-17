@@ -5,8 +5,9 @@ import {
     AllocationCalculator__factory,
     AssetAllocator,
     AssetAllocator__factory,
+    BackingPriceCalculator,
+    BackingPriceCalculator__factory,
     BalancerV2PriceOracle,
-    BalancerV2PriceOracle__factory,
     BPTMNLTBondDepository,
     BPTMNLTBondDepository__factory,
     BPTMNLTPriceOracle,
@@ -75,16 +76,14 @@ import {
     TreasuryManager__factory,
     TreasuryTracker,
     TreasuryTracker__factory,
+    UniswapV2LPPriceOracle,
+    UniswapV2LPPriceOracle__factory,
     WenAbsorptionBondDepository,
     WenAbsorptionBondDepository__factory,
     WFTMBondDepository,
     WFTMBondDepository__factory,
     WOHM,
     WOHM__factory,
-    UniswapV2LPPriceOracle,
-    UniswapV2LPPriceOracle__factory,
-    BackingPriceCalculator,
-    BackingPriceCalculator__factory,
 } from "../typechain";
 
 import { ContractVersions, NetworksContractsRegistry, version } from "./contractRegistry";
@@ -341,7 +340,10 @@ const mainOperaContract: IExodiaContractsRegistry = {
         version(AllocationCalculator__factory.connect),
     ]),
     ExodiaRoles: new ContractVersions<ExodiaRoles>([
-        version(ExodiaRoles__factory.connect),
+        version(
+            ExodiaRoles__factory.connect,
+            "0x55d5f1cc07d7d78ba0396d862e9847622113fccf"
+        ),
     ]),
     TreasuryManager: new ContractVersions<TreasuryManager>([
         version(TreasuryManager__factory.connect),
@@ -350,10 +352,16 @@ const mainOperaContract: IExodiaContractsRegistry = {
         version(TreasuryDepositor__factory.connect),
     ]),
     BalancerV2PriceOracle: new ContractVersions<BalancerV2PriceOracle>([
-        version(BalancerV2PriceOracle__factory.connect),
+        version(
+            ChainlinkPriceOracle__factory.connect,
+            "0x2E4C44F8cd770879BcE0A6C9ced1C4fd2031a577"
+        ),
     ]),
     ChainlinkPriceOracle: new ContractVersions<ChainlinkPriceOracle>([
-        version(ChainlinkPriceOracle__factory.connect),
+        version(
+            ChainlinkPriceOracle__factory.connect,
+            "0xCc333Cd6Bd7344cC0efE9BFc88cF9e5E92b397eA"
+        ),
     ]),
     UniswapV2LPPriceOracle: new ContractVersions<UniswapV2LPPriceOracle>([
         version(UniswapV2LPPriceOracle__factory.connect),
@@ -507,7 +515,7 @@ const testNetOperaContract: IExodiaContractsRegistry = {
         version(TreasuryDepositor__factory.connect),
     ]),
     BalancerV2PriceOracle: new ContractVersions<BalancerV2PriceOracle>([
-        version(BalancerV2PriceOracle__factory.connect),
+        version(ChainlinkPriceOracle__factory.connect),
     ]),
     ChainlinkPriceOracle: new ContractVersions<ChainlinkPriceOracle>([
         version(ChainlinkPriceOracle__factory.connect),

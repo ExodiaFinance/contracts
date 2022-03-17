@@ -19,4 +19,4 @@ const deployPriceProvider: IExtendedDeployFunction<IExodiaContractsRegistry> = a
 };
 export default deployPriceProvider;
 deployPriceProvider.id = PRICE_PROVIDER_DID;
-deployPriceProvider.tags = ["local", "test", EXODIA_ROLES_DID];
+deployPriceProvider.tags = ["local", "test", PRICE_PROVIDER_DID];
