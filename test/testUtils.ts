@@ -25,9 +25,11 @@ export const setTimestamp = async (
 };
 
 export const mine = async (hre: HardhatRuntimeEnvironment, blocks = 1) => {
-    await hre.network.provider.request({
-        method: "evm_mine",
-    });
+    for (let i = 0; i < blocks; i++) {
+        await hre.network.provider.request({
+            method: "evm_mine",
+        });
+    }
 };
 
 export const impersonate = async (hre: HardhatRuntimeEnvironment, address: string) => {
