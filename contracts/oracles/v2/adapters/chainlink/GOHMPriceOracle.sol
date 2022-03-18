@@ -1,34 +1,42 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.12;
 
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "../../../../ExodiaAccessControlInitializable.sol";
 import "../IPriceOracle.sol";
 
-contract GOHMPriceOracle is IPriceOracle, ExodiaAccessControlInitializable {
+contract GOHMPriceOracle is IPriceOracle {
     
     AggregatorV3Interface immutable ohmFeed;
     AggregatorV3Interface immutable indexFeed;
+    AggregatorV3Interface immutable ftmFeed;
+
+    event UpdateValues(address indexed feed);
     
-    function initialize(address _ohmFeed, address _indexFeed) public initializer
-        SpotPriceOracle()
+    constructor(address _ohmFeed, address _indexFeed, address _ftmFeed)
     {
         ohmFeed = AggregatorV3Interface(_ohmFeed);
         indexFeed = AggregatorV3Interface(_indexFeed);
+        ftmFeed = AggregatorV3Interface(_ftmFeed);
     }
 
-    function getSafePrice(address _token) public view returns (uint256 _amountOut) {
+    function getSafePrice(address _token) public view returns (uint256) {
         return getCurrentPrice(_token);
     }
     
-    function getCurrentPrice(address _token) public view returns (uint256 _amountOut) {
-        int256 ohmPrice = ohmFeed.latestAnswer();
-        int256 index = indexFeed.latestAnswer();
-        return ohmPrice * index * 10;
+    function getCurrentPrice(address _token) public view returns (uint256) {
+        (, int256 ohmUsd, , , ) = ohmFeed.latestRoundData();
+        (, int256 index, , , ) = indexFeed.latestRoundData();
+        (, int256 ftmUsd, , , ) = ftmFeed.latestRoundData();
+        return uint(ohmUsd) * uint(index) * 1e9 / uint(ftmUsd) ;
     }
     
-    function updateSafePrice(address _feed) public returns (uint256 _amountOut) {
+    function updateSafePrice(address _feed) public returns (uint256) {
         emit UpdateValues(_feed); // keeps this mutable so it matches the interface
         return getCurrentPrice(_feed);
+    }
+
+    function VERSION() external view returns (uint256){
+        return 1;
     }
 }

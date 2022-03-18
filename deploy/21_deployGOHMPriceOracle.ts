@@ -16,12 +16,11 @@ const deployDaiBond: IExtendedDeployFunction<IExodiaContractsRegistry> = async (
     deploy,
     getNetwork,
 }: IExtendedHRE<IExodiaContractsRegistry>) => {
-    const { OHM_INDEX_FEED, OHM_USD_FEED } = externalAddressRegistry.forNetwork(
-        await getNetwork()
-    );
+    const { OHM_INDEX_FEED, OHM_USD_FEED, FTM_USD_FEED } =
+        externalAddressRegistry.forNetwork(await getNetwork());
     const { contract: oracle, deployment } = await deploy<GOHMPriceOracle__factory>(
         "GOHMPriceOracle",
-        [OHM_USD_FEED, OHM_INDEX_FEED]
+        [OHM_USD_FEED, OHM_INDEX_FEED, FTM_USD_FEED]
     );
     log("gOHM oracle: ", oracle.address);
 };

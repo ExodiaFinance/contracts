@@ -26,9 +26,9 @@ module.exports = {
     networks: {
         hardhat: {
             // If you want to do some forking, uncomment this
-            /* forking: {
+            forking: {
                 url: providers.getUrl(Network.OPERA_MAIN_NET),
-            },*/
+            },
             // blockNumber: 29734853,
         },
         localhost: {},
