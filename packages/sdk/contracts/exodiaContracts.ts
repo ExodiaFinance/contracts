@@ -70,6 +70,8 @@ import {
     StakingHelperV2__factory,
     StakingWarmup,
     StakingWarmup__factory,
+    StrategyWhitelist,
+    StrategyWhitelist__factory,
     TreasuryDepositor,
     TreasuryDepositor__factory,
     TreasuryManager,
@@ -162,6 +164,7 @@ export interface IExodiaContractsRegistry {
     ExodiaBalanceAggregator: ContractVersions<ExodiaBalanceAggregator>;
     SolidexBalanceAdapter: ContractVersions<SolidexBalanceAdapter>;
     PNLTracker: ContractVersions<PNLTracker>;
+    StrategyWhitelist: ContractVersions<StrategyWhitelist>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -380,6 +383,9 @@ const mainOperaContract: IExodiaContractsRegistry = {
         version(SolidexBalanceAdapter__factory.connect),
     ]),
     PNLTracker: new ContractVersions<PNLTracker>([version(PNLTracker__factory.connect)]),
+    StrategyWhitelist: new ContractVersions<StrategyWhitelist>([
+        version(StrategyWhitelist__factory.connect),
+    ]),
 };
 
 const testNetOperaContract: IExodiaContractsRegistry = {
@@ -534,6 +540,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
         version(SolidexBalanceAdapter__factory.connect),
     ]),
     PNLTracker: new ContractVersions<PNLTracker>([version(PNLTracker__factory.connect)]),
+    StrategyWhitelist: new ContractVersions<StrategyWhitelist>([
+        version(StrategyWhitelist__factory.connect),
+    ]),
 };
 
 contracts.addNetwork(Network.OPERA_MAIN_NET, mainOperaContract);
