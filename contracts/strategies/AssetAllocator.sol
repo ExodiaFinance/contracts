@@ -48,16 +48,20 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
     function collectRewards(address _token) external override onlyMachine {
         address[] memory strategies = _getStrategies(_token);
         for (uint256 i = 0; i < strategies.length; i++) {
-            address[] memory rewardTokens = IStrategy(strategies[i]).collectRewards(
-                _token,
-                address(this)
-            );
-            for (uint256 i = 0; i < rewardTokens.length; i++) {
-                IERC20 token = IERC20(rewardTokens[i]);
-                uint256 balance = token.balanceOf(address(this));
-                token.approve(treasuryDepositorAddress, balance);
-                _getTreasuryDepositor().returnWithProfits(rewardTokens[i], 0, balance);
-            }
+            _collectRewardsForStrategy(_token, strategies[i]);
+        }
+    }
+    
+    function _collectRewardsForStrategy(address _token, address _strategy) internal {
+        address[] memory rewardTokens = IStrategy(_strategy).collectRewards(
+            _token,
+            address(this)
+        );
+        for (uint256 i = 0; i < rewardTokens.length; i++) {
+            IERC20 token = IERC20(rewardTokens[i]);
+            uint256 balance = token.balanceOf(address(this));
+            token.approve(treasuryDepositorAddress, balance);
+            _getTreasuryDepositor().returnWithProfits(rewardTokens[i], 0, balance);
         }
     }
 
@@ -116,7 +120,8 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
                 uint256 amount = _balances[i] - _targetAllocations[i];
                 allocated += _balances[i] - amount;
                 expectedToWithdraw += amount;
-                actuallyWithdrawn += IStrategy(_strategies[i]).withdrawTo(
+                _collectRewardsForStrategy(_token, _strategies[i]);
+                IStrategy(_strategies[i]).withdrawTo(
                     _token,
                     amount,
                     msg.sender
