@@ -12,13 +12,12 @@ struct Strategies {
 }
 
 contract AllocationCalculator is ExodiaAccessControlInitializable, IAllocationCalculator {
-
     mapping(address => Strategies) tokenStrategies;
 
     function initialize(address _roles) external initializer {
         ExodiaAccessControlInitializable.initializeAccessControl(_roles);
     }
-    
+
     function setAllocation(
         address _token,
         address[] memory _strategies,
@@ -39,7 +38,7 @@ contract AllocationCalculator is ExodiaAccessControlInitializable, IAllocationCa
         uint256[] memory allocations = new uint256[](strategies.allocations.length);
         uint256 allocated = 0;
         for (uint256 i = 0; i < allocations.length; i++) {
-            uint256 allocation = strategies.allocations[i] * _manageable / 1e5;
+            uint256 allocation = (strategies.allocations[i] * _manageable) / 1e5;
             allocations[i] = allocation;
             allocated += allocation;
         }

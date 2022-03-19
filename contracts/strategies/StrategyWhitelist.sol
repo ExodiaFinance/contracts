@@ -11,17 +11,16 @@ contract StrategyWhitelist is ExodiaAccessControlInitializable {
     function initialize(address _roles) external initializer {
         ExodiaAccessControlInitializable.initializeAccessControl(_roles);
     }
-    
+
     function add(address _strategy) external onlyArchitect {
         whitelist[_strategy] = true;
     }
-    
+
     function remove(address _strategy) external onlyArchitect {
         whitelist[_strategy] = false;
     }
-    
+
     function isWhitelisted(address _strategy) external view returns (bool) {
         return whitelist[_strategy];
     }
-
 }
