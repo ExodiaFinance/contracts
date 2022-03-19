@@ -5,6 +5,7 @@ import exp from "constants";
 import { BigNumber } from "ethers";
 import { parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
+import { ALLOCATION_CALCULATOR_DID } from "../../deploy/37_deployAllocationCalculator";
 
 import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
 import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
@@ -12,6 +13,8 @@ import {
     AllocationCalculator,
     AllocationCalculator__factory,
     AssetAllocator__factory,
+    ExodiaRoles,
+    ExodiaRoles__factory,
     MockToken__factory,
 } from "../../packages/sdk/typechain";
 import "../chai-setup";
@@ -22,6 +25,7 @@ describe("Allocation Calculator", function () {
     let deployer: SignerWithAddress;
     let notDeployer: SignerWithAddress;
     let allocationCalculator: AllocationCalculator;
+    let roles: ExodiaRoles;
     let strat0: string;
     let strat1: string;
     let strat2: string;
@@ -39,13 +43,13 @@ describe("Allocation Calculator", function () {
         token = strats[3];
         deployer = await hh.ethers.getSigner(deployerAddress);
         notDeployer = await hh.ethers.getSigner(strats[4]);
-        const deployment = await deployments.deploy("AllocationCalculator", {
-            from: deployer.address,
-        });
-        allocationCalculator = AllocationCalculator__factory.connect(
-            deployment.address,
-            deployer
+        await deployments.fixture([ALLOCATION_CALCULATOR_DID]);
+        const deployment = await get<AllocationCalculator__factory>(
+            "AllocationCalculator"
         );
+        allocationCalculator = deployment.contract;
+        const rolesDeploy = await get<ExodiaRoles__factory>("ExodiaRoles");
+        roles = rolesDeploy.contract;
     });
 
     beforeEach(async function () {
@@ -54,6 +58,7 @@ describe("Allocation Calculator", function () {
 
     describe("allocation with no max", function () {
         beforeEach(async function () {
+            await roles.addStrategist(deployer.address);
             await allocationCalculator.setAllocation(
                 token,
                 [strat0, strat1, strat2],
@@ -62,7 +67,7 @@ describe("Allocation Calculator", function () {
         });
 
         it("Should return allocations for token", async function () {
-            const { addresses, allocations, maxAllocations } =
+            const { addresses, allocations } =
                 await allocationCalculator.getStrategiesAllocations(token);
             expect(addresses).to.have.members([strat0, strat1, strat2]);
             expect(allocations.map((bn) => bn.toNumber())).to.have.members([
@@ -70,7 +75,6 @@ describe("Allocation Calculator", function () {
                 ratio1,
                 ratio2,
             ]);
-            expect(maxAllocations.map((bn) => bn.toNumber())).to.have.members([0, 0, 0]);
         });
 
         it("Should return strategies", async function () {
@@ -108,86 +112,13 @@ describe("Allocation Calculator", function () {
         });
     });
 
-    describe("allocation with max", function () {
-        const max0 = 0;
-        const max1 = 200;
-        const max2 = 1000000000;
-
-        beforeEach(async function () {
-            await allocationCalculator.setAllocationWithMax(
-                token,
-                [strat0, strat1, strat2],
-                [ratio0, ratio1, ratio2],
-                [max0, max1, max2]
-            );
-        });
-
-        it("Should return allocations for token", async function () {
-            const { addresses, allocations, maxAllocations } =
-                await allocationCalculator.getStrategiesAllocations(token);
-            expect(addresses).to.have.members([strat0, strat1, strat2]);
-            expect(allocations.map((bn) => bn.toNumber())).to.have.members([
-                ratio0,
-                ratio1,
-                ratio2,
-            ]);
-            expect(maxAllocations.map((bn) => bn.toNumber())).to.have.members([
-                max0,
-                max1,
-                max2,
-            ]);
-        });
-
-        it("Should return strategies", async function () {
-            expect(await allocationCalculator.getStrategies(token)).to.have.members([
-                strat0,
-                strat1,
-                strat2,
-            ]);
-        });
-
-        it("Should update allocation", async function () {
-            await allocationCalculator.setAllocationWithMax(
-                token,
-                [strat0, strat2],
-                [ratio0, ratio2],
-                [300, 3000]
-            );
-            const { addresses, allocations, maxAllocations } =
-                await allocationCalculator.getStrategiesAllocations(token);
-            expect(addresses).to.have.members([strat0, strat2]);
-            expect(allocations.map((bn) => bn.toNumber())).to.have.members([
-                ratio0,
-                ratio2,
-            ]);
-            expect(maxAllocations.map((bn) => bn.toNumber())).to.have.members([
-                300, 3000,
-            ]);
-        });
-
-        it("Should return target allocation", async function () {
-            const manageable = 100_000_000;
-            const [allocations, allocated] =
-                await allocationCalculator.calculateAllocation(token, manageable);
-            const alloc0 = (ratio0 / 100_000) * manageable;
-            const alloc1 = max1;
-            const alloc2 = (ratio2 / 100_000) * manageable;
-            expect(allocated).to.eq(alloc0 + alloc1 + alloc2);
-            expect(allocations.map((bn) => bn.toNumber())).to.have.members([
-                alloc0,
-                alloc1,
-                alloc2,
-            ]);
-        });
-    });
-
     it("Should revert if not called by policy", async function () {
         const allocCalc = AllocationCalculator__factory.connect(
             allocationCalculator.address,
             notDeployer
         );
-        expect(allocCalc.setAllocation(token, [strat0], [1000])).to.be.revertedWith(
-            "Ownable: caller is not the owner"
+        await expect(allocCalc.setAllocation(token, [strat0], [1000])).to.be.revertedWith(
+            "caller is not a strategist"
         );
     });
 });
