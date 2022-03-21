@@ -51,7 +51,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
             _collectRewardsForStrategy(_token, strategies[i]);
         }
     }
-    
+
     function _collectRewardsForStrategy(address _token, address _strategy) internal {
         address[] memory rewardTokens = IStrategy(_strategy).collectRewards(
             _token,
@@ -121,11 +121,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
                 allocated += _balances[i] - amount;
                 expectedToWithdraw += amount;
                 _collectRewardsForStrategy(_token, _strategies[i]);
-                IStrategy(_strategies[i]).withdrawTo(
-                    _token,
-                    amount,
-                    msg.sender
-                );
+                IStrategy(_strategies[i]).withdrawTo(_token, amount, msg.sender);
             }
         }
         return (actuallyWithdrawn, expectedToWithdraw, allocated);
