@@ -95,7 +95,7 @@ contract MasterChefStrategy is IStrategy, ExodiaAccessControlInitializable {
         );
         tokenFarmPid[_token] = _pid;
     }
-    
+
     function deploy(address _token) external override {
         uint256 pid = _getPid(_token);
         IERC20 token = IERC20(_token);
@@ -165,17 +165,19 @@ contract MasterChefStrategy is IStrategy, ExodiaAccessControlInitializable {
         uint256 pid = _getPid(_token);
         return IMasterchef(masterChef).userInfo(pid, address(this)).amount;
     }
-    
+
     function exit(address _token, bool _emergency) external onlyStrategist {
         uint256 pid = _getPid(_token);
-        if(_emergency) {
+        if (_emergency) {
             IMasterchef(masterChef).emergencyWithdraw(pid, address(this));
         } else {
-            uint256 balanceOf = IMasterchef(masterChef).userInfo(pid, address(this)).amount;
+            uint256 balanceOf = IMasterchef(masterChef)
+                .userInfo(pid, address(this))
+                .amount;
             IMasterchef(masterChef).withdrawAndHarvest(pid, balanceOf, address(this));
         }
     }
-    
+
     function extractToDAO(address _token) external onlyStrategist {
         _sendTo(_token, roles.DAO_ADDRESS());
     }
