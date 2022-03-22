@@ -13,6 +13,7 @@ contract StrategyWhitelist is ExodiaAccessControlInitializable {
     }
 
     function add(address _strategy) external onlyArchitect {
+        require(_strategy != address(0), "WL: can't add null address");
         whitelist[_strategy] = true;
     }
 

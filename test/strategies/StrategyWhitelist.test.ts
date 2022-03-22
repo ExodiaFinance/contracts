@@ -56,6 +56,12 @@ describe("StrategyWhitelist", function () {
         expect(await wl.isWhitelisted(strat1)).to.be.false;
     });
 
+    it("Should revert when adding null address", async function () {
+        await expect(wl.add(ZERO_ADDRESS)).to.be.revertedWith(
+            "WL: can't add null address"
+        );
+    });
+
     it("Should remove strategy to whitelist", async function () {
         await wl.add(strat0);
         await wl.remove(strat0);
