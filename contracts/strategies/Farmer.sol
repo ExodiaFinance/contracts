@@ -59,7 +59,7 @@ contract Farmer is ExodiaAccessControl, Pausable {
 
     function _rebalance(address _token) internal {
         IERC20 token = IERC20(_token);
-        (uint256 target, int256 delta) = _getTargetAllocation(_token);
+        (uint256 target, int256 delta) = _getRebalanceTarget(_token);
         if (delta > 0) {
             _getTreasuryManager().manage(_token, uint256(delta));
         }
@@ -94,24 +94,42 @@ contract Farmer is ExodiaAccessControl, Pausable {
         farmingData[_token].lastRebalance = block.timestamp;
     }
 
-    function _getTargetAllocation(address _token)
+    function _getRebalanceTarget(address _token)
         internal
         view
         returns (uint256, int256)
     {
-        FarmingData storage limit = farmingData[_token];
         uint256 balance = _getTreasuryManager().balance(_token);
         uint256 allocated = allocator.allocatedBalance(_token);
-        uint256 amount = ((balance + allocated) * limit.relativeLimit) / 100_000;
-        if (amount > balance + allocated - limit.reserves) {
-            amount = balance + allocated - limit.reserves;
+        return _getTargetAllocation(_token, balance, allocated);
+    }
+
+    function _getAllocationTarget(address _token)
+    internal
+    view
+    returns (uint256, int256)
+    {
+        uint256 balance = _getTreasuryManager().balance(_token);
+        return _getTargetAllocation(_token, balance,  farmingData[_token].allocated);
+    }
+    
+    function _getTargetAllocation(address _token, uint _balance, uint _allocated)
+    internal
+    view
+    returns (uint256, int256)
+    {
+        FarmingData storage limit = farmingData[_token];
+        uint256 amount = ((_balance + _allocated) * limit.relativeLimit) / 100_000;
+        if (amount > _balance + _allocated - limit.reserves) {
+            amount = _balance + _allocated - limit.reserves;
         }
         if (limit.max > 0 && amount > limit.max) {
             amount = limit.max;
         }
-        int256 delta = int256(amount) - int256(allocated);
+        int256 delta = int256(amount) - int256(_allocated);
         return (amount, delta);
     }
+    
 
     function _syncPNLWithTreasury(address _token, int256 pnl) internal {
         if (pnl > 0) {
@@ -122,7 +140,7 @@ contract Farmer is ExodiaAccessControl, Pausable {
     }
 
     function getLimit(address _token) external view returns (uint256) {
-        (uint256 limit, ) = _getTargetAllocation(_token);
+        (uint256 limit, ) = _getRebalanceTarget(_token);
         return limit;
     }
 
@@ -139,6 +157,17 @@ contract Farmer is ExodiaAccessControl, Pausable {
 
     function harvest(address _token) external whenNotPaused {
         allocator.collectRewards(_token);
+    }
+    
+    function allocate(address _token) external whenNotPaused {
+        IERC20 token = IERC20(_token);
+        (uint256 target, int256 delta) = _getAllocationTarget(_token);
+        if (delta > 0) {
+            _getTreasuryManager().manage(_token, uint256(delta));
+            token.approve(address(allocator), uint(delta));
+            allocator.allocate(_token, target);
+            farmingData[_token].allocated = target;
+        }
     }
 
     function withdraw(address _token) external onlyStrategist {}
@@ -159,7 +188,7 @@ contract Farmer is ExodiaAccessControl, Pausable {
         return TreasuryManager(treasuryManagerAddress);
     }
 
-    function _returnStuckTokens(address _token) external {
+    function _returnStuckTokens(address _token) external onlyStrategist {
         _getTreasuryDepositor().returnFunds(
             _token,
             IERC20(_token).balanceOf(address(this))

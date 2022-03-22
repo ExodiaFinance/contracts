@@ -99,6 +99,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
         return allocated;
     }
 
+    //TODO: Handle locked tokens
     function _withdrawTargetExcess(
         address _token,
         uint256[] memory _balances,
@@ -168,7 +169,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
         return _getAllocationCalculator().calculateAllocation(_token, _manageable);
     }
 
-    function allocate(address _token, uint256 _amount) external {
+    function allocate(address _token, uint256 _amount) external onlyMachine{
         address[] memory strategies = _getStrategies(_token);
         (, uint256[] memory balances) = _deposits(_token, strategies);
         (uint256[] memory allocations, uint256 allocated) = _calculateAllocations(
@@ -200,11 +201,6 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
         uint256 amount = IStrategy(_strategy).withdrawTo(_token, _amount, msg.sender);
     }
 
-    /*    function sendToTreasury(address _token, uint _amount) external {
-        IERC20(_token).transferFrom(msg.sender, address(this), _amount);
-        IERC20(_token).approve(treasuryDepositorAddress, _amount);
-        _getTreasuryDepositor().deposit(_token, _amount);
-    }*/
     //TODO: add tests
     function emergencyWithdrawFromStrategy(address[] calldata _tokens, address _strategy)
         external
@@ -256,5 +252,12 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
             deposited += balance;
         }
         return (deposited, balances);
+    }
+
+    function _returnStuckTokens(address _token) external onlyStrategist {
+        _getTreasuryDepositor().returnFunds(
+            _token,
+            IERC20(_token).balanceOf(address(this))
+        );
     }
 }

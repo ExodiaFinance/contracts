@@ -28,6 +28,7 @@ import {
     TreasuryDepositor,
     TreasuryDepositor__factory,
 } from "../../packages/sdk/typechain";
+import mint from "../../packages/utils/mint";
 import toggleRights, { MANAGING } from "../../packages/utils/toggleRights";
 import "../chai-setup";
 import { increaseTime } from "../testUtils";
@@ -247,6 +248,66 @@ describe("Farmer", function () {
 
                 runTest(newFunds);
             });
+        });
+    });
+
+    describe.only("Allocate", async function () {
+        let mockAllocator: MockContract<MockAssetAllocator>;
+        const balance = parseEther("100000");
+        const setupMock = deployments.createFixture(async (hh) => {
+            await roles.addStrategist(deployer.address);
+            await farmer.setLimit(token0.address, 100_000, 0, 0);
+            await toggleRights(treasury, MANAGING.RESERVETOKEN, token0.address);
+            await toggleRights(treasury, MANAGING.RESERVEDEPOSITOR, deployer.address);
+            await token0.mint(deployer.address, balance);
+            await token0.approve(treasury.address, balance);
+            await treasury.deposit(balance, token0.address, balance.div(1e9));
+            const mockAllocatorFactory = await smock.mock<MockAssetAllocator__factory>(
+                "MockAssetAllocator"
+            );
+            mockAllocator = await mockAllocatorFactory.deploy();
+            await farmer.setAllocator(mockAllocator.address);
+            await farmer.rebalance(token0.address);
+        });
+
+        beforeEach(async function () {
+            await setupMock();
+        });
+
+        const assertExpectedBalance = async (
+            treasuryBal: BigNumberish,
+            arfvBal: BigNumberish
+        ) => {
+            expect(await token0.balanceOf(farmer.address)).to.eq(0);
+            expect(await token0.balanceOf(treasury.address)).to.eq(treasuryBal);
+            expect(await arfv.balanceOf(treasury.address)).to.eq(arfvBal);
+        };
+
+        it("Should not withdraw to treasury on loss", async function () {
+            const looseAmount = parseEther("10");
+            await mockAllocator.loose(token0.address, looseAmount);
+            await farmer.allocate(token0.address);
+            await assertExpectedBalance(0, balance.div(1e9));
+        });
+
+        it("Should add allocation", async function () {
+            const mintAmount = parseEther("10");
+            await token0.mint(deployer.address, mintAmount);
+            await token0.approve(treasury.address, mintAmount);
+            await treasury.deposit(mintAmount, token0.address, mintAmount.div(1e9));
+            await farmer.allocate(token0.address);
+            await assertExpectedBalance(0, balance.add(mintAmount).div(1e9));
+        });
+
+        it("Should add allocation even if losses", async function () {
+            const mintAmount = parseEther("10");
+            await token0.mint(deployer.address, mintAmount);
+            await token0.approve(treasury.address, mintAmount);
+            await treasury.deposit(mintAmount, token0.address, mintAmount.div(1e9));
+            const looseAmount = parseEther("10");
+            await mockAllocator.loose(token0.address, looseAmount);
+            await farmer.allocate(token0.address);
+            await assertExpectedBalance(0, balance.add(mintAmount).div(1e9));
         });
     });
 

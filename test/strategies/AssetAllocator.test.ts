@@ -1083,5 +1083,13 @@ describe("AssetAllocator", function () {
                 totalAmount.mul(alloc1).div(totalAlloc)
             );
         });
+
+        it("Should not withdraw", async function () {
+            const bal0 = await tok0.balanceOf(strat0.address);
+            const bal1 = await tok0.balanceOf(strat1.address);
+            await assetAllocator.allocate(tok0.address, 0);
+            expect(await tok0.balanceOf(strat0.address)).to.eq(bal0);
+            expect(await tok0.balanceOf(strat1.address)).to.eq(bal1);
+        });
     });
 });
