@@ -42,4 +42,6 @@ interface IOlympusTreasury {
     function excessReserves() external view returns (uint256);
 
     function auditReserves() external;
+
+    function mintRewards(address _recipient, uint256 _amount) external;
 }
