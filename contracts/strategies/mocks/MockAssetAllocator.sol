@@ -8,7 +8,8 @@ import "hardhat/console.sol";
 
 contract MockAssetAllocator {
     mapping(address => int256) tokenSlip;
-    mapping(address => uint) deposited;
+    mapping(address => uint256) deposited;
+
     function rebalance(address _token, uint256 _amount) external returns (uint256) {
         _slippage(_token);
         uint256 balance = allocatedBalance(_token);
@@ -23,7 +24,11 @@ contract MockAssetAllocator {
 
     function allocate(address _token, uint256 _amount) external {
         if (_amount > deposited[_token]) {
-            IERC20(_token).transferFrom(msg.sender, address(this), _amount - deposited[_token]);
+            IERC20(_token).transferFrom(
+                msg.sender,
+                address(this),
+                _amount - deposited[_token]
+            );
             deposited[_token] = _amount;
         }
     }

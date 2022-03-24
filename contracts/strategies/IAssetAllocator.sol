@@ -8,8 +8,9 @@ interface IAssetAllocator {
     function collectRewards(address _token) external;
 
     function rebalance(address _token, uint256 _amount) external returns (uint256);
+
     function allocate(address _token, uint256 _amount) external;
-    
+
     function withdrawFromStrategy(
         address _token,
         address _strategy,

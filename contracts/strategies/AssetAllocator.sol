@@ -165,7 +165,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
         return _getAllocationCalculator().calculateAllocation(_token, _manageable);
     }
 
-    function allocate(address _token, uint256 _amount) external onlyMachine{
+    function allocate(address _token, uint256 _amount) external onlyMachine {
         address[] memory strategies = _getStrategies(_token);
         (, uint256[] memory balances) = _deposits(_token, strategies);
         (uint256[] memory allocations, uint256 allocated) = _calculateAllocations(

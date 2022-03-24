@@ -94,30 +94,26 @@ contract Farmer is ExodiaAccessControl, Pausable {
         farmingData[_token].lastRebalance = block.timestamp;
     }
 
-    function _getRebalanceTarget(address _token)
-        internal
-        view
-        returns (uint256, int256)
-    {
+    function _getRebalanceTarget(address _token) internal view returns (uint256, int256) {
         uint256 balance = _getTreasuryManager().balance(_token);
         uint256 allocated = allocator.allocatedBalance(_token);
         return _getTargetAllocation(_token, balance, allocated);
     }
 
     function _getAllocationTarget(address _token)
-    internal
-    view
-    returns (uint256, int256)
+        internal
+        view
+        returns (uint256, int256)
     {
         uint256 balance = _getTreasuryManager().balance(_token);
-        return _getTargetAllocation(_token, balance,  farmingData[_token].allocated);
+        return _getTargetAllocation(_token, balance, farmingData[_token].allocated);
     }
-    
-    function _getTargetAllocation(address _token, uint _balance, uint _allocated)
-    internal
-    view
-    returns (uint256, int256)
-    {
+
+    function _getTargetAllocation(
+        address _token,
+        uint256 _balance,
+        uint256 _allocated
+    ) internal view returns (uint256, int256) {
         FarmingData storage limit = farmingData[_token];
         uint256 amount = ((_balance + _allocated) * limit.relativeLimit) / 100_000;
         if (amount > _balance + _allocated - limit.reserves) {
@@ -129,7 +125,6 @@ contract Farmer is ExodiaAccessControl, Pausable {
         int256 delta = int256(amount) - int256(_allocated);
         return (amount, delta);
     }
-    
 
     function _syncPNLWithTreasury(address _token, int256 pnl) internal {
         if (pnl > 0) {
@@ -158,19 +153,17 @@ contract Farmer is ExodiaAccessControl, Pausable {
     function harvest(address _token) external whenNotPaused {
         allocator.collectRewards(_token);
     }
-    
+
     function allocate(address _token) external whenNotPaused {
         IERC20 token = IERC20(_token);
         (uint256 target, int256 delta) = _getAllocationTarget(_token);
         if (delta > 0) {
             _getTreasuryManager().manage(_token, uint256(delta));
-            token.approve(address(allocator), uint(delta));
+            token.approve(address(allocator), uint256(delta));
             allocator.allocate(_token, target);
             farmingData[_token].allocated = target;
         }
     }
-
-    function withdraw(address _token) external onlyStrategist {}
 
     function setTreasuryDepositor(address _treasuryDepositor) external onlyArchitect {
         treasuryDepositorAddress = _treasuryDepositor;

@@ -62,6 +62,8 @@ import {
     RemoveUniLp__factory,
     SolidexBalanceAdapter,
     SolidexBalanceAdapter__factory,
+    SolidlyTWAPOracle,
+    SolidlyTWAPOracle__factory,
     SOlympus,
     SOlympus__factory,
     StakingHelper,
@@ -97,6 +99,7 @@ export interface IExternalContractsRegistry {
     THE_MONOLITH_POOLID: string;
     BEETHOVEN_VAULT: string;
     DAI: string;
+    USDC: string;
     MAI_TOKEN: string;
     WFTM: string;
     FTM_USD_FEED: string;
@@ -165,6 +168,7 @@ export interface IExodiaContractsRegistry {
     SolidexBalanceAdapter: ContractVersions<SolidexBalanceAdapter>;
     PNLTracker: ContractVersions<PNLTracker>;
     StrategyWhitelist: ContractVersions<StrategyWhitelist>;
+    SolidlyTWAPOracle: ContractVersions<SolidlyTWAPOracle>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -386,6 +390,9 @@ const mainOperaContract: IExodiaContractsRegistry = {
     StrategyWhitelist: new ContractVersions<StrategyWhitelist>([
         version(StrategyWhitelist__factory.connect),
     ]),
+    SolidlyTWAPOracle: new ContractVersions<SolidlyTWAPOracle>([
+        version(SolidlyTWAPOracle__factory.connect),
+    ]),
 };
 
 const testNetOperaContract: IExodiaContractsRegistry = {
@@ -542,6 +549,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     PNLTracker: new ContractVersions<PNLTracker>([version(PNLTracker__factory.connect)]),
     StrategyWhitelist: new ContractVersions<StrategyWhitelist>([
         version(StrategyWhitelist__factory.connect),
+    ]),
+    SolidlyTWAPOracle: new ContractVersions<SolidlyTWAPOracle>([
+        version(SolidlyTWAPOracle__factory.connect),
     ]),
 };
 
