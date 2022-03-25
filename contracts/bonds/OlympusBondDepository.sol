@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "./BondDepository.sol";
-import "../Policy.sol";
 import "../librairies/FixedPoint256x256.sol";
 import "../interfaces/IOlympusTreasury.sol";
 import "../interfaces/IBondCalculator.sol";
@@ -130,8 +129,8 @@ contract OlympusBondDepository is BondDepository {
 
     /* ======== OVERRIDE FUNCTIONS ======== */
 
-    function _valueOf(uint256 _amount) internal view override returns (uint256) {
-        return IOlympusTreasury(treasury).valueOf(principle, _amount);
+    function _valueOf(uint256 amount) internal view override returns (uint256) {
+        return IOlympusTreasury(treasury).valueOf(principle, amount);
     }
 
     function _deposit(
@@ -160,23 +159,23 @@ contract OlympusBondDepository is BondDepository {
 
     /**
      *  @notice calculate current bond premium
-     *  @return price_ uint
+     *  @return price uint
      */
-    function bondPrice() public view override returns (uint256 price_) {
-        price_ = (_terms.controlVariable * debtRatio() + 1000000000) / 1e7;
-        if (price_ < _terms.minimumPrice) {
-            price_ = _terms.minimumPrice;
+    function bondPrice() public view override returns (uint256 price) {
+        price = (_terms.controlVariable * debtRatio() + 1000000000) / 1e7;
+        if (price < _terms.minimumPrice) {
+            price = _terms.minimumPrice;
         }
     }
 
     /**
      *  @notice calculate current bond price and remove floor if above
-     *  @return price_ uint
+     *  @return price uint
      */
-    function _bondPrice() internal override returns (uint256 price_) {
-        price_ = (_terms.controlVariable * debtRatio() + 1_000_000_000) / 1e7;
-        if (price_ < _terms.minimumPrice) {
-            price_ = _terms.minimumPrice;
+    function _bondPrice() internal override returns (uint256 price) {
+        price = (_terms.controlVariable * debtRatio() + 1_000_000_000) / 1e7;
+        if (price < _terms.minimumPrice) {
+            price = _terms.minimumPrice;
         } else if (_terms.minimumPrice != 0) {
             _terms.minimumPrice = 0;
         }
@@ -184,15 +183,15 @@ contract OlympusBondDepository is BondDepository {
 
     /**
      *  @notice converts bond price to DAI value
-     *  @return price_ uint
+     *  @return price uint
      */
-    function bondPriceInUSD() public view override returns (uint256 price_) {
+    function bondPriceInUSD() public view override returns (uint256 price) {
         if (isLiquidityBond) {
-            price_ =
+            price =
                 (bondPrice() * IBondCalculator(bondCalculator).markdown(principle)) /
                 100;
         } else {
-            price_ = (bondPrice() * 10**IERC20Metadata(principle).decimals()) / 100;
+            price = (bondPrice() * 10**IERC20Metadata(principle).decimals()) / 100;
         }
     }
 
