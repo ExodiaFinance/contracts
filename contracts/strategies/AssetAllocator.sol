@@ -179,35 +179,26 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
         return TreasuryDepositor(treasuryDepositorAddress);
     }
 
-    //TODO: add tests
+    
     function withdrawFromStrategy(
         address _token,
         address _strategy,
         uint256 _amount
-    ) external override onlyStrategist {
-        _withdrawFromStrategy(_token, _strategy, _amount);
-        _getTreasuryDepositor().deposit(_token, _amount);
+    ) external override onlyMachine {
+        uint256 amount = IStrategy(_strategy).withdrawTo(_token, _amount, address(this));
+        _getTreasuryDepositor().returnFunds(_token, amount);
     }
-
-    function _withdrawFromStrategy(
-        address _token,
-        address _strategy,
-        uint256 _amount
-    ) internal {
-        uint256 amount = IStrategy(_strategy).withdrawTo(_token, _amount, msg.sender);
-    }
-
-    //TODO: add tests
+    
     function emergencyWithdrawFromStrategy(address[] calldata _tokens, address _strategy)
         external
         override
-        onlyStrategist
+        onlyMachine
     {
         for (uint256 i = 0; i < _tokens.length; i++) {
             address token = _tokens[i];
-            IStrategy(_strategy).emergencyWithdrawTo(token, msg.sender);
+            IStrategy(_strategy).emergencyWithdrawTo(token, address(this));
             uint256 balance = IERC20(token).balanceOf(address(this));
-            _getTreasuryDepositor().deposit(token, balance);
+            _getTreasuryDepositor().returnFunds(token, balance);
         }
     }
 
@@ -251,7 +242,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
     }
 
     function _returnStuckTokens(address _token) external onlyStrategist {
-        _getTreasuryDepositor().returnFunds(
+        _getTreasuryDepositor().deposit(
             _token,
             IERC20(_token).balanceOf(address(this))
         );

@@ -182,7 +182,7 @@ contract Farmer is ExodiaAccessControl, Pausable {
     }
 
     function _returnStuckTokens(address _token) external onlyStrategist {
-        _getTreasuryDepositor().returnFunds(
+        _getTreasuryDepositor().deposit(
             _token,
             IERC20(_token).balanceOf(address(this))
         );
