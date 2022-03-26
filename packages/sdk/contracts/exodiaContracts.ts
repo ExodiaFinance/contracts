@@ -99,6 +99,7 @@ export interface IExternalContractsRegistry {
     THE_MONOLITH_POOLID: string;
     BEETHOVEN_VAULT: string;
     DAI: string;
+    DEI: string;
     USDC: string;
     MAI_TOKEN: string;
     WFTM: string;
