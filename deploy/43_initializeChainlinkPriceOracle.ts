@@ -21,26 +21,14 @@ const initializeChainlinkPriceOracle: IExtendedDeployFunction<IExodiaContractsRe
         const { contract: chainlinkPriceOracle, deployment } =
             await get<ChainlinkPriceOracle__factory>("ChainlinkPriceOracle");
         const { contract: exodiaRoles } = await get<ExodiaRoles__factory>("ExodiaRoles");
-        const { WFTM, FTM_USD_FEED, MAI_TOKEN } = externalAddressRegistry.forNetwork(
+        const { WFTM, FTM_USD_FEED, MAI } = externalAddressRegistry.forNetwork(
             await getNetwork()
         );
-        await exec(() =>
-            chainlinkPriceOracle.initialize(exodiaRoles.address, FTM_USD_FEED)
-        );
-        // DAI
-        await exec(() =>
-            chainlinkPriceOracle.setPriceFeed(
-                "0x8d11ec38a3eb5e956b052f67da8bdc9bef8abf3e",
-                "0x91d5DEFAFfE2854C7D02F50c80FA1fdc8A721e52"
-            )
-        );
-        await exec(() => chainlinkPriceOracle.setPriceFeed(WFTM, FTM_USD_FEED));
-        await exec(() =>
-            chainlinkPriceOracle.setPriceFeed(
-                MAI_TOKEN,
-                "0x827863222c9C603960dE6FF2c0dD58D457Dcc363"
-            )
-        );
+        if (deployment?.newlyDeployed) {
+            await exec(() =>
+                chainlinkPriceOracle.initialize(exodiaRoles.address, FTM_USD_FEED)
+            );
+        }
         log("Chainlink oracle initialized", chainlinkPriceOracle.address);
     };
 export default initializeChainlinkPriceOracle;

@@ -101,7 +101,7 @@ export interface IExternalContractsRegistry {
     DAI: string;
     DEI: string;
     USDC: string;
-    MAI_TOKEN: string;
+    MAI: string;
     WFTM: string;
     FTM_USD_FEED: string;
     USDC_USD_FEED: string;
@@ -375,7 +375,10 @@ const mainOperaContract: IExodiaContractsRegistry = {
         version(UniswapV2LPPriceOracle__factory.connect),
     ]),
     PriceProvider: new ContractVersions<PriceProvider>([
-        version(PriceProvider__factory.connect),
+        version(
+            PriceProvider__factory.connect,
+            "0x34F7242A95ba97FBc7208f1942789eadBc596D7c"
+        ),
     ]),
     Farmer: new ContractVersions<Farmer>([version(Farmer__factory.connect)]),
     ExodiaBalanceAggregator: new ContractVersions<ExodiaBalanceAggregator>([

@@ -21,7 +21,7 @@ const deployStrategyWhitelist: IExtendedDeployFunction<IExodiaContractsRegistry>
             "SolidlyTWAPOracle",
             []
         );
-        if (true || deployment?.newlyDeployed) {
+        if (deployment?.newlyDeployed) {
             const { contract: roles } = await get<ExodiaRoles__factory>("ExodiaRoles");
             const { contract: pp } = await get<PriceProvider__factory>("PriceProvider");
             const { WFTM } = externalAddressRegistry.forNetwork(await getNetwork());

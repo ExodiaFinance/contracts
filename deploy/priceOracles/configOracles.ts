@@ -13,6 +13,7 @@ import {
 import { exec } from "../../packages/utils/utils";
 import { CHAINLINK_PRICE_ORACLE_DID } from "../43_deployChainlinkPriceOracle";
 import { PRICE_PROVIDER_DID } from "../44_deployPriceProvider";
+import { PRICE_PROVIDER_INIT_DID } from "../49_initializePriceProvider";
 import { SOLIDLY_TWAP_ORACLE_DID } from "../50_deploySolidlyTwapOracle";
 
 type OracleConfig = (
@@ -48,7 +49,7 @@ export const configSolidlyOracle = (
             await exec(() => oracle.setPair(tokenAddress, lp));
             return { token: tokenAddress, oracle: oracle.address };
         });
-    config.dependencies = [PRICE_PROVIDER_DID, SOLIDLY_TWAP_ORACLE_DID];
+    config.dependencies = [PRICE_PROVIDER_INIT_DID, SOLIDLY_TWAP_ORACLE_DID];
     return config;
 };
 
@@ -65,6 +66,6 @@ export const configChainlinkOracle = (
             await exec(() => oracle.setPriceFeed(tokenAddress, feed));
             return { token: tokenAddress, oracle: oracle.address };
         });
-    config.dependencies = [PRICE_PROVIDER_DID, CHAINLINK_PRICE_ORACLE_DID];
+    config.dependencies = [PRICE_PROVIDER_INIT_DID, CHAINLINK_PRICE_ORACLE_DID];
     return config;
 };

@@ -125,7 +125,7 @@ const getContractInstance = async (
     const { deployer } = await xhre.getNamedAccounts();
     const signer = await xhre.ethers.getSigner(deployer);
     const contract = await getContractFromRegistry(contractName, xhre);
-    if (!contract) {
+    if (!contract || contract.address === ZERO_ADDRESS) {
         throw new Error("Couldn't find typing");
     }
     return contract.factory(address || contract.address, signer);

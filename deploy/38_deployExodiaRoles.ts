@@ -11,10 +11,13 @@ const deployExodiaRoles: IExtendedDeployFunction<IExodiaContractsRegistry> = asy
     getNamedAccounts,
 }: IExtendedHRE<IExodiaContractsRegistry>) => {
     const { deployer, DAO } = await getNamedAccounts();
-    const { contract: roles } = await deploy<ExodiaRoles__factory>("ExodiaRoles", [
-        deployer,
-    ]);
-    await exec(() => roles.addArchitect(deployer));
+    const { contract: roles, deployment } = await deploy<ExodiaRoles__factory>(
+        "ExodiaRoles",
+        [deployer]
+    );
+    if (deployment?.newlyDeployed) {
+        await exec(() => roles.addArchitect(deployer));
+    }
     log("Exodia roles: ", roles.address);
 };
 export default deployExodiaRoles;

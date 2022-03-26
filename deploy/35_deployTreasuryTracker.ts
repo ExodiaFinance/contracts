@@ -26,7 +26,7 @@ const deployTreasuryBalance: IExtendedDeployFunction<IExodiaContractsRegistry> =
         GOHM,
         BEETS,
         FBEETS_BAR,
-        MAI_TOKEN,
+        MAI,
         THE_MONOLITH_POOL,
         EXODDAI_LP,
         EXODFTM_HLP,
@@ -37,7 +37,7 @@ const deployTreasuryBalance: IExtendedDeployFunction<IExodiaContractsRegistry> =
     if (deployment?.newlyDeployed) {
         await exec(() => treasuryTracker.addContract(treasury.address));
         await exec(() => treasuryTracker.addEOA(DAO));
-        await exec(() => treasuryTracker.addRiskFreeAsset(MAI_TOKEN));
+        await exec(() => treasuryTracker.addRiskFreeAsset(MAI));
         await exec(() => treasuryTracker.addRiskFreeAsset(DAI));
         await exec(() => treasuryTracker.addAssetWithRisk(WFTM));
         await exec(() => treasuryTracker.addAssetWithRisk(GOHM));
