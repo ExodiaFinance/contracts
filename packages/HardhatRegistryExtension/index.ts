@@ -12,6 +12,7 @@ import {
 } from "../sdk/contracts/contractRegistry";
 import { Network } from "../sdk/contracts/Network";
 import { ProvidersRegistry } from "../sdk/contracts/providersRegistry";
+import { ZERO_ADDRESS } from "../utils/utils";
 
 import { IExtendedHRE } from "./ExtendedHRE";
 
@@ -80,9 +81,17 @@ const deploy = async (
         from: deployer,
     }) as DeployOptions;
     deployOptions.args = constructorArgs;
+    const contract = await getContractFromRegistry(contractName, xhre);
+    if (contract?.address && contract.address !== ZERO_ADDRESS) {
+        return get(xhre, contractName);
+    }
     const deployment = await xhre.deployments.deploy(contractName, deployOptions);
-    const contract = await getContractInstance(contractName, xhre, deployment.address);
-    return { contract, deployment };
+    const contractInstance = await getContractInstance(
+        contractName,
+        xhre,
+        deployment.address
+    );
+    return { contract: contractInstance, deployment };
 };
 
 const get = async (xhre: IExtendedHRE<any>, contractName: string) => {
