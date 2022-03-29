@@ -128,8 +128,9 @@ contract wETHOlympusBondDepository is BondDepository {
      */
     function bondPrice() public view override returns (uint256 price) {
         price = (_terms.controlVariable * debtRatio()) / 1e5;
-        if (price < _terms.minimumPrice) {
-            price = _terms.minimumPrice;
+        uint256 _minimumPrice = minimumPrice();
+        if (price < _minimumPrice) {
+            price = _minimumPrice;
         }
     }
 
@@ -139,9 +140,10 @@ contract wETHOlympusBondDepository is BondDepository {
      */
     function _bondPrice() internal override returns (uint256 price) {
         price = (_terms.controlVariable * debtRatio()) / 1e5;
-        if (price < _terms.minimumPrice) {
-            price = _terms.minimumPrice;
-        } else if (_terms.minimumPrice != 0) {
+        uint256 _minimumPrice = minimumPrice();
+        if (price < _minimumPrice) {
+            price = _minimumPrice;
+        } else if (_minimumPrice != 0) {
             _terms.minimumPrice = 0;
         }
     }

@@ -10,6 +10,8 @@ import "../librairies/FixedPoint256x256.sol";
 import "../interfaces/IOlympusTreasury.sol";
 import "../interfaces/IStaking.sol";
 import "../interfaces/IStakingHelper.sol";
+import "../oracles/v2/IBackingPriceCalculator.sol";
+import "../oracles/v2/IPriceProvider.sol";
 
 abstract contract BondDepository is Policy {
     using FixedPoint256x256 for *;
@@ -42,6 +44,9 @@ abstract contract BondDepository is Policy {
     address public immutable principle; // token used to create bond
     address public immutable treasury; // mints OHM when receives principle
     address public immutable DAO; // receives profit share from bond
+
+    address public backingPriceCalculator;
+    address public priceProvider;
 
     address public staking; // to auto-stake payout
     address public stakingHelper; // to stake and claim if no staking warmup
@@ -99,6 +104,21 @@ abstract contract BondDepository is Policy {
         treasury = _treasury;
         require(_DAO != address(0));
         DAO = _DAO;
+    }
+
+    /**
+     *  @notice set backing price calculator and price provider
+     *  @param _backingPriceCalculator backing price calculator
+     *  @param _priceProvider price provider
+     */
+    function setPriceProviders(address _backingPriceCalculator, address _priceProvider)
+        external
+        onlyPolicy
+    {
+        require(_backingPriceCalculator != address(0));
+        backingPriceCalculator = _backingPriceCalculator;
+        require(_priceProvider != address(0));
+        priceProvider = _priceProvider;
     }
 
     /**
@@ -290,6 +310,15 @@ abstract contract BondDepository is Policy {
     }
 
     /* ======== VIEW FUNCTIONS ======== */
+
+    function minimumPrice() public view returns (uint256) {
+        uint256 backingPrice = IBackingPriceCalculator(backingPriceCalculator)
+            .getBackingPrice();
+        uint256 principlePrice = IPriceProvider(priceProvider).getSafePrice(principle);
+        uint256 _minimumPrice = (backingPrice * 100) / principlePrice;
+
+        return _minimumPrice > _terms.minimumPrice ? _minimumPrice : _terms.minimumPrice;
+    }
 
     /**
      *  @notice determine maximum bond size

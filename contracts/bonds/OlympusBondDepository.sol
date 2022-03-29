@@ -163,8 +163,9 @@ contract OlympusBondDepository is BondDepository {
      */
     function bondPrice() public view override returns (uint256 price) {
         price = (_terms.controlVariable * debtRatio() + 1000000000) / 1e7;
-        if (price < _terms.minimumPrice) {
-            price = _terms.minimumPrice;
+        uint256 _minimumPrice = minimumPrice();
+        if (price < _minimumPrice) {
+            price = _minimumPrice;
         }
     }
 
@@ -174,9 +175,10 @@ contract OlympusBondDepository is BondDepository {
      */
     function _bondPrice() internal override returns (uint256 price) {
         price = (_terms.controlVariable * debtRatio() + 1_000_000_000) / 1e7;
-        if (price < _terms.minimumPrice) {
-            price = _terms.minimumPrice;
-        } else if (_terms.minimumPrice != 0) {
+        uint256 _minimumPrice = minimumPrice();
+        if (price < _minimumPrice) {
+            price = _minimumPrice;
+        } else if (_minimumPrice != 0) {
             _terms.minimumPrice = 0;
         }
     }

@@ -179,7 +179,6 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
         return TreasuryDepositor(treasuryDepositorAddress);
     }
 
-    
     function withdrawFromStrategy(
         address _token,
         address _strategy,
@@ -188,7 +187,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
         uint256 amount = IStrategy(_strategy).withdrawTo(_token, _amount, address(this));
         _getTreasuryDepositor().returnFunds(_token, amount);
     }
-    
+
     function emergencyWithdrawFromStrategy(address[] calldata _tokens, address _strategy)
         external
         override
@@ -242,9 +241,6 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
     }
 
     function _returnStuckTokens(address _token) external onlyStrategist {
-        _getTreasuryDepositor().deposit(
-            _token,
-            IERC20(_token).balanceOf(address(this))
-        );
+        _getTreasuryDepositor().deposit(_token, IERC20(_token).balanceOf(address(this)));
     }
 }
