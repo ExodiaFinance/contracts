@@ -82,7 +82,11 @@ const deploy = async (
     }) as DeployOptions;
     deployOptions.args = constructorArgs;
     const contract = await getContractFromRegistry(contractName, xhre);
-    if (contract?.address && contract.address !== ZERO_ADDRESS) {
+    if (
+        process.env.NODE_ENV === "prod" &&
+        contract?.address &&
+        contract.address !== ZERO_ADDRESS
+    ) {
         return get(xhre, contractName);
     }
     const deployment = await xhre.deployments.deploy(contractName, deployOptions);
@@ -125,7 +129,7 @@ const getContractInstance = async (
     const { deployer } = await xhre.getNamedAccounts();
     const signer = await xhre.ethers.getSigner(deployer);
     const contract = await getContractFromRegistry(contractName, xhre);
-    if (!contract || contract.address === ZERO_ADDRESS) {
+    if (!contract) {
         throw new Error("Couldn't find typing");
     }
     return contract.factory(address || contract.address, signer);

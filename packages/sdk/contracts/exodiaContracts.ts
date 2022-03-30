@@ -258,7 +258,7 @@ const mainOperaContract: IExodiaContractsRegistry = {
     GOHMPriceOracle: new ContractVersions<GOHMPriceOracle>([
         version(
             GOHMPriceOracle__factory.connect,
-            "0x5E1DEE184a4809EBfcEDa72E4287f4d2d62dC6C1"
+            "0x9F5334D70038B328eaE3fEf36Ba979Ba3390bf18"
         ),
     ]),
     GOHMBondDepository: new ContractVersions<GOHMBondDepository>([
