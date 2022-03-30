@@ -110,7 +110,7 @@ describe("GOHM bond depository", function () {
         await bond.setStaking(stakingHelper.address, true);
         await toggleRights(treasury, MANAGING.REWARDMANAGER, bond.address);
         bcv = 100;
-        const minPrice = 100; // toWei(1, OHM_DECIMALS);
+        const minPrice = 1000000000; // toWei(1, OHM_DECIMALS);
         const maxPayout = toWei(30, OHM_DECIMALS);
         const maxDebt = "10000000000000000"; // toWei(100, DAI_DECIMALS);
         initialDebt = "0";

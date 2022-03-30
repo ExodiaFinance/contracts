@@ -27,8 +27,13 @@ import {
     OlympusStaking,
     SOlympus__factory,
     SOlympus,
+    BackingPriceCalculator__factory,
+    BackingPriceCalculator,
+    PriceProvider,
+    PriceProvider__factory,
 } from "../packages/sdk/typechain";
 import { mine } from "./testUtils";
+import { MockContract, smock } from "@defi-wonderland/smock";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, deploy, getNamedAccounts } = xhre;
@@ -41,6 +46,8 @@ describe("Dai bond depository", function () {
     let staking: OlympusStaking;
     let stakingHelper: StakingHelperV2;
     let deployer: string, dao: string;
+    let backingPriceCalculator: MockContract<BackingPriceCalculator>;
+    let priceProvider: MockContract<PriceProvider>;
     beforeEach(async function () {
         [, user] = await hre.ethers.getSigners();
 
@@ -78,6 +85,21 @@ describe("Dai bond depository", function () {
 
         const ohmDeployment = await get<OlympusERC20Token__factory>("OlympusERC20Token");
         ohm = ohmDeployment.contract;
+
+        const BackingPriceCalculator = await smock.mock<BackingPriceCalculator__factory>(
+            "BackingPriceCalculator"
+        );
+        backingPriceCalculator = await BackingPriceCalculator.deploy();
+
+        const PriceProvider = await smock.mock<PriceProvider__factory>("PriceProvider");
+        priceProvider = await PriceProvider.deploy();
+
+        await daiBond.setPriceProviders(
+            backingPriceCalculator.address,
+            priceProvider.address
+        );
+        backingPriceCalculator.getBackingPrice.returns(1000000000000000000);
+        priceProvider.getSafePrice.returns(1000000000000000000);
     });
 
     it("should be able to bond", async function () {

@@ -123,32 +123,6 @@ contract wETHOlympusBondDepository is BondDepository {
     }
 
     /**
-     *  @notice calculate current bond premium
-     *  @return price uint
-     */
-    function bondPrice() public view override returns (uint256 price) {
-        price = (_terms.controlVariable * debtRatio()) / 1e5;
-        uint256 _minimumPrice = minimumPrice();
-        if (price < _minimumPrice) {
-            price = _minimumPrice;
-        }
-    }
-
-    /**
-     *  @notice calculate current bond price and remove floor if above
-     *  @return price uint
-     */
-    function _bondPrice() internal override returns (uint256 price) {
-        price = (_terms.controlVariable * debtRatio()) / 1e5;
-        uint256 _minimumPrice = minimumPrice();
-        if (price < _minimumPrice) {
-            price = _minimumPrice;
-        } else if (_minimumPrice != 0) {
-            _terms.minimumPrice = 0;
-        }
-    }
-
-    /**
      *  @notice converts bond price to DAI value
      *  @return price uint
      */

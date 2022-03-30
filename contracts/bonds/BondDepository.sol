@@ -315,9 +315,35 @@ abstract contract BondDepository is Policy {
         uint256 backingPrice = IBackingPriceCalculator(backingPriceCalculator)
             .getBackingPrice();
         uint256 principlePrice = IPriceProvider(priceProvider).getSafePrice(principle);
-        uint256 _minimumPrice = (backingPrice * 100) / principlePrice;
+        uint256 _minimumPrice = (backingPrice * 1_000_000_000) / principlePrice;
 
         return _minimumPrice > _terms.minimumPrice ? _minimumPrice : _terms.minimumPrice;
+    }
+
+    /**
+     *  @notice calculate current bond premium
+     *  @return price uint
+     */
+    function bondPrice() public view returns (uint256 price) {
+        price = (_terms.controlVariable * debtRatio());
+        uint256 _minimumPrice = minimumPrice();
+        if (price < _minimumPrice) {
+            price = _minimumPrice;
+        }
+    }
+
+    /**
+     *  @notice calculate current bond price and remove floor if above
+     *  @return price uint
+     */
+    function _bondPrice() internal returns (uint256 price) {
+        price = (_terms.controlVariable * debtRatio());
+        uint256 _minimumPrice = minimumPrice();
+        if (price < _minimumPrice) {
+            price = _minimumPrice;
+        } else if (_minimumPrice != 0) {
+            _terms.minimumPrice = 0;
+        }
     }
 
     /**
@@ -431,10 +457,6 @@ abstract contract BondDepository is Policy {
         uint256 value,
         uint256 payout
     ) internal virtual;
-
-    function bondPrice() public view virtual returns (uint256 price_);
-
-    function _bondPrice() internal virtual returns (uint256 price_);
 
     function bondPriceInUSD() public view virtual returns (uint256 price_);
 
