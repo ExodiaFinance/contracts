@@ -21,7 +21,7 @@ type OracleConfig = (
     registry: IExternalContractsRegistry
 ) => Promise<{ token: string; oracle: string }>;
 
-const configTokenOracleFactory = (oracleConfig: OracleConfig) => {
+export const configTokenOracleFactory = (oracleConfig: OracleConfig) => {
     return (xhre: IExtendedHRE<IExodiaContractsRegistry>) =>
         configTokenOracle(xhre, oracleConfig);
 };

@@ -1,13 +1,7 @@
 import { expect } from "chai";
 import hre from "hardhat";
 import { SPOOKY_SWAP_ROUTER } from "../../deploy/18_addSpookyLP";
-import {
-    GOHM_ADDRESS,
-    GOHM_ORACLE_DID,
-    HEC_ADDRESS,
-    SPIRIT_ROUTER,
-    USDC_ADDRESS,
-} from "../../deploy/21_deployGOHMPriceOracle";
+import { USDC_ADDRESS } from "../../deploy/21_deployGOHMPriceOracle";
 import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
 import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
 import { toWei, WOHM_DECIMALS } from "../../packages/utils/utils";
