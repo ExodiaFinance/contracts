@@ -360,7 +360,7 @@ abstract contract BondDepository is Policy {
      *  @return uint
      */
     function payoutFor(uint256 _value) public view returns (uint256) {
-        return FixedPoint256x256.fraction(_value, bondPrice()).decode112with18() / 1e16;
+        return FixedPoint256x256.fraction(_value, bondPrice()).decode112with18() / 1e9;
     }
 
     /**

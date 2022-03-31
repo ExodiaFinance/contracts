@@ -165,9 +165,9 @@ contract OlympusBondDepository is BondDepository {
         if (isLiquidityBond) {
             price =
                 (bondPrice() * IBondCalculator(bondCalculator).markdown(principle)) /
-                100;
+                1e9;
         } else {
-            price = (bondPrice() * 10**IERC20Metadata(principle).decimals()) / 100;
+            price = (bondPrice() * 10**IERC20Metadata(principle).decimals()) / 1e9;
         }
     }
 

@@ -1,4 +1,4 @@
-import { FakeContract, smock } from "@defi-wonderland/smock";
+import { FakeContract, MockContract, smock } from "@defi-wonderland/smock";
 import { expect } from "chai";
 import { BigNumber, ethers } from "ethers";
 import hre from "hardhat";
@@ -16,6 +16,8 @@ import { OHM_DECIMALS, toWei, ZERO_ADDRESS } from "../packages/utils/utils";
 import {
     AggregatorV3Interface,
     AggregatorV3Interface__factory,
+    BackingPriceCalculator,
+    BackingPriceCalculator__factory,
     DAI,
     DAI__factory,
     GOHMBondDepository,
@@ -28,6 +30,8 @@ import {
     OlympusStaking__factory,
     OlympusTreasury,
     OlympusTreasury__factory,
+    PriceProvider,
+    PriceProvider__factory,
     SOlympus,
     SOlympus__factory,
     StakingHelperV2,
@@ -55,6 +59,8 @@ describe("GOHM bond depository", function () {
     let initialDebt: string;
     let assetPriceUsd: BigNumber;
     let supplyContract: OHMCirculatingSupplyContract;
+    let backingPriceCalculator: MockContract<BackingPriceCalculator>;
+    let priceProvider: MockContract<PriceProvider>;
 
     beforeEach(async function () {
         [, user] = await hre.ethers.getSigners();
@@ -122,13 +128,28 @@ describe("GOHM bond depository", function () {
             maxDebt,
             initialDebt
         );
+
+        const BackingPriceCalculator = await smock.mock<BackingPriceCalculator__factory>(
+            "BackingPriceCalculator"
+        );
+        backingPriceCalculator = await BackingPriceCalculator.deploy();
+
+        const PriceProvider = await smock.mock<PriceProvider__factory>("PriceProvider");
+        priceProvider = await PriceProvider.deploy();
+
+        await bond.setPriceProviders(
+            backingPriceCalculator.address,
+            priceProvider.address
+        );
+        backingPriceCalculator.getBackingPrice.returns(ethers.utils.parseUnits("1"));
+        priceProvider.getSafePrice.returns(ethers.utils.parseUnits("1"));
     });
 
     it("Should return bond price in usd", async function () {
         const usdPrice = await bond.bondPriceInUSD();
         const bondPrice = await bond.bondPrice();
-        expect(usdPrice.toString()).to.eq(assetPriceUsd.mul(1e14).toString());
-        expect(bondPrice.toString()).to.eq("100"); // 100 is minimum price
+        expect(usdPrice).to.eq(ethers.utils.parseUnits(assetPriceUsd.toString()));
+        expect(bondPrice).to.eq(1000000000); // 100 is minimum price
     });
 
     it("Should return the debtRatio", async function () {
@@ -169,23 +190,22 @@ describe("GOHM bond depository", function () {
         await bond.deposit(bondAmount, bondPriceUSD, deployer);
         const debtPostBond = await bond.currentDebt();
         expect(debtPostBond.sub(debtPreBond).toString()).to.eq(
-            assetPriceUsd.mul(1e5).toString()
+            assetPriceUsd.mul(1e9).toString()
         );
     });
 
     it("Should compute bondPrice", async function () {
         const bondPrice0 = await bond.bondPrice();
         const debtRatio0 = await bond.debtRatio();
-        expect(bondPrice0.toString()).to.eq("100");
+        expect(bondPrice0.toString()).to.eq("1000000000");
         let bondAmount = await bond.bondPriceInUSD();
-        bondAmount = bondAmount.mul(30);
         await dai.mint(deployer, bondAmount);
         await dai.approve(bond.address, bondAmount);
         await bond.deposit(bondAmount, bondPrice0, deployer);
         const debtRatio1 = await bond.debtRatio();
         const bondPrice1 = await bond.bondPrice();
         expect(debtRatio1.toNumber()).greaterThan(debtRatio0.toNumber());
-        expect(bondPrice1.toString()).to.eq(debtRatio1.mul(bcv).div(1e5).toString());
+        expect(bondPrice1.toString()).to.eq(debtRatio1.mul(bcv).toString());
     });
 
     it("Should payout 1 OHM", async function () {
@@ -199,12 +219,12 @@ describe("GOHM bond depository", function () {
         const valueOfBond = valueOfReturn[0] as BigNumber;
         expect(valueOfBond.toString()).eq(bondPriceUSD.div(1e9).toString());
         const payout = await bond.payoutFor(valueOfBond);
-        expect(payout.toString()).to.eq(valueOfBond.mul(1e4).div(bondPrice).toString());
+        expect(payout.toString()).to.eq(valueOfBond.mul(1e9).div(bondPrice).toString());
     });
 
     it("Should sell at min price", async function () {
-        await bond.setBondTerms(3, 50_0000);
-        expect(await bond.bondPrice()).to.eq(50_0000);
+        await bond.setBondTerms(3, 50_000000000);
+        expect(await bond.bondPrice()).to.eq(50_000000000);
         const payout = await bond.payoutFor(10000e9);
         expect(payout).to.eq(200e9);
     });
@@ -412,7 +432,7 @@ describe("GOHM bond depository", function () {
             await mine(hre, 3);
             await bond.redeem(deployer, false);
 
-            expect(await ohm.balanceOf(deployer)).to.equal(balanceBefore.add(10e8 * 4));
+            expect(await ohm.balanceOf(deployer)).to.equal(balanceBefore.add(10e6 * 4));
         });
 
         it("should not exceed 100% vest amount", async () => {
@@ -426,7 +446,9 @@ describe("GOHM bond depository", function () {
             await mine(hre, 1050);
             await bond.redeem(deployer, false);
 
-            expect(await ohm.balanceOf(deployer)).to.equal(balanceBefore.add(10e11));
+            expect(await ohm.balanceOf(deployer)).to.equal(
+                balanceBefore.add(ethers.utils.parseUnits("10", 9))
+            );
         });
 
         it("should stake using staking helper", async () => {
@@ -442,7 +464,7 @@ describe("GOHM bond depository", function () {
             await mine(hre, 3);
             await bond.redeem(deployer, true);
 
-            expect(await sohm.balanceOf(deployer)).to.equal(balanceBefore.add(10e8 * 4));
+            expect(await sohm.balanceOf(deployer)).to.equal(balanceBefore.add(10e6 * 4));
         });
 
         it("should stake without staking helper", async () => {
@@ -459,7 +481,7 @@ describe("GOHM bond depository", function () {
             await bond.redeem(deployer, true);
             await staking.claim(deployer);
 
-            expect(await sohm.balanceOf(deployer)).to.equal(balanceBefore.add(10e8 * 4));
+            expect(await sohm.balanceOf(deployer)).to.equal(balanceBefore.add(10e6 * 4));
         });
     });
 });

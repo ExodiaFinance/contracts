@@ -98,8 +98,8 @@ describe("Dai bond depository", function () {
             backingPriceCalculator.address,
             priceProvider.address
         );
-        backingPriceCalculator.getBackingPrice.returns(1000000000000000000);
-        priceProvider.getSafePrice.returns(1000000000000000000);
+        backingPriceCalculator.getBackingPrice.returns(ethers.utils.parseUnits("1"));
+        priceProvider.getSafePrice.returns(ethers.utils.parseUnits("1"));
     });
 
     it("should be able to bond", async function () {
@@ -116,7 +116,7 @@ describe("Dai bond depository", function () {
         await daiBond.deposit(bondAmount0, await daiBond.bondPrice(), deployer);
         const bondPrice = await daiBond.bondPrice();
         const bondPriceUSD = await daiBond.bondPriceInUSD();
-        expect(bondPrice.toString()).eq(bondPriceUSD.div(1e9).div(1e7).toString());
+        expect(bondPrice.toString()).eq(bondPriceUSD.div(1e9).toString());
     });
 
     it("Should increase debt when bonding", async function () {
@@ -148,7 +148,7 @@ describe("Dai bond depository", function () {
     });
 
     it("Should sell at min price", async function () {
-        await daiBond.setBondTerms(4, 200);
+        await daiBond.setBondTerms(4, 2000000000);
         const payout = await daiBond.payoutFor(10e9);
         expect(payout).to.eq(5e9);
     });

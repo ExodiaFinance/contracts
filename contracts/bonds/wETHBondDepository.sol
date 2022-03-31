@@ -127,7 +127,7 @@ contract wETHOlympusBondDepository is BondDepository {
      *  @return price uint
      */
     function bondPriceInUSD() public view override returns (uint256 price) {
-        price = bondPrice() * uint256(assetPrice()) * 1e6;
+        price = bondPrice() * uint256(assetPrice()) * 1e3;
     }
 
     /**
