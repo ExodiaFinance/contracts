@@ -163,7 +163,8 @@ contract MasterChefStrategy is IStrategy, ExodiaAccessControlInitializable {
 
     function balance(address _token) external view override returns (uint256) {
         uint256 pid = _getPid(_token);
-        return IMasterchef(masterChef).userInfo(pid, address(this)).amount;
+        uint256 deployed = IMasterchef(masterChef).userInfo(pid, address(this)).amount;
+        return deployed + IERC20(_token).balanceOf(address(this));
     }
 
     function exit(address _token, bool _emergency) external onlyStrategist {
@@ -176,6 +177,7 @@ contract MasterChefStrategy is IStrategy, ExodiaAccessControlInitializable {
                 .amount;
             IMasterchef(masterChef).withdrawAndHarvest(pid, balanceOf, address(this));
         }
+        deposited[_token] = 0;
     }
 
     function extractToDAO(address _token) external onlyStrategist {

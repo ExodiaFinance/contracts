@@ -175,6 +175,8 @@ describe("MasterChefStrategy", function () {
         expect(await bptQuartet.balanceOf(farmer.address)).to.eq(0);
         expect(await bptQuartet.balanceOf(treasury.address)).to.eq(deposited);
         expect(await beets.balanceOf(treasury.address)).to.be.gt(beetsBal);
+        expect(await masterChefStrat.deposited(A_LATE_QUARTET)).to.eq(0);
+        expect(await masterChefStrat.balance(A_LATE_QUARTET)).to.eq(0);
     });
 
     it("Should exit farm and put funds in the strat (with harvest)", async function () {
@@ -193,6 +195,8 @@ describe("MasterChefStrategy", function () {
         await masterChefStrat.exit(A_LATE_QUARTET, true);
         expect(await beets.balanceOf(masterChefStrat.address)).to.be.eq(0);
         expect(await bptQuartet.balanceOf(masterChefStrat.address)).to.be.eq(bptBalance);
+        expect(await masterChefStrat.deposited(A_LATE_QUARTET)).to.eq(0);
+        expect(await masterChefStrat.balance(A_LATE_QUARTET)).to.eq(bptBalance);
     });
 
     it("Should send funds in contract to DAO", async function () {

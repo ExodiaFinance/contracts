@@ -39,6 +39,10 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
         for (uint256 i = 0; i < strategies.length; i++) {
             IStrategy(strategies[i]).collectProfits(_token, address(this));
         }
+        _returnYields(_token);
+    }
+    
+    function _returnYields(address _token) internal {
         IERC20 token = IERC20(_token);
         uint256 balance = token.balanceOf(address(this));
         token.approve(treasuryDepositorAddress, balance);
@@ -58,10 +62,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
             address(this)
         );
         for (uint256 i = 0; i < rewardTokens.length; i++) {
-            IERC20 token = IERC20(rewardTokens[i]);
-            uint256 balance = token.balanceOf(address(this));
-            token.approve(treasuryDepositorAddress, balance);
-            _getTreasuryDepositor().returnWithProfits(rewardTokens[i], 0, balance);
+            _returnYields(rewardTokens[i]);
         }
     }
 
