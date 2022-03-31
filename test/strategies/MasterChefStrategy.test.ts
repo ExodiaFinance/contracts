@@ -183,7 +183,7 @@ describe("MasterChefStrategy", function () {
         await farmer.rebalance(A_LATE_QUARTET);
         await xhre.ethers.provider.send("evm_increaseTime", [3600]);
         await xhre.ethers.provider.send("evm_mine", []);
-        await masterChefStrat.exit(A_LATE_QUARTET, false);
+        await masterChefStrat.exit(A_LATE_QUARTET);
         expect(await beets.balanceOf(masterChefStrat.address)).to.be.gt(0);
         expect(await bptQuartet.balanceOf(masterChefStrat.address)).to.be.eq(bptBalance);
     });
@@ -192,7 +192,7 @@ describe("MasterChefStrategy", function () {
         await farmer.rebalance(A_LATE_QUARTET);
         await xhre.ethers.provider.send("evm_increaseTime", [3600]);
         await xhre.ethers.provider.send("evm_mine", []);
-        await masterChefStrat.exit(A_LATE_QUARTET, true);
+        await masterChefStrat.emergencyExit(A_LATE_QUARTET);
         expect(await beets.balanceOf(masterChefStrat.address)).to.be.eq(0);
         expect(await bptQuartet.balanceOf(masterChefStrat.address)).to.be.eq(bptBalance);
         expect(await masterChefStrat.deposited(A_LATE_QUARTET)).to.eq(0);
@@ -209,7 +209,7 @@ describe("MasterChefStrategy", function () {
     describe("permissions", async function () {
         let user: SignerWithAddress;
         let mcsUser: MasterChefStrategy;
-        const CALLER_IS_NOT_ALLOCATOR = "MCS: caller is not allocator";
+        const CALLER_IS_NOT_ALLOCATOR = "Strategy: caller is not allocator";
         const CALLER_IS_NOT_STRATEGIST = "caller is not a strategist";
 
         beforeEach(async () => {
@@ -242,7 +242,13 @@ describe("MasterChefStrategy", function () {
         });
 
         it("Should only let strategist call exit", async function () {
-            await expect(mcsUser.exit(bptQuartet.address, false)).to.be.revertedWith(
+            await expect(mcsUser.exit(bptQuartet.address)).to.be.revertedWith(
+                CALLER_IS_NOT_STRATEGIST
+            );
+        });
+
+        it("Should only let strategist call emergencyExit", async function () {
+            await expect(mcsUser.emergencyExit(bptQuartet.address)).to.be.revertedWith(
                 CALLER_IS_NOT_STRATEGIST
             );
         });

@@ -53,11 +53,7 @@ describe("ReaperVault", function () {
     let roles: ExodiaRoles;
     let farmer: Farmer;
 
-    beforeEach(async function () {
-        const namedAccounts = await getNamedAccounts();
-        const unnamedAccounts = await getUnnamedAccounts();
-        deployer = namedAccounts.deployer;
-        randomAddress = unnamedAccounts[0];
+    const deploy = deployments.createFixture(async (hh) => {
         await deployments.fixture([
             ASSET_ALLOCATOR_DID,
             DAI_DID,
@@ -112,6 +108,14 @@ describe("ReaperVault", function () {
         );
         await farmer.setLimit(DAI, 100_000, 0, 0);
         await reaperStrategy.addVault(REAPER_DAI_VAULT);
+    });
+
+    beforeEach(async function () {
+        const namedAccounts = await getNamedAccounts();
+        const unnamedAccounts = await getUnnamedAccounts();
+        deployer = namedAccounts.deployer;
+        randomAddress = unnamedAccounts[0];
+        await deploy();
     });
 
     it("Treasury should hold DAI", async function () {
@@ -190,7 +194,7 @@ describe("ReaperVault", function () {
     describe("permissions", async function () {
         let user: SignerWithAddress;
         let mcsUser: ReaperVaultStrategy;
-        const CALLER_IS_NOT_ALLOCATOR = "Reaper Strategy: caller is not allocator";
+        const CALLER_IS_NOT_ALLOCATOR = "Strategy: caller is not allocator";
         const CALLER_IS_NOT_STRATEGIST = "caller is not a strategist";
 
         beforeEach(async () => {

@@ -109,7 +109,6 @@ const get = async (xhre: IExtendedHRE<any>, contractName: string) => {
         deployedAddress = contractDeployed?.address || "no address found";
     }
     const contract = await getContractInstance(contractName, xhre, deployedAddress);
-
     return { contract, deployment };
 };
 

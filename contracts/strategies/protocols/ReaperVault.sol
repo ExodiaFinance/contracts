@@ -4,11 +4,8 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
-import "../../ExodiaAccessControlInitializable.sol";
-import "../IStrategy.sol";
 import "../IAssetAllocator.sol";
-
-import "hardhat/console.sol";
+import "../BaseStrategy.sol";
 
 interface IReaperVault is IERC20 {
     function deposit(uint256 _amount) external;
@@ -26,15 +23,13 @@ interface IReaperVault is IERC20 {
     function token() external view returns (address);
 }
 
-contract ReaperVaultStrategy is IStrategy, ExodiaAccessControlInitializable {
+contract ReaperVaultStrategy is BaseStrategy{
 
     mapping(address => address) public tokenVault;
     mapping(address => uint256) public override deposited;
-    address allocator;
 
     function initialize(address _allocator, address _roles) public initializer {
-        allocator = _allocator;
-        ExodiaAccessControlInitializable.initializeAccessControl(_roles);
+        _initialize(_allocator, _roles);
     }
 
     function addVault(address _vault) external onlyStrategist {
@@ -50,19 +45,11 @@ contract ReaperVaultStrategy is IStrategy, ExodiaAccessControlInitializable {
         deposited[_token] += balance;
     }
 
-    function withdrawTo(
-        address _token,
-        uint256 _amount,
-        address _to
-    ) external override onlyAssetAllocator returns (uint256) {
-        return _withdrawTo(_token, _amount, _to);
-    }
-
     function _withdrawTo(
         address _token,
         uint256 _amount,
         address _to
-    ) internal returns (uint256) {
+    ) internal override returns (uint256) {
         address vault = tokenVault[_token];
         uint256 amountOfShares = _amountToShares(vault, _amount);
         deposited[_token] -= _amountToDeposits(_token, _amount);
@@ -81,10 +68,9 @@ contract ReaperVaultStrategy is IStrategy, ExodiaAccessControlInitializable {
         return _amount * 10**IERC20Metadata(_token).decimals() / balance(_token);
     }
 
-    function emergencyWithdrawTo(address _token, address _to)
-    external
+    function _emergencyWithdrawTo(address _token, address _to)
+    internal
     override
-    onlyAssetAllocator
     returns (uint256)
     {
         IReaperVault(tokenVault[_token]).withdrawAll();
@@ -94,11 +80,7 @@ contract ReaperVaultStrategy is IStrategy, ExodiaAccessControlInitializable {
         return withdrawnAmount;
     }
 
-    function collectProfits(address _token, address _to)
-    external
-    override
-    onlyAssetAllocator
-    returns (int256)
+    function _collectProfits(address _token, address _to) internal override returns (int256)
     {
         uint256 balance = balance(_token);
         uint256 deposit = deposited[_token];
@@ -108,10 +90,9 @@ contract ReaperVaultStrategy is IStrategy, ExodiaAccessControlInitializable {
         return int256(balance) - int256(deposit);
     }
 
-    function collectRewards(address _token, address _to)
-    external
+    function _collectRewards(address _token, address _to)
+    internal
     override
-    onlyAssetAllocator
     returns (address[] memory)
     {
         // This farm compounds rewards into the base token
@@ -126,13 +107,9 @@ contract ReaperVaultStrategy is IStrategy, ExodiaAccessControlInitializable {
         return deployed + IERC20(_token).balanceOf(address(this));
     }
 
-    function exit(address _token) external onlyStrategist {
+    function _exit(address _token) internal override {
         deposited[_token] = 0;
         IReaperVault(tokenVault[_token]).withdrawAll();
-    }
-    
-    function extractToDAO(address _token) external onlyStrategist {
-        _sendTo(_token, roles.DAO_ADDRESS());
     }
     
     function _sendTo(address _token, address _to) internal {
@@ -140,9 +117,5 @@ contract ReaperVaultStrategy is IStrategy, ExodiaAccessControlInitializable {
         uint256 balance = token.balanceOf(address(this));
         token.transfer(_to, balance);
     }
-
-    modifier onlyAssetAllocator() {
-        require(msg.sender == allocator, "Reaper Strategy: caller is not allocator");
-        _;
-    }
+    
 }

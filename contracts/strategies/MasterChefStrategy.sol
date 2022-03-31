@@ -9,6 +9,7 @@ import "./IAssetAllocator.sol";
 
 import "hardhat/console.sol";
 import "../ExodiaAccessControlInitializable.sol";
+import "./BaseStrategy.sol";
 
 // Info of each user.
 struct UserInfo {
@@ -60,13 +61,12 @@ interface IRewarder {
     function rewardToken() external view returns (address);
 }
 
-contract MasterChefStrategy is IStrategy, ExodiaAccessControlInitializable {
+contract MasterChefStrategy is BaseStrategy {
     mapping(address => uint256) public tokenFarmPid;
     mapping(address => uint256) public override deposited;
 
     address public masterChef;
     address public rewardToken;
-    address public allocator;
 
     function initialize(
         address _masterChef,
@@ -76,8 +76,7 @@ contract MasterChefStrategy is IStrategy, ExodiaAccessControlInitializable {
     ) public initializer {
         masterChef = _masterChef;
         rewardToken = _rewardToken;
-        allocator = _allocator;
-        ExodiaAccessControlInitializable.initializeAccessControl(_roles);
+        _initialize(_allocator, _roles);
     }
 
     function getPid(address _token) external view returns (uint256) {
@@ -105,11 +104,11 @@ contract MasterChefStrategy is IStrategy, ExodiaAccessControlInitializable {
         deposited[_token] += balance;
     }
 
-    function withdrawTo(
+    function _withdrawTo(
         address _token,
         uint256 _amount,
         address _to
-    ) external override onlyAssetAllocator returns (uint256) {
+    ) internal override returns (uint256) {
         uint256 pid = _getPid(_token);
         IMasterchef(masterChef).withdrawAndHarvest(pid, _amount, address(this));
         _sendTo(rewardToken, _to);
@@ -118,10 +117,9 @@ contract MasterChefStrategy is IStrategy, ExodiaAccessControlInitializable {
         return _amount;
     }
 
-    function emergencyWithdrawTo(address _token, address _to)
-        external
+    function _emergencyWithdrawTo(address _token, address _to)
+        internal
         override
-        onlyAssetAllocator
         returns (uint256)
     {
         IMasterchef(masterChef).emergencyWithdraw(_getPid(_token), address(this));
@@ -131,20 +129,18 @@ contract MasterChefStrategy is IStrategy, ExodiaAccessControlInitializable {
         return balanceOf;
     }
 
-    function collectProfits(address _token, address _to)
-        external
+    function _collectProfits(address _token, address _to)
+        internal
         override
-        onlyAssetAllocator
         returns (int256)
     {
         // This farm creates yields from the reward token
         return 0;
     }
 
-    function collectRewards(address _token, address _to)
-        public
+    function _collectRewards(address _token, address _to)
+        internal
         override
-        onlyAssetAllocator
         returns (address[] memory)
     {
         uint256 pid = _getPid(_token);
@@ -167,30 +163,23 @@ contract MasterChefStrategy is IStrategy, ExodiaAccessControlInitializable {
         return deployed + IERC20(_token).balanceOf(address(this));
     }
 
-    function exit(address _token, bool _emergency) external onlyStrategist {
+    function emergencyExit(address _token) public onlyStrategist {
         uint256 pid = _getPid(_token);
-        if (_emergency) {
-            IMasterchef(masterChef).emergencyWithdraw(pid, address(this));
-        } else {
-            uint256 balanceOf = IMasterchef(masterChef)
-                .userInfo(pid, address(this))
-                .amount;
-            IMasterchef(masterChef).withdrawAndHarvest(pid, balanceOf, address(this));
-        }
+        IMasterchef(masterChef).emergencyWithdraw(pid, address(this));
         deposited[_token] = 0;
     }
-
-    function extractToDAO(address _token) external onlyStrategist {
-        _sendTo(_token, roles.DAO_ADDRESS());
+    
+    function _exit(address _token) internal override {
+        uint256 pid = _getPid(_token);
+        uint256 balanceOf = IMasterchef(masterChef)
+            .userInfo(pid, address(this))
+            .amount;
+        IMasterchef(masterChef).withdrawAndHarvest(pid, balanceOf, address(this));
+        deposited[_token] = 0;
     }
-
+    
     function _sendTo(address _token, address _to) internal {
         uint256 balance = IERC20(_token).balanceOf(address(this));
         IERC20(_token).transfer(_to, balance);
-    }
-
-    modifier onlyAssetAllocator() {
-        require(msg.sender == allocator, "MCS: caller is not allocator");
-        _;
     }
 }
