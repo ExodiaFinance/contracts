@@ -67,7 +67,7 @@ describe("BaseStrategy", function () {
         await expect(strat.deploy(token.address)).to.be.revertedWith(PAUSABLE_PAUSED);
     });
 
-    it("Should pause deploy", async function () {
+    it("Should unpause deploy", async function () {
         await strat.pause();
         await strat.unPause();
         await expect(strat.deploy(token.address)).to.not.be.reverted;

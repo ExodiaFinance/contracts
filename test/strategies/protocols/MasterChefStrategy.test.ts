@@ -37,6 +37,7 @@ import {
     OlympusTreasury__factory,
 } from "../../../packages/sdk/typechain";
 import "../../chai-setup";
+import { PAUSABLE_PAUSED } from "../../errors";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNamedAccounts, getUnnamedAccounts, getNetwork } = xhre;
@@ -204,6 +205,19 @@ describe("MasterChefStrategy", function () {
         await dai.mint(masterChefStrat.address, mintAmount);
         await masterChefStrat.extractToDAO(dai.address);
         expect(await dai.balanceOf(await roles.DAO_ADDRESS())).to.eq(mintAmount);
+    });
+
+    it("Should pause deploy", async function () {
+        await masterChefStrat.pause();
+        await expect(farmer.rebalance(A_LATE_QUARTET)).to.be.revertedWith(
+            PAUSABLE_PAUSED
+        );
+    });
+
+    it("Should unpause deploy", async function () {
+        await masterChefStrat.pause();
+        await masterChefStrat.unPause();
+        await expect(farmer.rebalance(A_LATE_QUARTET)).to.not.be.reverted;
     });
 
     describe("permissions", async function () {

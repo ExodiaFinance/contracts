@@ -33,6 +33,11 @@ import {
     ReaperVaultStrategy__factory,
 } from "../../../packages/sdk/typechain";
 import "../../chai-setup";
+import {
+    PAUSABLE_PAUSED,
+    ROLES_CALLER_IS_NOT_STRATEGIST,
+    STRATEGY_CALLER_IS_NOT_ALLOCATOR,
+} from "../../errors";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNamedAccounts, getUnnamedAccounts, getNetwork } = xhre;
@@ -191,11 +196,20 @@ describe("ReaperVault", function () {
         expect(await token.balanceOf(await roles.DAO_ADDRESS())).to.eq(mintAmount);
     });
 
+    it("Should pause deploy", async function () {
+        await reaperStrategy.pause();
+        await expect(farmer.rebalance(DAI)).to.be.revertedWith(PAUSABLE_PAUSED);
+    });
+
+    it("Should unpause deploy", async function () {
+        await reaperStrategy.pause();
+        await reaperStrategy.unPause();
+        await expect(farmer.rebalance(DAI)).to.not.be.reverted;
+    });
+
     describe("permissions", async function () {
         let user: SignerWithAddress;
         let mcsUser: ReaperVaultStrategy;
-        const CALLER_IS_NOT_ALLOCATOR = "Strategy: caller is not allocator";
-        const CALLER_IS_NOT_STRATEGIST = "caller is not a strategist";
 
         beforeEach(async () => {
             user = await xhre.ethers.getSigner(randomAddress);
@@ -205,42 +219,42 @@ describe("ReaperVault", function () {
         it("Should only let allocator call withdrawTo", async function () {
             await expect(
                 mcsUser.withdrawTo(dai.address, 100, user.address)
-            ).to.be.revertedWith(CALLER_IS_NOT_ALLOCATOR);
+            ).to.be.revertedWith(STRATEGY_CALLER_IS_NOT_ALLOCATOR);
         });
 
         it("Should only let allocator call emergencyWithdrawTo", async function () {
             await expect(
                 mcsUser.emergencyWithdrawTo(dai.address, user.address)
-            ).to.be.revertedWith(CALLER_IS_NOT_ALLOCATOR);
+            ).to.be.revertedWith(STRATEGY_CALLER_IS_NOT_ALLOCATOR);
         });
 
         it("Should only let allocator call collectProfits", async function () {
             await expect(
                 mcsUser.collectProfits(dai.address, user.address)
-            ).to.be.revertedWith(CALLER_IS_NOT_ALLOCATOR);
+            ).to.be.revertedWith(STRATEGY_CALLER_IS_NOT_ALLOCATOR);
         });
 
         it("Should only let allocator call collectRewards", async function () {
             await expect(
                 mcsUser.collectRewards(dai.address, user.address)
-            ).to.be.revertedWith(CALLER_IS_NOT_ALLOCATOR);
+            ).to.be.revertedWith(STRATEGY_CALLER_IS_NOT_ALLOCATOR);
         });
 
         it("Should only let strategist call exit", async function () {
             await expect(mcsUser.exit(dai.address)).to.be.revertedWith(
-                CALLER_IS_NOT_STRATEGIST
+                ROLES_CALLER_IS_NOT_STRATEGIST
             );
         });
 
         it("Should only let strategist call extractToDao", async function () {
             await expect(mcsUser.extractToDAO(dai.address)).to.be.revertedWith(
-                CALLER_IS_NOT_STRATEGIST
+                ROLES_CALLER_IS_NOT_STRATEGIST
             );
         });
 
         it("Should only let strategist update PID", async function () {
             await expect(mcsUser.addVault(dai.address)).to.be.revertedWith(
-                CALLER_IS_NOT_STRATEGIST
+                ROLES_CALLER_IS_NOT_STRATEGIST
             );
         });
     });

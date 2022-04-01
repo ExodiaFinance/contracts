@@ -3,8 +3,8 @@ pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import "./IAssetAllocator.sol";
-import "./BaseStrategy.sol";
+import "../IAssetAllocator.sol";
+import "../BaseStrategy.sol";
 
 // Info of each user.
 struct UserInfo {
