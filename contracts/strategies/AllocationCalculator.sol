@@ -2,9 +2,10 @@
 pragma solidity ^0.8.12;
 pragma abicoder v2;
 
+import "../ExodiaAccessControlInitializable.sol";
 import "../interfaces/IERC20.sol";
 import "./IAllocationCalculator.sol";
-import "../ExodiaAccessControlInitializable.sol";
+import "./StrategyWhitelist.sol";
 
 struct Strategies {
     address[] addresses; // address of strategies
@@ -13,9 +14,11 @@ struct Strategies {
 
 contract AllocationCalculator is ExodiaAccessControlInitializable, IAllocationCalculator {
     mapping(address => Strategies) tokenStrategies;
-
-    function initialize(address _roles) external initializer {
+    StrategyWhitelist public whitelist;
+    
+    function initialize(address _whitelist, address _roles) external initializer {
         ExodiaAccessControlInitializable.initializeAccessControl(_roles);
+        whitelist = StrategyWhitelist(_whitelist);
     }
 
     function setAllocation(
@@ -23,11 +26,18 @@ contract AllocationCalculator is ExodiaAccessControlInitializable, IAllocationCa
         address[] memory _strategies,
         uint256[] memory _allocations
     ) external onlyStrategist {
+        for(uint i = 0; i < _strategies.length; i++) {
+            require(whitelist.isWhitelisted(_strategies[i]), string(abi.encodePacked("AllocCalc: one or more strategies are not whitelisted")));
+        }
         Strategies storage allocations = tokenStrategies[_token];
         allocations.addresses = _strategies;
         allocations.allocations = _allocations;
     }
 
+    function setWhitelist(address _whitelist) external onlyArchitect {
+        whitelist = StrategyWhitelist(_whitelist);
+    }
+    
     function calculateAllocation(address _token, uint256 _manageable)
         external
         view

@@ -1,23 +1,16 @@
-import { MockContract, MockContractFactory, smock } from "@defi-wonderland/smock";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { expect } from "chai";
-import { BigNumber } from "ethers";
-import { parseEther, parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
 
-import { PNLTRACKER_DID } from "../../deploy/46_deployPnlTracker";
 import { STRATEGY_WHITELIST_DID } from "../../deploy/48_deployStrategyWhitelist.test";
 import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
 import { IExodiaContractsRegistry } from "../../packages/sdk/contracts/exodiaContracts";
 import {
-    PNLTracker,
-    PNLTracker__factory,
     StrategyWhitelist,
     StrategyWhitelist__factory,
 } from "../../packages/sdk/typechain";
-import "../chai-setup";
 import { ZERO_ADDRESS } from "../../packages/utils/utils";
-import { increaseTime } from "../testUtils";
+import "../chai-setup";
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNamedAccounts, getUnnamedAccounts } = xhre;
 
