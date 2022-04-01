@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 
 import "../ExodiaAccessControlInitializable.sol";
 import "./IStrategy.sol";
@@ -14,7 +15,7 @@ interface DelegateRegistry {
     function setDelegate(bytes32 id, address delegate) external;
 }
 
-abstract contract BaseStrategy is IStrategy, ExodiaAccessControlInitializable {
+abstract contract BaseStrategy is IStrategy, ExodiaAccessControlInitializable, Pausable {
 
     address public allocator;
 
@@ -24,6 +25,12 @@ abstract contract BaseStrategy is IStrategy, ExodiaAccessControlInitializable {
         ExodiaAccessControlInitializable.initializeAccessControl(_roles);
     }
 
+    function deploy(address _token) external override whenNotPaused {
+        _deploy(_token);
+    }
+
+    function _deploy(address _token) internal virtual;
+    
     function withdrawTo(
         address _token,
         uint256 _amount,
@@ -85,5 +92,13 @@ abstract contract BaseStrategy is IStrategy, ExodiaAccessControlInitializable {
     modifier onlyAssetAllocator() {
         require(msg.sender == allocator, "Strategy: caller is not allocator");
         _;
+    }
+    
+    function pause() external onlyStrategist {
+        _pause();
+    }
+    
+    function unPause() external onlyStrategist {
+        _unpause();
     }
 }

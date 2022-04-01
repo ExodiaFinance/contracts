@@ -5,17 +5,17 @@ import { BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import hre from "hardhat";
 
-import { DAI_DID } from "../../deploy/00_deployDai";
-import { ASSET_ALLOCATOR_DID } from "../../deploy/30_deployAssetAllocator";
-import { ARFV_TOKEN_DID } from "../../deploy/31_deployARFVToken";
-import { EXODIA_ROLES_DID } from "../../deploy/38_deployExodiaRoles";
-import { FARMER_DID } from "../../deploy/41_deployFarmer";
-import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
-import { externalAddressRegistry } from "../../packages/sdk/contracts";
+import { DAI_DID } from "../../../deploy/00_deployDai";
+import { ASSET_ALLOCATOR_DID } from "../../../deploy/30_deployAssetAllocator";
+import { ARFV_TOKEN_DID } from "../../../deploy/31_deployARFVToken";
+import { EXODIA_ROLES_DID } from "../../../deploy/38_deployExodiaRoles";
+import { FARMER_DID } from "../../../deploy/41_deployFarmer";
+import { IExtendedHRE } from "../../../packages/HardhatRegistryExtension/ExtendedHRE";
+import { externalAddressRegistry } from "../../../packages/sdk/contracts";
 import {
     IExodiaContractsRegistry,
     IExternalContractsRegistry,
-} from "../../packages/sdk/contracts/exodiaContracts";
+} from "../../../packages/sdk/contracts/exodiaContracts";
 import {
     AllocationCalculator,
     AllocationCalculator__factory,
@@ -35,8 +35,8 @@ import {
     OlympusERC20Token__factory,
     OlympusTreasury,
     OlympusTreasury__factory,
-} from "../../packages/sdk/typechain";
-import "../chai-setup";
+} from "../../../packages/sdk/typechain";
+import "../../chai-setup";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNamedAccounts, getUnnamedAccounts, getNetwork } = xhre;

@@ -36,7 +36,7 @@ contract ReaperVaultStrategy is BaseStrategy{
         tokenVault[IReaperVault(_vault).token()] = _vault;
     }
 
-    function deploy(address _token) external override {
+    function _deploy(address _token) internal override {
         address vault = tokenVault[_token];
         IERC20 token = IERC20(_token);
         uint256 balance = token.balanceOf(address(this));

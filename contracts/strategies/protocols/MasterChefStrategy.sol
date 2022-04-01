@@ -3,12 +3,7 @@ pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import "../Policy.sol";
-import "./IStrategy.sol";
 import "./IAssetAllocator.sol";
-
-import "hardhat/console.sol";
-import "../ExodiaAccessControlInitializable.sol";
 import "./BaseStrategy.sol";
 
 // Info of each user.
@@ -95,7 +90,7 @@ contract MasterChefStrategy is BaseStrategy {
         tokenFarmPid[_token] = _pid;
     }
 
-    function deploy(address _token) external override {
+    function _deploy(address _token) internal override {
         uint256 pid = _getPid(_token);
         IERC20 token = IERC20(_token);
         uint256 balance = token.balanceOf(address(this));
