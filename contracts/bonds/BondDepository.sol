@@ -255,7 +255,7 @@ abstract contract BondDepository is Policy {
         address _recipient,
         bool _stake,
         uint256 _amount
-    ) internal returns (uint256) {
+    ) internal virtual returns (uint256) {
         if (!_stake) {
             // if user does not want to stake
             IERC20(OHM).transfer(_recipient, _amount); // send payout
