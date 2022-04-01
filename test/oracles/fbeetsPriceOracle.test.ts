@@ -40,10 +40,7 @@ describe("GOHMSpotPriceOracle", function () {
             { variable: 1, secs: 120, ago: 0 },
         ]);
         const bptFtm = balOracleAnswer[0];
-        const ftmOracle = AggregatorV3Interface__factory.connect(FTM_USD_FEED, signer);
-        const ftmOracleAnswer = await ftmOracle.latestRoundData();
-        const ftmUsd = ftmOracleAnswer.answer;
-        const bptUsd = bptFtm.mul(ftmUsd).div(1e9).div(1e9);
+        const bptUsd = bptFtm.div(1e9).div(1e9);
         const fBeetsSupply = await IERC20__factory.connect(
             FBEETS_BAR,
             signer
