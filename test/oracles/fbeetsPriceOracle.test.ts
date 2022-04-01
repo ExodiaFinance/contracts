@@ -39,8 +39,7 @@ describe("GOHMSpotPriceOracle", function () {
         const balOracleAnswer = await balOracle.getTimeWeightedAverage([
             { variable: 1, secs: 120, ago: 0 },
         ]);
-        const bptFtm = balOracleAnswer[0];
-        const bptUsd = bptFtm.div(1e9).div(1e9);
+        const bptFtm = balOracleAnswer[0]
         const fBeetsSupply = await IERC20__factory.connect(
             FBEETS_BAR,
             signer
@@ -48,8 +47,8 @@ describe("GOHMSpotPriceOracle", function () {
         const lockedBpt = await IERC20__factory.connect(FIDELIO_DUETTO, signer).balanceOf(
             FBEETS_BAR
         );
-        const expectedFBeetsUsd = bptUsd.mul(lockedBpt).div(fBeetsSupply);
-        expect(fBeetsUsd).to.be.gt(bptUsd);
+        const expectedFBeetsUsd = bptFtm.mul(lockedBpt).div(fBeetsSupply);
+        expect(fBeetsUsd).to.be.gt(bptFtm);
         expect(fBeetsUsd).to.closeTo(expectedFBeetsUsd, 1e3);
     });
 });
