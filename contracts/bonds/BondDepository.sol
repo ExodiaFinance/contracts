@@ -189,7 +189,7 @@ abstract contract BondDepository is Policy {
         require(payout >= 10000000, "Bond too small"); // must be > 0.01 OHM ( underflow protection )
         require(payout <= maxPayout(), "Bond too large"); // size protection because there is no slippage
 
-        _deposit(_amount, value, payout);
+        payout = _deposit(_amount, value, payout);
 
         // total debt is increased
         totalDebt = totalDebt + value;
@@ -456,7 +456,7 @@ abstract contract BondDepository is Policy {
         uint256 amount,
         uint256 value,
         uint256 payout
-    ) internal virtual;
+    ) internal virtual returns(uint256);
 
     function bondPriceInUSD() public view virtual returns (uint256 price_);
 

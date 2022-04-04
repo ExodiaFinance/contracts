@@ -137,7 +137,7 @@ contract OlympusBondDepository is BondDepository {
         uint256 amount,
         uint256 value,
         uint256 payout
-    ) internal override {
+    ) internal override returns (uint256) {
         // profits are calculated
         uint256 fee = (payout * _extraTerms.fee) / 10000;
         uint256 profit = value - payout - fee;
@@ -155,6 +155,8 @@ contract OlympusBondDepository is BondDepository {
             // fee is transferred to dao
             IERC20(OHM).safeTransfer(DAO, fee);
         }
+
+        return payout;
     }
 
     /**
