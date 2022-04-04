@@ -456,7 +456,7 @@ abstract contract BondDepository is Policy {
         uint256 amount,
         uint256 value,
         uint256 payout
-    ) internal virtual returns(uint256);
+    ) internal virtual returns (uint256);
 
     function bondPriceInUSD() public view virtual returns (uint256 price_);
 
