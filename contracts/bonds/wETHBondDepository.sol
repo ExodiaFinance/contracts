@@ -113,13 +113,15 @@ contract wETHOlympusBondDepository is BondDepository {
         uint256 amount,
         uint256,
         uint256 payout
-    ) internal override {
+    ) internal virtual override returns (uint256) {
         /**
             asset carries risk and is not minted against
             asset transfered to treasury and rewards minted as payout
          */
         IERC20(principle).safeTransferFrom(msg.sender, treasury, amount);
         IOlympusTreasury(treasury).mintRewards(address(this), payout);
+
+        return payout;
     }
 
     /**
