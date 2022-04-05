@@ -4,12 +4,17 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import "./wETHBondDepository.sol";
+import "./BondDepository.sol";
+import "../librairies/FixedPoint256x256.sol";
+import "../interfaces/IOlympusTreasury.sol";
 import "../interfaces/IWOHM.sol";
+import "../oracles/interfaces/AggregatorV3Interface.sol";
 
-contract WrappedBondDepository is wETHOlympusBondDepository {
+contract WrappedBondDepository is BondDepository {
+    using FixedPoint256x256 for *;
     using SafeERC20 for IERC20;
 
+    AggregatorV3Interface internal priceFeed;
     address public wOHM;
 
     constructor(
@@ -19,8 +24,90 @@ contract WrappedBondDepository is wETHOlympusBondDepository {
         address _DAO,
         address _feed,
         address _wOHM
-    ) wETHOlympusBondDepository(_OHM, _principle, _treasury, _DAO, _feed) {
+    ) BondDepository(_OHM, _principle, _treasury, _DAO) {
+        priceFeed = AggregatorV3Interface(_feed);
         wOHM = _wOHM;
+    }
+
+    /**
+     *  @notice initializes bond parameters
+     *  @param _controlVariable uint
+     *  @param _vestingTerm uint
+     *  @param _minimumPrice uint
+     *  @param _maxPayout uint
+     *  @param _maxDebt uint
+     *  @param _initialDebt uint
+     */
+    function initializeBondTerms(
+        uint256 _controlVariable,
+        uint256 _vestingTerm,
+        uint256 _minimumPrice,
+        uint256 _maxPayout,
+        uint256 _maxDebt,
+        uint256 _initialDebt
+    ) external onlyPolicy {
+        require(_terms.controlVariable == 0, "Debt must be 0 for initialization");
+        _terms = Terms({
+            controlVariable: _controlVariable,
+            vestingTerm: _vestingTerm,
+            minimumPrice: _minimumPrice,
+            maxPayout: _maxPayout,
+            maxDebt: _maxDebt
+        });
+        totalDebt = _initialDebt;
+        lastDecay = block.number;
+    }
+
+    /* ======== POLICY FUNCTIONS ======== */
+
+    enum PARAMETER {
+        VESTING,
+        PAYOUT,
+        DEBT,
+        MINPRICE
+    }
+
+    /**
+     *  @notice set parameters for new bonds
+     *  @param _parameter PARAMETER
+     *  @param _input uint
+     */
+    function setBondTerms(PARAMETER _parameter, uint256 _input) external onlyPolicy {
+        if (_parameter == PARAMETER.VESTING) {
+            // 0
+            require(_input >= 10000, "Vesting must be longer than 36 hours");
+            _terms.vestingTerm = _input;
+        } else if (_parameter == PARAMETER.PAYOUT) {
+            // 1
+            require(_input <= 1000, "Payout cannot be above 1 percent");
+            _terms.maxPayout = _input;
+        } else if (_parameter == PARAMETER.DEBT) {
+            // 2
+            _terms.maxDebt = _input;
+        } else if (_parameter == PARAMETER.MINPRICE) {
+            // 3
+            _terms.minimumPrice = _input;
+        }
+    }
+
+    function terms() external view returns (Terms memory) {
+        return _terms;
+    }
+
+    /**
+     *  @notice get asset price from chainlink
+     */
+    function assetPrice() public view returns (int256) {
+        (, int256 price, , , ) = priceFeed.latestRoundData();
+        return price;
+    }
+
+    /* ======== OVERRIDE FUNCTIONS ======== */
+
+    function _valueOf(uint256 amount) internal view override returns (uint256) {
+        return
+            (amount * (10**IERC20Metadata(OHM).decimals())) /
+            (10**IERC20Metadata(principle).decimals());
     }
 
     function updateFeed(address _feed) public onlyPolicy {
@@ -60,5 +147,21 @@ contract WrappedBondDepository is wETHOlympusBondDepository {
     function wOHMPayoutFor(uint256 _value) public view returns (uint256) {
         uint256 payout = payoutFor(_value);
         return IWOHM(wOHM).wOHMValue(payout);
+    }
+
+    /**
+     *  @notice converts bond price to DAI value
+     *  @return price uint
+     */
+    function bondPriceInUSD() public view override returns (uint256 price) {
+        price = bondPrice() * uint256(assetPrice()) * 1e3;
+    }
+
+    /**
+     *  @notice debt ratio in same terms as reserve bonds
+     *  @return uint
+     */
+    function standardizedDebtRatio() external view override returns (uint256) {
+        return (debtRatio() * uint256(assetPrice())) / 1e8; // ETH feed is 8 decimals
     }
 }

@@ -42,6 +42,7 @@ import {
 } from "../packages/sdk/typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { mine } from "./testUtils";
+import { parseUnits } from "ethers/lib/utils";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, deploy, getNamedAccounts } = xhre;
@@ -123,9 +124,9 @@ describe("GOHM wrapped bond depository", function () {
         await bond.setStaking(stakingHelper.address, true);
         await toggleRights(treasury, MANAGING.REWARDMANAGER, bond.address);
         bcv = 100;
-        const minPrice = 1000000000; // toWei(1, OHM_DECIMALS);
+        const minPrice = parseUnits("1", 9); // toWei(1, OHM_DECIMALS);
         const maxPayout = toWei(30, OHM_DECIMALS);
-        const maxDebt = "10000000000000000"; // toWei(100, DAI_DECIMALS);
+        const maxDebt = parseUnits("0.01"); // toWei(100, DAI_DECIMALS);
         initialDebt = "0";
         await bond.initializeBondTerms(
             bcv,
@@ -156,7 +157,7 @@ describe("GOHM wrapped bond depository", function () {
         const usdPrice = await bond.bondPriceInUSD();
         const bondPrice = await bond.bondPrice();
         expect(usdPrice).to.eq(ethers.utils.parseUnits(assetPriceUsd.toString()));
-        expect(bondPrice).to.eq(1000000000); // 100 is minimum price
+        expect(bondPrice).to.eq(parseUnits("1", 9));
     });
 
     it("Should return the debtRatio", async function () {
@@ -204,7 +205,7 @@ describe("GOHM wrapped bond depository", function () {
     it("Should compute bondPrice", async function () {
         const bondPrice0 = await bond.bondPrice();
         const debtRatio0 = await bond.debtRatio();
-        expect(bondPrice0.toString()).to.eq("1000000000");
+        expect(bondPrice0.toString()).to.eq(parseUnits("1", 9));
         let bondAmount = await bond.bondPriceInUSD();
         await dai.mint(deployer, bondAmount);
         await dai.approve(bond.address, bondAmount);
@@ -230,9 +231,9 @@ describe("GOHM wrapped bond depository", function () {
     });
 
     it("Should sell at min price", async function () {
-        await bond.setBondTerms(3, 50_000000000);
-        expect(await bond.bondPrice()).to.eq(50_000000000);
-        const payout = await bond.payoutFor(10000e9);
+        await bond.setBondTerms(3, parseUnits("50", 9));
+        expect(await bond.bondPrice()).to.eq(parseUnits("50", 9));
+        const payout = await bond.payoutFor(parseUnits("10000", 9));
         expect(payout).to.eq(200e9);
     });
 
