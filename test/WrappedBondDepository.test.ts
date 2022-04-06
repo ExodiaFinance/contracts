@@ -8,6 +8,7 @@ import { STAKING_DID } from "../deploy/05_deployStaking";
 import { STAKING_HELPER_DID } from "../deploy/07_deployStakingHelper";
 import { OHM_CIRCULATING_SUPPLY_DID } from "../deploy/14_deployOhmCirculatingSupply";
 import { MINT_OHM_DID } from "../deploy/16_mintOHM";
+import { WOHM_DID } from "../deploy/17_deployWOHM";
 import { GOHM_ORACLE_DID } from "../deploy/21_deployGOHMPriceOracle";
 import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
 import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
@@ -20,8 +21,6 @@ import {
     BackingPriceCalculator__factory,
     DAI,
     DAI__factory,
-    GOHMBondDepository,
-    GOHMBondDepository__factory,
     OHMCirculatingSupplyContract,
     OHMCirculatingSupplyContract__factory,
     OlympusERC20Token,
@@ -36,21 +35,27 @@ import {
     SOlympus__factory,
     StakingHelperV2,
     StakingHelperV2__factory,
+    WOHM,
+    WOHM__factory,
+    WrappedBondDepository,
+    WrappedBondDepository__factory,
 } from "../packages/sdk/typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { mine } from "./testUtils";
+import { parseUnits } from "ethers/lib/utils";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, deploy, getNamedAccounts } = xhre;
 
-describe("GOHM bond depository", function () {
+describe("GOHM wrapped bond depository", function () {
     let user: SignerWithAddress;
     let deployer: string;
     let dao: string;
     let ohm: OlympusERC20Token;
-    let bond: GOHMBondDepository;
+    let bond: WrappedBondDepository;
     let feed: FakeContract<AggregatorV3Interface>;
     let treasury: OlympusTreasury;
+    let wohm: WOHM;
     let sohm: SOlympus;
     let staking: OlympusStaking;
     let stakingHelper: StakingHelperV2;
@@ -71,6 +76,7 @@ describe("GOHM bond depository", function () {
             TREASURY_DID,
             GOHM_ORACLE_DID,
             MINT_OHM_DID,
+            WOHM_DID,
             OHM_CIRCULATING_SUPPLY_DID,
         ]);
         const accounts = await getNamedAccounts();
@@ -82,6 +88,8 @@ describe("GOHM bond depository", function () {
         dai = daiDeploy.contract;
         const treasuryDeployment = await get<OlympusTreasury__factory>("OlympusTreasury");
         treasury = treasuryDeployment.contract;
+        const wOHMDeployment = await get<WOHM__factory>("wOHM");
+        wohm = wOHMDeployment.contract;
         const excess = ethers.utils.parseUnits("10000", "ether");
         await dai.mint(deployer, excess);
         await dai.approve(treasury.address, excess);
@@ -96,11 +104,11 @@ describe("GOHM bond depository", function () {
         assetPriceUsd = BigNumber.from("2000");
         feed.latestRoundData.returns([0, assetPriceUsd.mul(1e6), 0, 0, 0]);
         // feed = feedDeployment.contract;
-        const gohmDeployment = await deploy<GOHMBondDepository__factory>(
-            "GOHMBondDepository",
-            [ohm.address, dai.address, treasury.address, dao, feed.address]
+        const wrappedBondDeployment = await deploy<WrappedBondDepository__factory>(
+            "WrappedBondDepository",
+            [ohm.address, dai.address, treasury.address, dao, feed.address, wohm.address]
         );
-        bond = gohmDeployment.contract;
+        bond = wrappedBondDeployment.contract;
 
         const stakingDeployment = await get<OlympusStaking__factory>("OlympusStaking");
         staking = stakingDeployment.contract;
@@ -116,9 +124,9 @@ describe("GOHM bond depository", function () {
         await bond.setStaking(stakingHelper.address, true);
         await toggleRights(treasury, MANAGING.REWARDMANAGER, bond.address);
         bcv = 100;
-        const minPrice = 1000000000; // toWei(1, OHM_DECIMALS);
+        const minPrice = parseUnits("1", 9); // toWei(1, OHM_DECIMALS);
         const maxPayout = toWei(30, OHM_DECIMALS);
-        const maxDebt = "10000000000000000"; // toWei(100, DAI_DECIMALS);
+        const maxDebt = parseUnits("0.01"); // toWei(100, DAI_DECIMALS);
         initialDebt = "0";
         await bond.initializeBondTerms(
             bcv,
@@ -149,7 +157,7 @@ describe("GOHM bond depository", function () {
         const usdPrice = await bond.bondPriceInUSD();
         const bondPrice = await bond.bondPrice();
         expect(usdPrice).to.eq(ethers.utils.parseUnits(assetPriceUsd.toString()));
-        expect(bondPrice).to.eq(1000000000); // 100 is minimum price
+        expect(bondPrice).to.eq(parseUnits("1", 9));
     });
 
     it("Should return the debtRatio", async function () {
@@ -197,7 +205,7 @@ describe("GOHM bond depository", function () {
     it("Should compute bondPrice", async function () {
         const bondPrice0 = await bond.bondPrice();
         const debtRatio0 = await bond.debtRatio();
-        expect(bondPrice0.toString()).to.eq("1000000000");
+        expect(bondPrice0.toString()).to.eq(parseUnits("1", 9));
         let bondAmount = await bond.bondPriceInUSD();
         await dai.mint(deployer, bondAmount);
         await dai.approve(bond.address, bondAmount);
@@ -223,9 +231,9 @@ describe("GOHM bond depository", function () {
     });
 
     it("Should sell at min price", async function () {
-        await bond.setBondTerms(3, 50_000000000);
-        expect(await bond.bondPrice()).to.eq(50_000000000);
-        const payout = await bond.payoutFor(10000e9);
+        await bond.setBondTerms(3, parseUnits("50", 9));
+        expect(await bond.bondPrice()).to.eq(parseUnits("50", 9));
+        const payout = await bond.payoutFor(parseUnits("10000", 9));
         expect(payout).to.eq(200e9);
     });
 
@@ -335,10 +343,10 @@ describe("GOHM bond depository", function () {
         it("should receive correct amount after deposit (include treasury)", async () => {
             const bondAmount = ethers.utils.parseUnits("10", "ether");
             const value = ethers.utils.parseUnits("10", 9);
-            const payout = await bond.payoutFor(value);
+            const payout = await bond.wOHMPayoutFor(value);
 
-            const depositorBalanceBefore = await ohm.balanceOf(bond.address);
-            const daoBalanceBefore = await ohm.balanceOf(dao);
+            const depositorBalanceBefore = await wohm.balanceOf(bond.address);
+            const daoBalanceBefore = await wohm.balanceOf(dao);
             const treasuryBalanceBefore = await dai.balanceOf(treasury.address);
             const totalDebtBefore = await bond.totalDebt();
 
@@ -346,10 +354,10 @@ describe("GOHM bond depository", function () {
             await dai.approve(bond.address, bondAmount);
             await bond.deposit(bondAmount, await bond.bondPrice(), deployer);
 
-            expect(await ohm.balanceOf(bond.address)).to.equal(
+            expect(await wohm.balanceOf(bond.address)).to.equal(
                 depositorBalanceBefore.add(payout)
             );
-            expect(await ohm.balanceOf(dao)).to.equal(daoBalanceBefore);
+            expect(await wohm.balanceOf(dao)).to.equal(daoBalanceBefore);
             expect(await bond.totalDebt()).to.equal(totalDebtBefore.add(value));
             expect((await bond.bondInfo(deployer)).payout).to.equal(payout);
             expect(await dai.balanceOf(treasury.address)).to.equal(
@@ -427,12 +435,14 @@ describe("GOHM bond depository", function () {
             await dai.approve(bond.address, bondAmount);
             await bond.deposit(bondAmount, await bond.bondPrice(), deployer);
 
-            const balanceBefore = await ohm.balanceOf(deployer);
+            const balanceBefore = await wohm.balanceOf(deployer);
 
             await mine(hre, 3);
             await bond.redeem(deployer, false);
 
-            expect(await ohm.balanceOf(deployer)).to.equal(balanceBefore.add(10e6 * 4));
+            expect(await wohm.balanceOf(deployer)).to.equal(
+                balanceBefore.add(ethers.utils.parseUnits("0.04"))
+            );
         });
 
         it("should not exceed 100% vest amount", async () => {
@@ -441,47 +451,14 @@ describe("GOHM bond depository", function () {
             await dai.approve(bond.address, bondAmount);
             await bond.deposit(bondAmount, await bond.bondPrice(), deployer);
 
-            const balanceBefore = await ohm.balanceOf(deployer);
+            const balanceBefore = await wohm.balanceOf(deployer);
 
             await mine(hre, 1050);
             await bond.redeem(deployer, false);
 
-            expect(await ohm.balanceOf(deployer)).to.equal(
-                balanceBefore.add(ethers.utils.parseUnits("10", 9))
+            expect(await wohm.balanceOf(deployer)).to.equal(
+                balanceBefore.add(ethers.utils.parseUnits("10"))
             );
-        });
-
-        it("should stake using staking helper", async () => {
-            await bond.setStaking(stakingHelper.address, true);
-
-            const bondAmount = ethers.utils.parseUnits("10", "ether");
-            await dai.mint(deployer, bondAmount);
-            await dai.approve(bond.address, bondAmount);
-            await bond.deposit(bondAmount, await bond.bondPrice(), deployer);
-
-            const balanceBefore = await sohm.balanceOf(deployer);
-
-            await mine(hre, 3);
-            await bond.redeem(deployer, true);
-
-            expect(await sohm.balanceOf(deployer)).to.equal(balanceBefore.add(10e6 * 4));
-        });
-
-        it("should stake without staking helper", async () => {
-            await bond.setStaking(staking.address, false);
-
-            const bondAmount = ethers.utils.parseUnits("10", "ether");
-            await dai.mint(deployer, bondAmount);
-            await dai.approve(bond.address, bondAmount);
-            await bond.deposit(bondAmount, await bond.bondPrice(), deployer);
-
-            const balanceBefore = await sohm.balanceOf(deployer);
-
-            await mine(hre, 3);
-            await bond.redeem(deployer, true);
-            await staking.claim(deployer);
-
-            expect(await sohm.balanceOf(deployer)).to.equal(balanceBefore.add(10e6 * 4));
         });
     });
 });

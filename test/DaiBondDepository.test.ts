@@ -27,8 +27,14 @@ import {
     OlympusStaking,
     SOlympus__factory,
     SOlympus,
+    BackingPriceCalculator__factory,
+    BackingPriceCalculator,
+    PriceProvider,
+    PriceProvider__factory,
 } from "../packages/sdk/typechain";
 import { mine } from "./testUtils";
+import { MockContract, smock } from "@defi-wonderland/smock";
+import { parseUnits } from "ethers/lib/utils";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, deploy, getNamedAccounts } = xhre;
@@ -41,6 +47,8 @@ describe("Dai bond depository", function () {
     let staking: OlympusStaking;
     let stakingHelper: StakingHelperV2;
     let deployer: string, dao: string;
+    let backingPriceCalculator: MockContract<BackingPriceCalculator>;
+    let priceProvider: MockContract<PriceProvider>;
     beforeEach(async function () {
         [, user] = await hre.ethers.getSigners();
 
@@ -78,6 +86,21 @@ describe("Dai bond depository", function () {
 
         const ohmDeployment = await get<OlympusERC20Token__factory>("OlympusERC20Token");
         ohm = ohmDeployment.contract;
+
+        const BackingPriceCalculator = await smock.mock<BackingPriceCalculator__factory>(
+            "BackingPriceCalculator"
+        );
+        backingPriceCalculator = await BackingPriceCalculator.deploy();
+
+        const PriceProvider = await smock.mock<PriceProvider__factory>("PriceProvider");
+        priceProvider = await PriceProvider.deploy();
+
+        await daiBond.setPriceProviders(
+            backingPriceCalculator.address,
+            priceProvider.address
+        );
+        backingPriceCalculator.getBackingPrice.returns(ethers.utils.parseUnits("1"));
+        priceProvider.getSafePrice.returns(ethers.utils.parseUnits("1"));
     });
 
     it("should be able to bond", async function () {
@@ -94,7 +117,7 @@ describe("Dai bond depository", function () {
         await daiBond.deposit(bondAmount0, await daiBond.bondPrice(), deployer);
         const bondPrice = await daiBond.bondPrice();
         const bondPriceUSD = await daiBond.bondPriceInUSD();
-        expect(bondPrice.toString()).eq(bondPriceUSD.div(1e9).div(1e7).toString());
+        expect(bondPrice.toString()).eq(bondPriceUSD.div(1e9).toString());
     });
 
     it("Should increase debt when bonding", async function () {
@@ -126,9 +149,16 @@ describe("Dai bond depository", function () {
     });
 
     it("Should sell at min price", async function () {
-        await daiBond.setBondTerms(4, 200);
+        await daiBond.setBondTerms(4, parseUnits("2", 9));
         const payout = await daiBond.payoutFor(10e9);
         expect(payout).to.eq(5e9);
+    });
+
+    it("Should check backing price", async function () {
+        backingPriceCalculator.getBackingPrice.returns(ethers.utils.parseUnits("4")); // set backing price to $4
+        await daiBond.setBondTerms(4, parseUnits("0.5", 9)); // set min price to $0.5
+        const payout = await daiBond.payoutFor(parseUnits("1", 9));
+        expect(payout).to.eq(parseUnits("0.25", 9));
     });
 
     it("Should set bond terms", async function () {
