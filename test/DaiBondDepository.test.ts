@@ -155,9 +155,10 @@ describe("Dai bond depository", function () {
     });
 
     it("Should check backing price", async function () {
-        await daiBond.setBondTerms(4, parseUnits("0.5", 9)); // set min price lower than backing price
+        backingPriceCalculator.getBackingPrice.returns(ethers.utils.parseUnits("4")); // set backing price to $4
+        await daiBond.setBondTerms(4, parseUnits("0.5", 9)); // set min price to $0.5
         const payout = await daiBond.payoutFor(parseUnits("1", 9));
-        expect(payout).to.eq(parseUnits("1", 9));
+        expect(payout).to.eq(parseUnits("0.25", 9));
     });
 
     it("Should set bond terms", async function () {
