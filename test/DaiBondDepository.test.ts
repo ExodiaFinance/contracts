@@ -34,6 +34,7 @@ import {
 } from "../packages/sdk/typechain";
 import { mine } from "./testUtils";
 import { MockContract, smock } from "@defi-wonderland/smock";
+import { parseUnits } from "ethers/lib/utils";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, deploy, getNamedAccounts } = xhre;
@@ -148,9 +149,15 @@ describe("Dai bond depository", function () {
     });
 
     it("Should sell at min price", async function () {
-        await daiBond.setBondTerms(4, 2000000000);
+        await daiBond.setBondTerms(4, parseUnits("2", 9));
         const payout = await daiBond.payoutFor(10e9);
         expect(payout).to.eq(5e9);
+    });
+
+    it("Should check backing price", async function () {
+        await daiBond.setBondTerms(4, parseUnits("0.5", 9)); // set min price lower than backing price
+        const payout = await daiBond.payoutFor(parseUnits("1", 9));
+        expect(payout).to.eq(parseUnits("1", 9));
     });
 
     it("Should set bond terms", async function () {
