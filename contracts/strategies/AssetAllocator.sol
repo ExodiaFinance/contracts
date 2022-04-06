@@ -41,7 +41,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
         }
         _returnYields(_token);
     }
-    
+
     function _returnYields(address _token) internal {
         IERC20 token = IERC20(_token);
         uint256 balance = token.balanceOf(address(this));
