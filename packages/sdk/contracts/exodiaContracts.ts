@@ -90,6 +90,8 @@ import {
     WFTMBondDepository__factory,
     WOHM,
     WOHM__factory,
+    WrappedBondDepository__factory,
+    WrappedBondDepository,
 } from "../typechain";
 
 import { ContractVersions, NetworksContractsRegistry, version } from "./contractRegistry";
@@ -145,6 +147,7 @@ export interface IExodiaContractsRegistry {
     RemoveUniLp: ContractVersions<RemoveUniLp>;
     BPTMNLTPriceOracle: ContractVersions<BPTMNLTPriceOracle>;
     GOHMBondDepository: ContractVersions<GOHMBondDepository>;
+    WrappedBondDepository: ContractVersions<WrappedBondDepository>;
     GOHMPriceOracle: ContractVersions<GOHMPriceOracle>;
     MasterLock: ContractVersions<MasterLock>;
     LiquidLockStaking: ContractVersions<LiquidLockStaking>;
@@ -270,6 +273,9 @@ const mainOperaContract: IExodiaContractsRegistry = {
             GOHMBondDepository__factory.connect,
             "0xcf69Ba319fF0F8e2481dE13d16CE7f74b063533E"
         ),
+    ]),
+    WrappedBondDepository: new ContractVersions<WrappedBondDepository>([
+        version(WrappedBondDepository__factory.connect),
     ]),
     MasterLock: new ContractVersions<MasterLock>([version(MasterLock__factory.connect)]),
     LiquidLockStaking: new ContractVersions<LiquidLockStaking>([
@@ -485,6 +491,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     ]),
     GOHMBondDepository: new ContractVersions<GOHMBondDepository>([
         version(GOHMBondDepository__factory.connect),
+    ]),
+    WrappedBondDepository: new ContractVersions<WrappedBondDepository>([
+        version(WrappedBondDepository__factory.connect),
     ]),
     MasterLock: new ContractVersions<MasterLock>([version(MasterLock__factory.connect)]),
     LiquidLockStaking: new ContractVersions<LiquidLockStaking>([
