@@ -1,0 +1,81 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.externalAddressRegistry = exports.contractFactory = void 0;
+const utils_1 = require("../../utils/utils");
+const ContractFactory_1 = require("./ContractFactory");
+const contractRegistry_1 = require("./contractRegistry");
+const exodiaContracts_1 = require("./exodiaContracts");
+const Network_1 = require("./Network");
+const providers_1 = require("./providers");
+exports.contractFactory = new ContractFactory_1.ContractFactory(
+    providers_1.providers,
+    exodiaContracts_1.contracts
+);
+exports.externalAddressRegistry = new contractRegistry_1.NetworksContractsRegistry();
+const mainnetRegistry = {
+    REVEST_REGISTRY: "0xe0741aE6a8A6D87A68B7b36973d8740704Fd62B9",
+    THE_MONOLITH_POOL: "0xa216AA5d67Ef95DdE66246829c5103C7843d1AAB",
+    THE_MONOLITH_POOLID:
+        "0xa216aa5d67ef95dde66246829c5103c7843d1aab000100000000000000000112",
+    BEETHOVEN_VAULT: "0x20dd72Ed959b6147912C2e529F0a0C651c33c9ce",
+    DAI: "0x8d11ec38a3eb5e956b052f67da8bdc9bef8abf3e",
+    DEI: "0xDE12c7959E1a72bbe8a5f7A1dc8f8EeF9Ab011B3",
+    USDC: "0x04068DA6C83AFCFA0e13ba15A6696662335D5B75",
+    MAI: "0xfb98b335551a418cd0737375a2ea0ded62ea213b",
+    WFTM: "0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83",
+    FTM_USD_FEED: "0xf4766552D15AE4d256Ad41B6cf2933482B0680dc",
+    USDC_USD_FEED: "0x2553f4eeb82d5A26427b8d1106C51499CBa5D99c",
+    DAI_USD_FEED: "0x91d5DEFAFfE2854C7D02F50c80FA1fdc8A721e52",
+    OHM_USD_FEED: "0xb26867105D25bD127862bEA9B952Fa2E89942837",
+    OHM_INDEX_FEED: "0xCeC98f20cCb5c19BB42553D70eBC2515E3B33947",
+    SPIRIT_FTM_GOHM: "0xae9BBa22E87866e48ccAcFf0689AFaa41eB94995",
+    SPOOKY_MAI_USDC: "0x4de9f0ed95de2461b6db1660f908348c42893b1a",
+    SPOOKY_ROUTER: "0xF491e7B69E4244ad4002BC14e878a34207E38c29",
+    EXODDAI_LP: "0xC0c1Dff0Fe24108586e11ec9E20a7CbB405CB769",
+    GUIQIN_QI_POOLID:
+        "0x2c580c6f08044d6dfaca8976a66c8fadddbd9901000000000000000000000038",
+    FIDELIO_DUETTO: "0xcdE5a11a4ACB4eE4c805352Cec57E236bdBC3837",
+    FBEETS_BAR: "0xfcef8a994209d6916EB2C86cDD2AFD60Aa6F54b1",
+    BEETS_MASTERCHEF: "0x8166994d9ebBe5829EC86Bd81258149B87faCfd3",
+    BEETS: "0xf24bcf4d1e507740041c9cfd2dddb29585adce1e",
+    YEARN_DAI_VAULT: "0x637ec617c86d24e421328e6caea1d92114892439",
+    GOHM: "0x91fa20244Fb509e8289CA630E5db3E9166233FDc",
+    DEMETER_DEGREE: "0xf7bf0f161d3240488807ffa23894452246049916",
+    EXODFTM_HLP: "0x7c3c2d70de2f9fc87b55e47e579bf55fea0016e9",
+    SOLIDEX_LP_DEPOSITOR: "0x26E1A0d851CF28E697870e1b7F053B605C8b060F",
+};
+exports.externalAddressRegistry.addNetwork(
+    Network_1.Network.OPERA_MAIN_NET,
+    mainnetRegistry
+);
+exports.externalAddressRegistry.addNetwork(Network_1.Network.OPERA_TEST_NET, {
+    REVEST_REGISTRY: "0xE84103FA5eB600Bf2320a4b38Cd03E63861F0832",
+    THE_MONOLITH_POOL: utils_1.ZERO_ADDRESS,
+    THE_MONOLITH_POOLID: utils_1.ZERO_ADDRESS,
+    BEETHOVEN_VAULT: utils_1.ZERO_ADDRESS,
+    DAI: "0x8d11ec38a3eb5e956b052f67da8bdc9bef8abf3e",
+    DEI: utils_1.ZERO_ADDRESS,
+    USDC: utils_1.ZERO_ADDRESS,
+    MAI: utils_1.ZERO_ADDRESS,
+    WFTM: "0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83",
+    FTM_USD_FEED: "0xe04676B9A9A2973BCb0D1478b5E1E9098BBB7f3D",
+    USDC_USD_FEED: "0x9BB8A6dcD83E36726Cc230a97F1AF8a84ae5F128",
+    DAI_USD_FEED: "0x9BB8A6dcD83E36726Cc230a97F1AF8a84ae5F128",
+    OHM_USD_FEED: utils_1.ZERO_ADDRESS,
+    OHM_INDEX_FEED: utils_1.ZERO_ADDRESS,
+    SPIRIT_FTM_GOHM: utils_1.ZERO_ADDRESS,
+    SPOOKY_MAI_USDC: utils_1.ZERO_ADDRESS,
+    SPOOKY_ROUTER: utils_1.ZERO_ADDRESS,
+    EXODDAI_LP: utils_1.ZERO_ADDRESS,
+    GUIQIN_QI_POOLID: utils_1.ZERO_ADDRESS,
+    FIDELIO_DUETTO: utils_1.ZERO_ADDRESS,
+    FBEETS_BAR: utils_1.ZERO_ADDRESS,
+    BEETS_MASTERCHEF: utils_1.ZERO_ADDRESS,
+    BEETS: utils_1.ZERO_ADDRESS,
+    YEARN_DAI_VAULT: utils_1.ZERO_ADDRESS,
+    GOHM: utils_1.ZERO_ADDRESS,
+    DEMETER_DEGREE: utils_1.ZERO_ADDRESS,
+    EXODFTM_HLP: utils_1.ZERO_ADDRESS,
+    SOLIDEX_LP_DEPOSITOR: utils_1.ZERO_ADDRESS,
+});
+exports.externalAddressRegistry.addNetwork(Network_1.Network.HARDHAT, mainnetRegistry);

@@ -16,7 +16,6 @@ interface DelegateRegistry {
 }
 
 abstract contract BaseStrategy is IStrategy, ExodiaAccessControlInitializable, Pausable {
-
     address public allocator;
 
     function _initialize(address _allocator, address _roles) internal onlyInitializing {
@@ -30,7 +29,7 @@ abstract contract BaseStrategy is IStrategy, ExodiaAccessControlInitializable, P
     }
 
     function _deploy(address _token) internal virtual;
-    
+
     function withdrawTo(
         address _token,
         uint256 _amount,
@@ -44,39 +43,53 @@ abstract contract BaseStrategy is IStrategy, ExodiaAccessControlInitializable, P
         uint256 _amount,
         address _to
     ) internal virtual returns (uint256);
-    
+
     function emergencyWithdrawTo(address _token, address _to)
-    external
-    override
-    onlyAssetAllocator
-    returns (uint256) {
+        external
+        override
+        onlyAssetAllocator
+        returns (uint256)
+    {
         return _emergencyWithdrawTo(_token, _to);
     }
 
-    function _emergencyWithdrawTo(address _token, address _to) internal virtual returns (uint256);
+    function _emergencyWithdrawTo(address _token, address _to)
+        internal
+        virtual
+        returns (uint256);
 
-    function collectProfits(address _token, address _to) external override onlyAssetAllocator returns (int256)
+    function collectProfits(address _token, address _to)
+        external
+        override
+        onlyAssetAllocator
+        returns (int256)
     {
         return _collectProfits(_token, _to);
     }
-    
-    function _collectProfits(address _token, address _to) internal virtual returns (int256);
+
+    function _collectProfits(address _token, address _to)
+        internal
+        virtual
+        returns (int256);
 
     function collectRewards(address _token, address _to)
-    external
-    override
-    onlyAssetAllocator
-    returns (address[] memory)
+        external
+        override
+        onlyAssetAllocator
+        returns (address[] memory)
     {
         return _collectRewards(_token, _to);
     }
 
-    function _collectRewards(address _token, address _to) internal virtual returns (address[] memory);
-    
+    function _collectRewards(address _token, address _to)
+        internal
+        virtual
+        returns (address[] memory);
+
     function exit(address _token) external onlyStrategist {
         _exit(_token);
     }
-    
+
     function _exit(address _token) internal virtual;
 
     function extractToDAO(address _token) external onlyStrategist {
@@ -85,19 +98,23 @@ abstract contract BaseStrategy is IStrategy, ExodiaAccessControlInitializable, P
         token.transfer(roles.DAO_ADDRESS(), balance);
     }
 
-    function setDelegate(address _registry, address _delegate, bytes32 _id) external onlyArchitect {
+    function setDelegate(
+        address _registry,
+        address _delegate,
+        bytes32 _id
+    ) external onlyArchitect {
         DelegateRegistry(_registry).setDelegate(_id, _delegate);
     }
-    
+
     modifier onlyAssetAllocator() {
         require(msg.sender == allocator, "Strategy: caller is not allocator");
         _;
     }
-    
+
     function pause() external onlyStrategist {
         _pause();
     }
-    
+
     function unPause() external onlyStrategist {
         _unpause();
     }
