@@ -137,7 +137,7 @@ contract OlympusBondDepository is BondDepository {
         uint256 amount,
         uint256 value,
         uint256 payout
-    ) internal override {
+    ) internal override returns (uint256) {
         // profits are calculated
         uint256 fee = (payout * _extraTerms.fee) / 10000;
         uint256 profit = value - payout - fee;
@@ -155,30 +155,8 @@ contract OlympusBondDepository is BondDepository {
             // fee is transferred to dao
             IERC20(OHM).safeTransfer(DAO, fee);
         }
-    }
 
-    /**
-     *  @notice calculate current bond premium
-     *  @return price uint
-     */
-    function bondPrice() public view override returns (uint256 price) {
-        price = (_terms.controlVariable * debtRatio() + 1000000000) / 1e7;
-        if (price < _terms.minimumPrice) {
-            price = _terms.minimumPrice;
-        }
-    }
-
-    /**
-     *  @notice calculate current bond price and remove floor if above
-     *  @return price uint
-     */
-    function _bondPrice() internal override returns (uint256 price) {
-        price = (_terms.controlVariable * debtRatio() + 1_000_000_000) / 1e7;
-        if (price < _terms.minimumPrice) {
-            price = _terms.minimumPrice;
-        } else if (_terms.minimumPrice != 0) {
-            _terms.minimumPrice = 0;
-        }
+        return payout;
     }
 
     /**
@@ -189,9 +167,9 @@ contract OlympusBondDepository is BondDepository {
         if (isLiquidityBond) {
             price =
                 (bondPrice() * IBondCalculator(bondCalculator).markdown(principle)) /
-                100;
+                1e9;
         } else {
-            price = (bondPrice() * 10**IERC20Metadata(principle).decimals()) / 100;
+            price = (bondPrice() * 10**IERC20Metadata(principle).decimals()) / 1e9;
         }
     }
 

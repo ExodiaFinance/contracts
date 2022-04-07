@@ -6,8 +6,12 @@ import "../../ExodiaAccessControlInitializable.sol";
 import "../../interfaces/IERC20.sol";
 import "../../treasury/ITreasuryTracker.sol";
 import "./IPriceProvider.sol";
+import "./IBackingPriceCalculator.sol";
 
-contract BackingPriceCalculator is ExodiaAccessControlInitializable {
+contract BackingPriceCalculator is
+    ExodiaAccessControlInitializable,
+    IBackingPriceCalculator
+{
     event SetTreasuryTracker(address treasuryTracker);
     event SetPriceProvider(address priceProvider);
     event SetEXODAddress(address exod);
@@ -64,7 +68,7 @@ contract BackingPriceCalculator is ExodiaAccessControlInitializable {
         emit SetEXODAddress(_exod);
     }
 
-    function fetchBackingPrice() external returns (uint256) {
+    function fetchBackingPrice() external override returns (uint256) {
         (address[] memory tokens, uint256[] memory balances) = treasuryTracker.balances();
 
         uint256 treasuryFTMBalance; // 18 decimals
@@ -81,7 +85,7 @@ contract BackingPriceCalculator is ExodiaAccessControlInitializable {
         return backingPrice;
     }
 
-    function getBackingPrice() external view returns (uint256) {
+    function getBackingPrice() external view override returns (uint256) {
         return backingPrice;
     }
 }
