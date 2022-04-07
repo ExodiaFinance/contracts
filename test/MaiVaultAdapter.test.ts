@@ -1,7 +1,7 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
-import { parseUnits } from "ethers/lib/utils";
+import { parseEther, parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
 import { EXODIA_ROLES_DID } from "../deploy/38_deployExodiaRoles";
 
@@ -16,6 +16,7 @@ import {
     MaiVaultAdapter__factory,
     MasterchefBalanceAdapter,
     MasterchefBalanceAdapter__factory,
+    YearnIbToken__factory,
 } from "../packages/sdk/typechain";
 
 import "./chai-setup";
@@ -69,13 +70,24 @@ describe("MasterchefBalanceAdapter", function () {
     });
 
     it("Should return FTMs in yvFTM vault", async function () {
-        const VAULT_ID = 0;
+        const VAULT_ID = 2027;
         const yvFTMBal = await yvFTMVault.vaultCollateral(VAULT_ID);
         expect(yvFTMBal).to.not.eq(0);
+        const yvFTM = YearnIbToken__factory.connect(
+            await yvFTMVault.collateral(),
+            deployer
+        );
+        const pricePerShare = await yvFTM.pricePerShare();
         await balanceAdapter.addVault(WFTM, 1, VAULT_ID);
         const vaultHolder = await yvFTMVault.ownerOf(VAULT_ID);
         const ftmVaultBal = await balanceAdapter.balance(vaultHolder, WFTM);
-        expect(ftmVaultBal).to.be.gt(yvFTMBal);
+        const expectedBal = yvFTMBal
+            .mul(pricePerShare)
+            .div(parseUnits("1", await yvFTM.decimals()));
+        expect(ftmVaultBal).to.be.closeTo(
+            expectedBal,
+            expectedBal.mul(1).div(100) as any
+        );
         expect(await balanceAdapter.balance(deployer.address, WFTM)).to.eq(0);
     });
 

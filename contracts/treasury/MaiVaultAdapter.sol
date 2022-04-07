@@ -96,7 +96,7 @@ contract MaiVaultAdapter is ExodiaAccessControlInitializable, IBalanceAdapter {
                     total +=
                         (vault.vaultCollateral(vaults.yids[i]) *
                             YearnIbToken(vault.collateral()).pricePerShare()) /
-                        YearnIbToken(vault.collateral()).decimals();
+                            10**YearnIbToken(vault.collateral()).decimals();
                 }
             }
         }
@@ -107,7 +107,7 @@ contract MaiVaultAdapter is ExodiaAccessControlInitializable, IBalanceAdapter {
                     total +=
                         (vault.vaultCollateral(vaults.bids[i]) *
                             BeefyIbToken(vault.collateral()).getPricePerFullShare()) /
-                        BeefyIbToken(vault.collateral()).decimals();
+                        10**BeefyIbToken(vault.collateral()).decimals();
                 }
             }
         }
