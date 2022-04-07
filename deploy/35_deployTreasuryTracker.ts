@@ -1,13 +1,12 @@
-import { ContractTransaction } from "ethers";
-import { externalAddressRegistry } from "../packages/sdk/contracts";
-import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
 import { IExtendedDeployFunction } from "../packages/HardhatRegistryExtension/ExtendedDeployFunction";
 import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
-import { exec, ifNotProd, log } from "../packages/utils/utils";
+import { externalAddressRegistry } from "../packages/sdk/contracts";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
 import {
     OlympusTreasury__factory,
     TreasuryTracker__factory,
 } from "../packages/sdk/typechain";
+import { exec, ifNotProd, log } from "../packages/utils/utils";
 
 import { TREASURY_DID } from "./03_deployTreasury";
 

@@ -4,9 +4,9 @@ import { BigNumber } from "ethers";
 import { parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
 
+import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
 import { externalAddressRegistry } from "../packages/sdk/contracts";
 import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
-import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
 import {
     MasterchefBalanceAdapter,
     MasterchefBalanceAdapter__factory,
