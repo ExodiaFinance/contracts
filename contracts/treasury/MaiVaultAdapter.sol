@@ -96,7 +96,7 @@ contract MaiVaultAdapter is ExodiaAccessControlInitializable, IBalanceAdapter {
                     total +=
                         (vault.vaultCollateral(vaults.yids[i]) *
                             YearnIbToken(vault.collateral()).pricePerShare()) /
-                            10**YearnIbToken(vault.collateral()).decimals();
+                        10**YearnIbToken(vault.collateral()).decimals();
                 }
             }
         }
