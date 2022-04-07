@@ -9,7 +9,7 @@ import "../BaseStrategy.sol";
 
 interface IReaperVault is IERC20 {
     function deposit(uint256 _amount) external;
-    
+
     function depositAll() external;
 
     function withdraw(uint256 _maxshares) external;
@@ -19,12 +19,11 @@ interface IReaperVault is IERC20 {
     function getPricePerFullShare() external view returns (uint256);
 
     function decimals() external view returns (uint8);
-    
+
     function token() external view returns (address);
 }
 
-contract ReaperVaultStrategy is BaseStrategy{
-
+contract ReaperVaultStrategy is BaseStrategy {
     mapping(address => address) public tokenVault;
     mapping(address => uint256) public override deposited;
 
@@ -61,17 +60,20 @@ contract ReaperVaultStrategy is BaseStrategy{
 
     function _amountToShares(address _vault, uint256 _amount) internal returns (uint256) {
         IReaperVault vault = IReaperVault(_vault);
-        return _amount * 10**vault.decimals() / vault.getPricePerFullShare();
+        return (_amount * 10**vault.decimals()) / vault.getPricePerFullShare();
     }
-    
-    function _amountToDeposits(address _token, uint256 _amount) internal returns(uint256) {
-        return _amount * 10**IERC20Metadata(_token).decimals() / balance(_token);
+
+    function _amountToDeposits(address _token, uint256 _amount)
+        internal
+        returns (uint256)
+    {
+        return (_amount * 10**IERC20Metadata(_token).decimals()) / balance(_token);
     }
 
     function _emergencyWithdrawTo(address _token, address _to)
-    internal
-    override
-    returns (uint256)
+        internal
+        override
+        returns (uint256)
     {
         IReaperVault(tokenVault[_token]).withdrawAll();
         uint256 withdrawnAmount = IERC20(_token).balanceOf(address(this));
@@ -80,7 +82,10 @@ contract ReaperVaultStrategy is BaseStrategy{
         return withdrawnAmount;
     }
 
-    function _collectProfits(address _token, address _to) internal override returns (int256)
+    function _collectProfits(address _token, address _to)
+        internal
+        override
+        returns (int256)
     {
         uint256 balance = balance(_token);
         uint256 deposit = deposited[_token];
@@ -91,9 +96,9 @@ contract ReaperVaultStrategy is BaseStrategy{
     }
 
     function _collectRewards(address _token, address _to)
-    internal
-    override
-    returns (address[] memory)
+        internal
+        override
+        returns (address[] memory)
     {
         // This farm compounds rewards into the base token
         return new address[](0);
@@ -103,7 +108,8 @@ contract ReaperVaultStrategy is BaseStrategy{
         address vaultAddress = tokenVault[_token];
         IReaperVault vault = IReaperVault(vaultAddress);
         uint256 vaultBPS = 10**vault.decimals();
-        uint deployed = vault.balanceOf(address(this)) * vault.getPricePerFullShare() / vaultBPS;
+        uint256 deployed = (vault.balanceOf(address(this)) *
+            vault.getPricePerFullShare()) / vaultBPS;
         return deployed + IERC20(_token).balanceOf(address(this));
     }
 
@@ -111,11 +117,10 @@ contract ReaperVaultStrategy is BaseStrategy{
         deposited[_token] = 0;
         IReaperVault(tokenVault[_token]).withdrawAll();
     }
-    
+
     function _sendTo(address _token, address _to) internal {
         IERC20 token = IERC20(_token);
         uint256 balance = token.balanceOf(address(this));
         token.transfer(_to, balance);
     }
-    
 }

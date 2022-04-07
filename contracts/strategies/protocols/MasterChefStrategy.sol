@@ -163,16 +163,14 @@ contract MasterChefStrategy is BaseStrategy {
         IMasterchef(masterChef).emergencyWithdraw(pid, address(this));
         deposited[_token] = 0;
     }
-    
+
     function _exit(address _token) internal override {
         uint256 pid = _getPid(_token);
-        uint256 balanceOf = IMasterchef(masterChef)
-            .userInfo(pid, address(this))
-            .amount;
+        uint256 balanceOf = IMasterchef(masterChef).userInfo(pid, address(this)).amount;
         IMasterchef(masterChef).withdrawAndHarvest(pid, balanceOf, address(this));
         deposited[_token] = 0;
     }
-    
+
     function _sendTo(address _token, address _to) internal {
         uint256 balance = IERC20(_token).balanceOf(address(this));
         IERC20(_token).transfer(_to, balance);
