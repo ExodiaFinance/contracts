@@ -1,31 +1,32 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "./BondDepository.sol";
 import "../librairies/FixedPoint256x256.sol";
 import "../interfaces/IOlympusTreasury.sol";
+import "../interfaces/IWOHM.sol";
 import "../oracles/interfaces/AggregatorV3Interface.sol";
 
-contract wETHOlympusBondDepository is BondDepository {
+contract WrappedBondDepository is BondDepository {
     using FixedPoint256x256 for *;
     using SafeERC20 for IERC20;
 
     AggregatorV3Interface internal priceFeed;
-
-    /* ======== INITIALIZATION ======== */
+    address public wOHM;
 
     constructor(
         address _OHM,
         address _principle,
         address _treasury,
         address _DAO,
-        address _feed
+        address _feed,
+        address _wOHM
     ) BondDepository(_OHM, _principle, _treasury, _DAO) {
         priceFeed = AggregatorV3Interface(_feed);
+        wOHM = _wOHM;
     }
 
     /**
@@ -109,11 +110,15 @@ contract wETHOlympusBondDepository is BondDepository {
             (10**IERC20Metadata(principle).decimals());
     }
 
+    function updateFeed(address _feed) public onlyPolicy {
+        priceFeed = AggregatorV3Interface(_feed);
+    }
+
     function _deposit(
         uint256 amount,
         uint256,
         uint256 payout
-    ) internal virtual override returns (uint256) {
+    ) internal override returns (uint256) {
         /**
             asset carries risk and is not minted against
             asset transfered to treasury and rewards minted as payout
@@ -121,7 +126,27 @@ contract wETHOlympusBondDepository is BondDepository {
         IERC20(principle).safeTransferFrom(msg.sender, treasury, amount);
         IOlympusTreasury(treasury).mintRewards(address(this), payout);
 
-        return payout;
+        IERC20(OHM).approve(wOHM, payout);
+        return IWOHM(wOHM).wrapFromOHM(payout);
+    }
+
+    function stakeOrSend(
+        address _recipient,
+        bool,
+        uint256 _amount
+    ) internal override returns (uint256) {
+        IERC20(wOHM).transfer(_recipient, _amount); // send payout
+        return _amount;
+    }
+
+    /**
+     *  @notice calculate interest due for new bond
+     *  @param _value uint
+     *  @return uint
+     */
+    function wOHMPayoutFor(uint256 _value) public view returns (uint256) {
+        uint256 payout = payoutFor(_value);
+        return IWOHM(wOHM).wOHMValue(payout);
     }
 
     /**

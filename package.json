@@ -12,7 +12,6 @@
     "scripts": {
         "compile": "hardhat compile",
         "compile:package": "tsc --project tsconfig.npm.json",
-        "prepublish": "npm run compile:package",
         "test": "cross-env NODE_ENV=test hardhat test",
         "deploy-mainnet": "cross-env NODE_ENV=prod hardhat deploy --network ftm_mainnet",
         "deploy": "hardhat deploy",
