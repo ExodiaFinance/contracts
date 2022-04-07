@@ -36,6 +36,8 @@ import {
     LiquidLockStaking__factory,
     LLSRewardHandler,
     LLSRewardHandler__factory,
+    MaiVaultAdapter,
+    MaiVaultAdapter__factory,
     MasterchefBalanceAdapter,
     MasterchefBalanceAdapter__factory,
     MasterLock,
@@ -105,6 +107,7 @@ export interface IExternalContractsRegistry {
     USDC: string;
     MAI: string;
     WFTM: string;
+    WETH: string;
     FTM_USD_FEED: string;
     USDC_USD_FEED: string;
     DAI_USD_FEED: string;
@@ -173,6 +176,7 @@ export interface IExodiaContractsRegistry {
     PNLTracker: ContractVersions<PNLTracker>;
     StrategyWhitelist: ContractVersions<StrategyWhitelist>;
     SolidlyTWAPOracle: ContractVersions<SolidlyTWAPOracle>;
+    MaiVaultAdapter: ContractVersions<MaiVaultAdapter>;
 }
 
 export const contracts = new NetworksContractsRegistry<IExodiaContractsRegistry>();
@@ -403,6 +407,9 @@ const mainOperaContract: IExodiaContractsRegistry = {
     SolidlyTWAPOracle: new ContractVersions<SolidlyTWAPOracle>([
         version(SolidlyTWAPOracle__factory.connect),
     ]),
+    MaiVaultAdapter: new ContractVersions<MaiVaultAdapter>([
+        version(MaiVaultAdapter__factory.connect),
+    ]),
 };
 
 const testNetOperaContract: IExodiaContractsRegistry = {
@@ -565,6 +572,9 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     ]),
     SolidlyTWAPOracle: new ContractVersions<SolidlyTWAPOracle>([
         version(SolidlyTWAPOracle__factory.connect),
+    ]),
+    MaiVaultAdapter: new ContractVersions<MaiVaultAdapter>([
+        version(MaiVaultAdapter__factory.connect),
     ]),
 };
 

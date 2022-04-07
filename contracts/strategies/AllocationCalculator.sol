@@ -15,7 +15,7 @@ struct Strategies {
 contract AllocationCalculator is ExodiaAccessControlInitializable, IAllocationCalculator {
     mapping(address => Strategies) tokenStrategies;
     StrategyWhitelist public whitelist;
-    
+
     function initialize(address _whitelist, address _roles) external initializer {
         ExodiaAccessControlInitializable.initializeAccessControl(_roles);
         whitelist = StrategyWhitelist(_whitelist);
@@ -26,8 +26,15 @@ contract AllocationCalculator is ExodiaAccessControlInitializable, IAllocationCa
         address[] memory _strategies,
         uint256[] memory _allocations
     ) external onlyStrategist {
-        for(uint i = 0; i < _strategies.length; i++) {
-            require(whitelist.isWhitelisted(_strategies[i]), string(abi.encodePacked("AllocCalc: one or more strategies are not whitelisted")));
+        for (uint256 i = 0; i < _strategies.length; i++) {
+            require(
+                whitelist.isWhitelisted(_strategies[i]),
+                string(
+                    abi.encodePacked(
+                        "AllocCalc: one or more strategies are not whitelisted"
+                    )
+                )
+            );
         }
         Strategies storage allocations = tokenStrategies[_token];
         allocations.addresses = _strategies;
@@ -37,7 +44,7 @@ contract AllocationCalculator is ExodiaAccessControlInitializable, IAllocationCa
     function setWhitelist(address _whitelist) external onlyArchitect {
         whitelist = StrategyWhitelist(_whitelist);
     }
-    
+
     function calculateAllocation(address _token, uint256 _manageable)
         external
         view
