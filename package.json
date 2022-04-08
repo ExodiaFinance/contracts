@@ -5,9 +5,9 @@
     "main": "dist/sdk/index.js",
     "types": "dist/sdk/index.d.ts",
     "husky": {
-      "hooks": {
-        "pre-commit": "npm run format:fix"
-      }
+        "hooks": {
+            "pre-commit": "npm run format:fix"
+        }
     },
     "scripts": {
         "compile": "hardhat compile",
@@ -87,6 +87,7 @@
         "@uniswap/lib": "^4.0.1-alpha",
         "@uniswap/v2-core": "^1.0.1",
         "hardhat-abi-exporter": "^2.3.1",
+        "hardhat-shorthand": "^1.0.0",
         "husky": "4.3.8"
     }
 }

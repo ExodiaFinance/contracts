@@ -17,7 +17,7 @@ import {
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNamedAccounts, deploy, getNetwork } = xhre;
 
-describe("GOHMSpotPriceOracle", function () {
+describe("fBEETSPriceOracle", function () {
     let oracle: FBEETSPriceOracle;
     let deployer: string;
     beforeEach(async function () {
@@ -30,20 +30,17 @@ describe("GOHMSpotPriceOracle", function () {
         oracle = oracleDeployment.contract;
     });
 
-    it("should return fbeets price", async function () {
-        const { FTM_USD_FEED, FIDELIO_DUETTO, FBEETS_BAR } =
-            externalAddressRegistry.forNetwork(await getNetwork());
-        const { answer: fBeetsUsd } = await oracle.latestRoundData();
+    it("Should return fBEETS price", async function () {
+        const { FIDELIO_DUETTO, FBEETS_BAR } = externalAddressRegistry.forNetwork(
+            await getNetwork()
+        );
+        const fBeetsFtm = await oracle.getSafePrice(FBEETS_BAR);
         const signer = await xhre.ethers.getSigner(deployer);
         const balOracle = IBalV2PriceOracle__factory.connect(FIDELIO_DUETTO, signer);
         const balOracleAnswer = await balOracle.getTimeWeightedAverage([
-            { variable: 1, secs: 120, ago: 0 },
+            { variable: 1, secs: 120, ago: 10 },
         ]);
         const bptFtm = balOracleAnswer[0];
-        const ftmOracle = AggregatorV3Interface__factory.connect(FTM_USD_FEED, signer);
-        const ftmOracleAnswer = await ftmOracle.latestRoundData();
-        const ftmUsd = ftmOracleAnswer.answer;
-        const bptUsd = bptFtm.mul(ftmUsd).div(1e9).div(1e9);
         const fBeetsSupply = await IERC20__factory.connect(
             FBEETS_BAR,
             signer
@@ -51,8 +48,8 @@ describe("GOHMSpotPriceOracle", function () {
         const lockedBpt = await IERC20__factory.connect(FIDELIO_DUETTO, signer).balanceOf(
             FBEETS_BAR
         );
-        const expectedFBeetsUsd = bptUsd.mul(lockedBpt).div(fBeetsSupply);
-        expect(fBeetsUsd).to.be.gt(bptUsd);
-        expect(fBeetsUsd).to.closeTo(expectedFBeetsUsd, 1e3);
+        const expectedFBeetsFtm = bptFtm.mul(lockedBpt).div(fBeetsSupply);
+        expect(fBeetsFtm).to.be.gt(bptFtm);
+        expect(fBeetsFtm).to.closeTo(expectedFBeetsFtm, 1e3);
     });
 });

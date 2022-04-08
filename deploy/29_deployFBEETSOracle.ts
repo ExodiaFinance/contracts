@@ -11,11 +11,10 @@ const deployfBeetsBonds: IExtendedDeployFunction<IExodiaContractsRegistry> = asy
     deploy,
     getNetwork,
 }: IExtendedHRE<IExodiaContractsRegistry>) => {
-    const { FIDELIO_DUETTO, FTM_USD_FEED, FBEETS_BAR } =
-        externalAddressRegistry.forNetwork(await getNetwork());
+    const { FBEETS_BAR } = externalAddressRegistry.forNetwork(await getNetwork());
     const { contract: bond } = await deploy<FBEETSPriceOracle__factory>(
         "fBEETSPriceOracle",
-        [FIDELIO_DUETTO, FTM_USD_FEED, FBEETS_BAR]
+        [FBEETS_BAR]
     );
     log("fBeets oracle", bond.address);
 };
