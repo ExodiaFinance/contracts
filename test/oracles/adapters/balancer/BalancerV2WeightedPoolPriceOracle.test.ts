@@ -111,12 +111,13 @@ describe("Balancer V2 Weighted Pool Price Oracle", function () {
                 addressRegistry.BEETHOVEN_VAULT,
                 priceProvider.address
             );
+
+            await oracle.connect(architect).setRatioDiffLimit(1, 100); // ratio diff limit: 1%
         });
 
         describe("Balancer USDC FTM", function () {
             let bpt: IBPoolV2;
             let vault: IBVaultV2;
-            let usdc: ERC20, wftm: ERC20;
 
             beforeEach(async function () {
                 priceProvider.getSafePrice
@@ -167,6 +168,14 @@ describe("Balancer V2 Weighted Pool Price Oracle", function () {
 
             it("Should be able to update safe price", async function () {
                 await oracle.updateSafePrice(BALANCER_USDC_FTM);
+            });
+
+            it("Should check ratio of the pool", async function () {
+                await oracle.connect(architect).setRatioDiffLimit(1, 1000); // ratio diff limit: 0.1%
+
+                await expect(oracle.getSafePrice(BALANCER_USDC_FTM)).to.revertedWith(
+                    "INVALID RATIO"
+                );
             });
         });
     });

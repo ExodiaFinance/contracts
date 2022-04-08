@@ -128,7 +128,7 @@ contract BalancerV2WeightedPoolPriceOracle is
                 ? _getTokenSafePrice(address(tokens[i]))
                 : _getTokenCurrentPrice(address(tokens[i]));
 
-            if (i > 1) {
+            if (i >= 1) {
                 _checkRatio(
                     (balances[i - 1] * 10**18) / weights[i - 1],
                     (balances[i] * 10**18) / weights[i],
