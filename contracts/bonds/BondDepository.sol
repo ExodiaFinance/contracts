@@ -10,8 +10,8 @@ import "../librairies/FixedPoint256x256.sol";
 import "../interfaces/IOlympusTreasury.sol";
 import "../interfaces/IStaking.sol";
 import "../interfaces/IStakingHelper.sol";
-import "../oracles/v2/IBackingPriceCalculator.sol";
-import "../oracles/v2/IPriceProvider.sol";
+import "../oracles/IBackingPriceCalculator.sol";
+import "../oracles/IPriceProvider.sol";
 
 abstract contract BondDepository is Policy {
     using FixedPoint256x256 for *;

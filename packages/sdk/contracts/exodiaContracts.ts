@@ -8,10 +8,10 @@ import {
     BackingPriceCalculator,
     BackingPriceCalculator__factory,
     BalancerV2PriceOracle,
+    BalancerV2WeightedPoolPriceOracle,
+    BalancerV2WeightedPoolPriceOracle__factory,
     BPTMNLTBondDepository,
     BPTMNLTBondDepository__factory,
-    BPTMNLTPriceOracle,
-    BPTPriceOracleV2__factory,
     ChainlinkPriceOracle,
     ChainlinkPriceOracle__factory,
     DAI,
@@ -60,8 +60,6 @@ import {
     PriceProvider__factory,
     RedeemHelper,
     RedeemHelper__factory,
-    RemoveUniLp,
-    RemoveUniLp__factory,
     SolidexBalanceAdapter,
     SolidexBalanceAdapter__factory,
     SolidlyTWAPOracle,
@@ -90,10 +88,8 @@ import {
     WFTMBondDepository__factory,
     WOHM,
     WOHM__factory,
-    WrappedBondDepository__factory,
     WrappedBondDepository,
-    BalancerV2WeightedPoolPriceOracle,
-    BalancerV2WeightedPoolPriceOracle__factory,
+    WrappedBondDepository__factory,
 } from "../typechain";
 
 import { ContractVersions, NetworksContractsRegistry, version } from "./contractRegistry";
@@ -146,8 +142,6 @@ export interface IExodiaContractsRegistry {
     RedeemHelper: ContractVersions<RedeemHelper>;
     DAIBondDepository: ContractVersions<OlympusBondDepository>;
     wOHM: ContractVersions<WOHM>;
-    RemoveUniLp: ContractVersions<RemoveUniLp>;
-    BPTMNLTPriceOracle: ContractVersions<BPTMNLTPriceOracle>;
     GOHMBondDepository: ContractVersions<GOHMBondDepository>;
     WrappedBondDepository: ContractVersions<WrappedBondDepository>;
     GOHMPriceOracle: ContractVersions<GOHMPriceOracle>;
@@ -259,12 +253,6 @@ const mainOperaContract: IExodiaContractsRegistry = {
     wOHM: new ContractVersions<WOHM>([
         version(WOHM__factory.connect, "0xe992C5Abddb05d86095B18a158251834D616f0D1"),
     ]),
-    RemoveUniLp: new ContractVersions<RemoveUniLp>([
-        version(
-            RemoveUniLp__factory.connect,
-            "0xde88F5f28771B84512d3B355a1C9065B3586dA1c"
-        ),
-    ]),
     GOHMPriceOracle: new ContractVersions<GOHMPriceOracle>([
         version(
             GOHMPriceOracle__factory.connect,
@@ -286,12 +274,6 @@ const mainOperaContract: IExodiaContractsRegistry = {
     ]),
     LLSRewardHandler: new ContractVersions<LLSRewardHandler>([
         version(LLSRewardHandler__factory.connect),
-    ]),
-    BPTMNLTPriceOracle: new ContractVersions<BPTMNLTPriceOracle>([
-        version(
-            BPTPriceOracleV2__factory.connect,
-            "0x982a5A71C411f2eF748C91DC97D60C07E1016d4e"
-        ),
     ]),
     BPTMNLTBondDepository: new ContractVersions<BPTMNLTBondDepository>([
         version(
@@ -490,9 +472,6 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     wOHM: new ContractVersions<WOHM>([
         version(WOHM__factory.connect, "0x133f6D7d457377bfA6a43933127498fA40ef11CF"),
     ]),
-    RemoveUniLp: new ContractVersions<RemoveUniLp>([
-        version(RemoveUniLp__factory.connect),
-    ]),
     GOHMPriceOracle: new ContractVersions<GOHMPriceOracle>([
         version(GOHMPriceOracle__factory.connect),
     ]),
@@ -508,9 +487,6 @@ const testNetOperaContract: IExodiaContractsRegistry = {
     ]),
     LLSRewardHandler: new ContractVersions<LLSRewardHandler>([
         version(LLSRewardHandler__factory.connect),
-    ]),
-    BPTMNLTPriceOracle: new ContractVersions<BPTMNLTPriceOracle>([
-        version(BPTPriceOracleV2__factory.connect),
     ]),
     BPTMNLTBondDepository: new ContractVersions<BPTMNLTBondDepository>([
         version(BPTMNLTBondDepository__factory.connect),

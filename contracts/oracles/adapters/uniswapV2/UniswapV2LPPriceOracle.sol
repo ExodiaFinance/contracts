@@ -2,15 +2,13 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
-import "../../../../ExodiaAccessControlInitializable.sol";
 
+import "../../../ExodiaAccessControlInitializable.sol";
 import "../IPriceOracle.sol";
-import "../../../../interfaces/IERC20.sol";
 
 contract UniswapV2LPPriceOracle is IPriceOracle, ExodiaAccessControlInitializable {
-    using SafeMath for uint256;
 
     uint256 public constant VERSION = 2022030701;
     address public constant FTM = address(0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83);
@@ -143,8 +141,8 @@ contract UniswapV2LPPriceOracle is IPriceOracle, ExodiaAccessControlInitializabl
             "UNSUPPORTED"
         );
 
-        IERC20 token0 = IERC20(IUniswapV2Pair(_lpToken).token0());
-        IERC20 token1 = IERC20(IUniswapV2Pair(_lpToken).token1());
+        ERC20 token0 = ERC20(IUniswapV2Pair(_lpToken).token0());
+        ERC20 token1 = ERC20(IUniswapV2Pair(_lpToken).token1());
         uint256 price0 = isSafePrice
             ? _getTokenSafePrice(IPriceOracle(setting.token0Oracle), token0)
             : _getTokenCurrentPrice(IPriceOracle(setting.token0Oracle), token0);

@@ -6,9 +6,8 @@ import { BigNumber } from "ethers";
 import { parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
 
-import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
 import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
-import { ZERO_ADDRESS } from "../packages/utils/utils";
+import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
 import {
     AssetAllocator__factory,
     MasterchefBalanceAdapter,
@@ -18,6 +17,7 @@ import {
     TreasuryTracker,
     TreasuryTracker__factory,
 } from "../packages/sdk/typechain";
+import { ZERO_ADDRESS } from "../packages/utils/utils";
 
 import "./chai-setup";
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
@@ -160,10 +160,7 @@ describe("TreasuryBalance", function () {
         const assetAllocatorFactory = await smock.mock<AssetAllocator__factory>(
             "AssetAllocator"
         );
-        const assetAllocator = await assetAllocatorFactory.deploy(
-            treasuryAddress,
-            ZERO_ADDRESS
-        );
+        const assetAllocator = await assetAllocatorFactory.deploy();
         const allocatedBalance = parseUnits("10", "ether");
         assetAllocator.allocatedBalance.returns(allocatedBalance);
         await treasuryTracker.setAllocator(assetAllocator.address);

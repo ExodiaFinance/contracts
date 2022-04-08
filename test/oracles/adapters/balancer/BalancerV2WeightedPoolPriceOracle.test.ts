@@ -1,18 +1,17 @@
+import { MockContract, smock } from "@defi-wonderland/smock";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { expect } from "chai";
-import hre, { ethers } from "hardhat";
-import { MockContract, smock } from "@defi-wonderland/smock";
 import { parseUnits } from "ethers/lib/utils";
+import hre, { ethers } from "hardhat";
 
 import { EXODIA_ROLES_DID } from "../../../../deploy/38_deployExodiaRoles";
 import { BALANCER_V2_WEIGHTED_POOL_PRICE_ORACLE_DID } from "../../../../deploy/51_deployBalancerV2WeightedPoolPriceOracle";
+import { IExtendedHRE } from "../../../../packages/HardhatRegistryExtension/ExtendedHRE";
 import { externalAddressRegistry } from "../../../../packages/sdk/contracts";
 import {
     IExodiaContractsRegistry,
     IExternalContractsRegistry,
 } from "../../../../packages/sdk/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../../../packages/HardhatRegistryExtension/ExtendedHRE";
-import { ZERO_ADDRESS } from "../../../../packages/utils/utils";
 import {
     BalancerV2WeightedPoolPriceOracle,
     BalancerV2WeightedPoolPriceOracle__factory,
@@ -25,6 +24,7 @@ import {
     PriceProvider,
     PriceProvider__factory,
 } from "../../../../packages/sdk/typechain";
+import { ZERO_ADDRESS } from "../../../../packages/utils/utils";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNetwork } = xhre;
@@ -37,7 +37,9 @@ const WFTM_ADDRESS = "0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83";
 
 describe("Balancer V2 Weighted Pool Price Oracle", function () {
     let addressRegistry: IExternalContractsRegistry;
-    let owner: SignerWithAddress, user: SignerWithAddress, architect: SignerWithAddress;
+    let owner: SignerWithAddress;
+    let user: SignerWithAddress;
+    let architect: SignerWithAddress;
     let oracle: BalancerV2WeightedPoolPriceOracle;
     let priceProvider: MockContract<PriceProvider>;
     let roles: ExodiaRoles;
@@ -46,8 +48,10 @@ describe("Balancer V2 Weighted Pool Price Oracle", function () {
         [owner, user, architect] = await xhre.ethers.getSigners();
         addressRegistry = externalAddressRegistry.forNetwork(await getNetwork());
 
-        const PriceProvider = await smock.mock<PriceProvider__factory>("PriceProvider");
-        priceProvider = await PriceProvider.deploy();
+        const priceProviderFactory = await smock.mock<PriceProvider__factory>(
+            "PriceProvider"
+        );
+        priceProvider = await priceProviderFactory.deploy();
     });
 
     beforeEach(async function () {
@@ -147,7 +151,7 @@ describe("Balancer V2 Weighted Pool Price Oracle", function () {
                     .mul(price)
                     .div(parseUnits("1"));
 
-                expect(tvl).to.closeTo(tvlFromBPT, parseUnits("1")); // 1 FTM difference
+                expect(tvl).to.closeTo(tvlFromBPT, parseUnits("1") as any); // 1 FTM difference
             });
 
             it("Should be able to get safe price", async function () {
@@ -163,7 +167,7 @@ describe("Balancer V2 Weighted Pool Price Oracle", function () {
                     .mul(price)
                     .div(parseUnits("1"));
 
-                expect(tvl).to.closeTo(tvlFromBPT, parseUnits("1")); // 1 FTM difference
+                expect(tvl).to.closeTo(tvlFromBPT, parseUnits("1") as any); // 1 FTM difference
             });
 
             it("Should be able to update safe price", async function () {

@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "../../ExodiaAccessControlInitializable.sol";
-
-import "../../interfaces/IERC20.sol";
-import "../../treasury/ITreasuryTracker.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "../ExodiaAccessControlInitializable.sol";
+import "../treasury/ITreasuryTracker.sol";
 import "./IPriceProvider.sol";
 import "./IBackingPriceCalculator.sol";
 
@@ -75,11 +74,11 @@ contract BackingPriceCalculator is
         for (uint256 i = 0; i < tokens.length; i++) {
             treasuryFTMBalance +=
                 (balances[i] * priceProvider.getSafePrice(tokens[i])) /
-                (10**IERC20(tokens[i]).decimals());
+                (10**ERC20(tokens[i]).decimals());
         }
 
         backingPrice =
-            (treasuryFTMBalance * (10**IERC20(exod).decimals())) /
+            (treasuryFTMBalance * (10**ERC20(exod).decimals())) /
             IERC20(exod).totalSupply();
 
         return backingPrice;

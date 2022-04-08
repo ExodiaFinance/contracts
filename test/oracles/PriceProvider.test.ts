@@ -1,26 +1,27 @@
-import hre from "hardhat";
-import { expect } from "chai";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
+import { expect } from "chai";
+import hre from "hardhat";
 
 import { EXODIA_ROLES_DID } from "../../deploy/38_deployExodiaRoles";
 import { BALANCER_V2_PRICE_ORACLE_DID } from "../../deploy/42_deployBalancerV2PriceOracle";
 import { PRICE_PROVIDER_DID } from "../../deploy/44_deployPriceProvider";
+import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
 import { externalAddressRegistry } from "../../packages/sdk/contracts";
 import {
     IExodiaContractsRegistry,
     IExternalContractsRegistry,
 } from "../../packages/sdk/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
-import { ZERO_ADDRESS } from "../../packages/utils/utils";
 import {
     BalancerV2PriceOracle,
-    ChainlinkPriceOracle__factory,
+    BalancerV2PriceOracle__factory,
     ChainlinkPriceOracle,
+    ChainlinkPriceOracle__factory,
     ExodiaRoles,
     ExodiaRoles__factory,
     PriceProvider,
     PriceProvider__factory,
 } from "../../packages/sdk/typechain";
+import { ZERO_ADDRESS } from "../../packages/utils/utils";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNetwork } = xhre;
@@ -31,14 +32,16 @@ const WSSCR_DAI_POOL = "0x43d668c6F709C9D7f05C9404707A10d968B0348c";
 
 describe("PriceProvider", function () {
     let addressRegistry: IExternalContractsRegistry;
-    let owner: SignerWithAddress, user: SignerWithAddress, architect: SignerWithAddress;
-    let balancerOracle: BalancerV2PriceOracle,
-        chainlinkOracle: ChainlinkPriceOracle,
-        priceProvider: PriceProvider;
+    let deployer: SignerWithAddress;
+    let user: SignerWithAddress;
+    let architect: SignerWithAddress;
+    let balancerOracle: BalancerV2PriceOracle;
+    let chainlinkOracle: ChainlinkPriceOracle;
+    let priceProvider: PriceProvider;
     let roles: ExodiaRoles;
 
     before(async function () {
-        [owner, user, architect] = await xhre.ethers.getSigners();
+        [deployer, user, architect] = await xhre.ethers.getSigners();
         addressRegistry = externalAddressRegistry.forNetwork(await getNetwork());
     });
 
@@ -48,7 +51,7 @@ describe("PriceProvider", function () {
             PRICE_PROVIDER_DID,
             BALANCER_V2_PRICE_ORACLE_DID,
         ]);
-        const oracleDeployment = await get<ChainlinkPriceOracle__factory>(
+        const oracleDeployment = await get<BalancerV2PriceOracle__factory>(
             "BalancerV2PriceOracle"
         );
         balancerOracle = await oracleDeployment.contract;
@@ -61,10 +64,17 @@ describe("PriceProvider", function () {
 
         await roles.addArchitect(architect.address);
 
-        const ChainlinkPriceOracle = await xhre.ethers.getContractFactory(
-            "ChainlinkPriceOracle"
+        const chainLinkOracleDeployment = await deployments.deploy(
+            "ChainlinkPriceOracle",
+            {
+                args: [],
+                from: deployer.address,
+            }
         );
-        chainlinkOracle = <ChainlinkPriceOracle>await ChainlinkPriceOracle.deploy();
+        chainlinkOracle = ChainlinkPriceOracle__factory.connect(
+            chainLinkOracleDeployment.address,
+            deployer
+        );
         await chainlinkOracle.initialize(roles.address, addressRegistry.FTM_USD_FEED);
 
         // chainlink: DAI/FTM

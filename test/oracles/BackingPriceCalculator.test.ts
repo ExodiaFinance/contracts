@@ -1,17 +1,17 @@
+import { MockContract, smock } from "@defi-wonderland/smock";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
-import axios from "axios";
 import { expect } from "chai";
+import { parseUnits } from "ethers/lib/utils";
 import hre from "hardhat";
 
-import { EXODIA_ROLES_DID } from "../../../deploy/38_deployExodiaRoles";
-import { BACKING_PRICE_CALCULATOR_DID } from "../../../deploy/47_deployBackingPriceCalculator";
-import { externalAddressRegistry } from "../../../packages/sdk/contracts";
+import { EXODIA_ROLES_DID } from "../../deploy/38_deployExodiaRoles";
+import { BACKING_PRICE_CALCULATOR_DID } from "../../deploy/47_deployBackingPriceCalculator";
+import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
+import { externalAddressRegistry } from "../../packages/sdk/contracts";
 import {
     IExodiaContractsRegistry,
     IExternalContractsRegistry,
-} from "../../../packages/sdk/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../../packages/HardhatRegistryExtension/ExtendedHRE";
-import { ZERO_ADDRESS } from "../../../packages/utils/utils";
+} from "../../packages/sdk/contracts/exodiaContracts";
 import {
     BackingPriceCalculator,
     BackingPriceCalculator__factory,
@@ -23,35 +23,38 @@ import {
     PriceProvider__factory,
     TreasuryTracker,
     TreasuryTracker__factory,
-} from "../../../packages/sdk/typechain";
-import { MockContract, smock } from "@defi-wonderland/smock";
-import { parseUnits } from "ethers/lib/utils";
+} from "../../packages/sdk/typechain";
+import { ZERO_ADDRESS } from "../../packages/utils/utils";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNetwork } = xhre;
 
 describe("Backing Price Calculator", function () {
     let addressRegistry: IExternalContractsRegistry;
-    let owner: SignerWithAddress, user: SignerWithAddress, architect: SignerWithAddress;
+    let owner: SignerWithAddress;
+    let user: SignerWithAddress;
+    let architect: SignerWithAddress;
     let backingPriceCalculator: BackingPriceCalculator;
     let treasuryTracker: MockContract<TreasuryTracker>;
     let priceProvider: MockContract<PriceProvider>;
-    let exod: MockContract<IERC20>,
-        mockFTM: MockContract<IERC20>,
-        mockUSDC: MockContract<IERC20>;
+    let exod: MockContract<IERC20>;
+    let mockFTM: MockContract<IERC20>;
+    let mockUSDC: MockContract<IERC20>;
     let roles: ExodiaRoles;
 
     before(async function () {
         [owner, user, architect] = await xhre.ethers.getSigners();
         addressRegistry = externalAddressRegistry.forNetwork(await getNetwork());
 
-        const TreasuryTracker = await smock.mock<TreasuryTracker__factory>(
+        const treasuryTrackerFactory = await smock.mock<TreasuryTracker__factory>(
             "TreasuryTracker"
         );
-        treasuryTracker = await TreasuryTracker.deploy();
+        treasuryTracker = await treasuryTrackerFactory.deploy();
 
-        const PriceProvider = await smock.mock<PriceProvider__factory>("PriceProvider");
-        priceProvider = await PriceProvider.deploy();
+        const priceProviderFactory = await smock.mock<PriceProvider__factory>(
+            "PriceProvider"
+        );
+        priceProvider = await priceProviderFactory.deploy();
 
         const MockToken = await smock.mock<MockToken__factory>("MockToken");
         exod = await MockToken.deploy(18);

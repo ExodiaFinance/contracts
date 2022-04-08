@@ -2,21 +2,19 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "../../../../ExodiaAccessControlInitializable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "../../../ExodiaAccessControlInitializable.sol";
 
 import "../IPriceOracle.sol";
 import "../../IPriceProvider.sol";
-import "../../../interfaces/IBalV2PriceOracle.sol";
-import "../../../../interfaces/IBPoolV2.sol";
-import "../../../../interfaces/IBVaultV2.sol";
-import "../../../../interfaces/IERC20.sol";
+import "../../interfaces/IBalV2PriceOracle.sol";
+import "../../../interfaces/IBPoolV2.sol";
+import "../../../interfaces/IBVaultV2.sol";
 
 contract BalancerV2WeightedPoolPriceOracle is
     IPriceOracle,
     ExodiaAccessControlInitializable
 {
-    using SafeMath for uint256;
 
     uint256 public constant VERSION = 2022040401;
     address public constant FTM = address(0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83);
@@ -123,7 +121,7 @@ contract BalancerV2WeightedPoolPriceOracle is
         uint256[] memory prices = new uint256[](tokens.length);
         // update balances in 18 decimals
         for (uint256 i = 0; i < tokens.length; i++) {
-            balances[i] = (balances[i] * (10**18)) / (10**IERC20(tokens[i]).decimals());
+            balances[i] = (balances[i] * (10**18)) / (10**ERC20(address(tokens[i])).decimals());
             prices[i] = isSafePrice
                 ? _getTokenSafePrice(address(tokens[i]))
                 : _getTokenCurrentPrice(address(tokens[i]));

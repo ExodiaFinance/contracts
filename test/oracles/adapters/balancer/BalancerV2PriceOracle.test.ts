@@ -5,19 +5,19 @@ import hre from "hardhat";
 
 import { EXODIA_ROLES_DID } from "../../../../deploy/38_deployExodiaRoles";
 import { BALANCER_V2_PRICE_ORACLE_DID } from "../../../../deploy/42_deployBalancerV2PriceOracle";
+import { IExtendedHRE } from "../../../../packages/HardhatRegistryExtension/ExtendedHRE";
 import { externalAddressRegistry } from "../../../../packages/sdk/contracts";
 import {
     IExodiaContractsRegistry,
     IExternalContractsRegistry,
 } from "../../../../packages/sdk/contracts/exodiaContracts";
-import { IExtendedHRE } from "../../../../packages/HardhatRegistryExtension/ExtendedHRE";
-import { ZERO_ADDRESS } from "../../../../packages/utils/utils";
 import {
     BalancerV2PriceOracle,
-    ChainlinkPriceOracle__factory,
+    BalancerV2PriceOracle__factory,
     ExodiaRoles,
     ExodiaRoles__factory,
 } from "../../../../packages/sdk/typechain";
+import { ZERO_ADDRESS } from "../../../../packages/utils/utils";
 
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNetwork } = xhre;
@@ -30,7 +30,9 @@ const WSSCR_DAI_POOL = "0x43d668c6F709C9D7f05C9404707A10d968B0348c";
 
 describe("Balancer V2 Price Oracle", function () {
     let addressRegistry: IExternalContractsRegistry;
-    let owner: SignerWithAddress, user: SignerWithAddress, architect: SignerWithAddress;
+    let owner: SignerWithAddress;
+    let user: SignerWithAddress;
+    let architect: SignerWithAddress;
     let oracle: BalancerV2PriceOracle;
     let roles: ExodiaRoles;
 
@@ -41,7 +43,7 @@ describe("Balancer V2 Price Oracle", function () {
 
     beforeEach(async function () {
         await deployments.fixture([EXODIA_ROLES_DID, BALANCER_V2_PRICE_ORACLE_DID]);
-        const oracleDeployment = await get<ChainlinkPriceOracle__factory>(
+        const oracleDeployment = await get<BalancerV2PriceOracle__factory>(
             "BalancerV2PriceOracle"
         );
         oracle = await oracleDeployment.contract;

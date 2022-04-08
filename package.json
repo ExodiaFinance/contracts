@@ -19,8 +19,7 @@
         "lint:fix": "prettier --write 'scripts/**/*.{js,ts}' 'test/**/*.{js,ts}' 'tasks/**/*.{js,ts}' && tslint --fix --config tslint.json --project tsconfig.json && solhint contracts/**/*.sol",
         "lint": "tslint --config tslint.json --project tsconfig.json && solhint contracts/**/*.sol",
         "format": "prettier --check \"**/*.{ts,js,sol}\"",
-        "format:fix": "prettier --write \"**/*.{ts,js,sol}\"",
-        "typechain:spookyswap": "packages/sdk/typechain --target ethers-v5 --out-dir typechain/spookyswap './node_modules/@hovoh/spookyswap-core/build/*.json'"
+        "format:fix": "prettier --write \"**/*.{ts,js,sol}\""
     },
     "files": [
         "dist/src/",
@@ -81,7 +80,6 @@
         "@chainlink/contracts": "^0.4.0",
         "@defi-wonderland/smock": "^2.0.7",
         "@ethersproject/providers": "^5.5.1",
-        "@hovoh/spookyswap-core": "^1.1.0",
         "@nomiclabs/hardhat-waffle": "^2.0.1",
         "@openzeppelin/contracts": "^4.4.1",
         "@uniswap/lib": "^4.0.1-alpha",

@@ -5,10 +5,8 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import "./interfaces/IBalV2PriceOracle.sol";
-import "./v2/adapters/IPriceOracle.sol";
-
-import "hardhat/console.sol";
+import "../../interfaces/IBalV2PriceOracle.sol";
+import "../IPriceOracle.sol";
 
 interface IFBeets {
     function vestingToken() external view returns (address);
