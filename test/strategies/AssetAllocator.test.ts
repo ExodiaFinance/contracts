@@ -38,6 +38,8 @@ import {
     OlympusERC20Token__factory,
     OlympusTreasury,
     OlympusTreasury__factory,
+    StrategyWhitelist,
+    StrategyWhitelist__factory,
 } from "../../packages/sdk/typechain";
 import "../chai-setup";
 import { increaseTime } from "../testUtils";
@@ -54,6 +56,7 @@ describe("AssetAllocator", function () {
     let dai: DAI;
     let arfv: AllocatedRiskFreeValue;
     let assetAllocator: AssetAllocator;
+    let strategyWhitelist: StrategyWhitelist;
     let mockStrategyFactory: MockContractFactory<MockStrategy__factory>;
     let strategy: MockContract<MockStrategy>;
     let mockWinningStrategyFactory: MockContractFactory<MockWinningStrategy__factory>;
@@ -86,12 +89,17 @@ describe("AssetAllocator", function () {
             "AssetAllocator"
         );
         assetAllocator = assetAllocateDeployment.contract;
+        const strategyWhitelistDeployment = await get<StrategyWhitelist__factory>(
+            "StrategyWhitelist"
+        );
+        strategyWhitelist = strategyWhitelistDeployment.contract;
         const { contract: roles } = await get<ExodiaRoles__factory>("ExodiaRoles");
         await roles.addArchitect(deployer);
         await roles.addStrategist(deployer);
         await assetAllocator.addMachine(deployer);
         mockStrategyFactory = await smock.mock<MockStrategy__factory>("MockStrategy");
         strategy = await mockStrategyFactory.deploy();
+        await strategyWhitelist.add(strategy.address);
         mockTokenFactory = await smock.mock<MockToken__factory>("MockToken");
         mockWinningStrategyFactory = await smock.mock<MockWinningStrategy__factory>(
             "MockWinningStrategy"
@@ -307,6 +315,7 @@ describe("AssetAllocator", function () {
 
             const setUpLoosingContrat = deployments.createFixture(async () => {
                 loosingStrat = await mockLoosingStrategyFactory.deploy(returnRate);
+                await strategyWhitelist.add(loosingStrat.address);
                 await allocationCalculator.setAllocation(
                     dai.address,
                     [loosingStrat.address],
@@ -651,6 +660,8 @@ describe("AssetAllocator", function () {
                 const setupRegularRegular = deployments.createFixture(async (hh) => {
                     strat0 = await mockStrategyFactory.deploy();
                     strat1 = await mockStrategyFactory.deploy();
+                    await strategyWhitelist.add(strat1.address);
+                    await strategyWhitelist.add(strat0.address);
                     await allocationCalculator.setAllocation(
                         dai.address,
                         [strat0.address, strat1.address],
@@ -672,6 +683,8 @@ describe("AssetAllocator", function () {
                 const setupRegularLoosing = deployments.createFixture(async (hh) => {
                     strat0 = await mockStrategyFactory.deploy();
                     strat1 = await mockLoosingStrategyFactory.deploy(80);
+                    await strategyWhitelist.add(strat1.address);
+                    await strategyWhitelist.add(strat0.address);
                     await allocationCalculator.setAllocation(
                         dai.address,
                         [strat0.address, strat1.address],
@@ -699,6 +712,8 @@ describe("AssetAllocator", function () {
                 const setUpLoosingLoosing = deployments.createFixture(async (hh) => {
                     strat0 = await mockLoosingStrategyFactory.deploy(returnRate0);
                     strat1 = await mockLoosingStrategyFactory.deploy(returnRate1);
+                    await strategyWhitelist.add(strat1.address);
+                    await strategyWhitelist.add(strat0.address);
                     await allocationCalculator.setAllocation(
                         dai.address,
                         [strat0.address, strat1.address],
@@ -729,6 +744,8 @@ describe("AssetAllocator", function () {
                         returnRate0
                     );
                     strat1 = await mockStrategyFactory.deploy();
+                    await strategyWhitelist.add(strat1.address);
+                    await strategyWhitelist.add(strat0.address);
                     await allocationCalculator.setAllocation(
                         dai.address,
                         [strat0.address, strat1.address],
@@ -765,6 +782,8 @@ describe("AssetAllocator", function () {
                         dai.address,
                         returnRate1
                     );
+                    await strategyWhitelist.add(strat1.address);
+                    await strategyWhitelist.add(strat0.address);
                     await allocationCalculator.setAllocation(
                         dai.address,
                         [strat0.address, strat1.address],
@@ -798,6 +817,8 @@ describe("AssetAllocator", function () {
                         dai.address,
                         returnRate1
                     );
+                    await strategyWhitelist.add(strat1.address);
+                    await strategyWhitelist.add(strat0.address);
                     await allocationCalculator.setAllocation(
                         dai.address,
                         [strat0.address, strat1.address],
@@ -828,6 +849,8 @@ describe("AssetAllocator", function () {
                         assetAllocator.address,
                         returnRate1
                     );
+                    await strategyWhitelist.add(strat1.address);
+                    await strategyWhitelist.add(strat0.address);
                     await allocationCalculator.setAllocation(
                         dai.address,
                         [strat0.address, strat1.address],
@@ -861,6 +884,8 @@ describe("AssetAllocator", function () {
                         assetAllocator.address,
                         returnRate1
                     );
+                    await strategyWhitelist.add(strat1.address);
+                    await strategyWhitelist.add(strat0.address);
                     await allocationCalculator.setAllocation(
                         dai.address,
                         [strat0.address, strat1.address],
@@ -895,6 +920,8 @@ describe("AssetAllocator", function () {
                         assetAllocator.address,
                         returnRate1
                     );
+                    await strategyWhitelist.add(strat1.address);
+                    await strategyWhitelist.add(strat0.address);
                     await allocationCalculator.setAllocation(
                         dai.address,
                         [strat0.address, strat1.address],
@@ -926,6 +953,8 @@ describe("AssetAllocator", function () {
                         assetAllocator.address,
                         returnRate1
                     );
+                    await strategyWhitelist.add(strat1.address);
+                    await strategyWhitelist.add(strat0.address);
                     await allocationCalculator.setAllocation(
                         dai.address,
                         [strat0.address, strat1.address],
@@ -971,6 +1000,8 @@ describe("AssetAllocator", function () {
             strat1 = await rewardStratFactory.deploy(tok1.address, tok2.address);
             await strat0.setRewards(amount0, amount1);
             await strat1.setRewards(amount2, amount3);
+            await strategyWhitelist.add(strat1.address);
+            await strategyWhitelist.add(strat0.address);
             await allocationCalculator.setAllocation(
                 dai.address,
                 [strat0.address, strat1.address],
@@ -1007,6 +1038,8 @@ describe("AssetAllocator", function () {
             strat1 = await profitsStratFactory.deploy();
             await strat0.setProfits(amount0);
             await strat1.setProfits(amount1);
+            await strategyWhitelist.add(strat1.address);
+            await strategyWhitelist.add(strat0.address);
             await allocationCalculator.setAllocation(
                 tok0.address,
                 [strat0.address, strat1.address],
@@ -1024,7 +1057,7 @@ describe("AssetAllocator", function () {
         });
     });
 
-    describe.only("Allocate", function () {
+    describe("Allocate", function () {
         const returns0 = 80;
         const returns1 = 50;
 
@@ -1048,6 +1081,8 @@ describe("AssetAllocator", function () {
             strat0.balance.returns(parseEther("1")); // sets non-sense value for balance, cause it's not supposed ot be used
             strat1 = await loosingStratFactory.deploy();
             strat0.balance.returns(parseEther("10000"));
+            await strategyWhitelist.add(strat1.address);
+            await strategyWhitelist.add(strat0.address);
             await allocationCalculator.setAllocation(
                 tok0.address,
                 [strat0.address, strat1.address],

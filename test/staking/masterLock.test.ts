@@ -34,7 +34,7 @@ const parseUnits = ethers.utils.parseUnits;
 const CALLER_NOT_OWNER = "Ownable: caller is not the owner";
 const CALLER_NOT_UNLOCKER = "ML: Caller is not an unlocker";
 
-describe("Master Lock", function () {
+describe.skip("Master Lock", function () {
     let deployer: string;
     let external: string;
     let signer: SignerWithAddress;

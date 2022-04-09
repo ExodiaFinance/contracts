@@ -30,26 +30,28 @@ const WSSCR_DAI_POOL = "0x43d668c6F709C9D7f05C9404707A10d968B0348c";
 
 describe("Balancer V2 Price Oracle", function () {
     let addressRegistry: IExternalContractsRegistry;
-    let owner: SignerWithAddress;
+    let deployer: SignerWithAddress;
     let user: SignerWithAddress;
     let architect: SignerWithAddress;
     let oracle: BalancerV2PriceOracle;
     let roles: ExodiaRoles;
 
     before(async function () {
-        [owner, user, architect] = await xhre.ethers.getSigners();
+        [deployer, user, architect] = await xhre.ethers.getSigners();
         addressRegistry = externalAddressRegistry.forNetwork(await getNetwork());
     });
 
     beforeEach(async function () {
         await deployments.fixture([EXODIA_ROLES_DID, BALANCER_V2_PRICE_ORACLE_DID]);
-        const oracleDeployment = await get<BalancerV2PriceOracle__factory>(
-            "BalancerV2PriceOracle"
+        const oracleDeployment = await deployments.deploy("BalancerV2PriceOracle", {
+            from: deployer.address,
+        });
+        oracle = BalancerV2PriceOracle__factory.connect(
+            oracleDeployment.address,
+            deployer
         );
-        oracle = await oracleDeployment.contract;
         const rolesDeployment = await get<ExodiaRoles__factory>("ExodiaRoles");
         roles = await rolesDeployment.contract;
-
         await roles.addArchitect(architect.address);
     });
 

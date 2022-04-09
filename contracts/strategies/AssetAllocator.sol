@@ -123,7 +123,11 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
                 allocated += _balances[i] - amount;
                 expectedToWithdraw += amount;
                 _collectRewardsForStrategy(_token, _strategies[i]);
-                IStrategy(_strategies[i]).withdrawTo(_token, amount, msg.sender);
+                actuallyWithdrawn += IStrategy(_strategies[i]).withdrawTo(
+                    _token,
+                    amount,
+                    msg.sender
+                );
             }
         }
         return (actuallyWithdrawn, expectedToWithdraw, allocated);

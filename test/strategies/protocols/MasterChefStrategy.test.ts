@@ -35,6 +35,8 @@ import {
     OlympusERC20Token__factory,
     OlympusTreasury,
     OlympusTreasury__factory,
+    StrategyWhitelist,
+    StrategyWhitelist__factory,
 } from "../../../packages/sdk/typechain";
 import "../../chai-setup";
 import { PAUSABLE_PAUSED } from "../../errors";
@@ -99,6 +101,10 @@ describe("MasterChefStrategy", function () {
             from: deployer,
             args: [],
         });
+        const { contract: whitelist } = await get<StrategyWhitelist__factory>(
+            "StrategyWhitelist"
+        );
+        await whitelist.add(deployment.address);
         const deployerSigner = await xhre.ethers.getSigner(deployer);
         masterChefStrat = MasterChefStrategy__factory.connect(
             deployment.address,

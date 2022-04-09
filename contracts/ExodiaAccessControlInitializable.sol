@@ -6,7 +6,7 @@ import "./librairies/Initializable.sol";
 import "./ExodiaRoles.sol";
 
 /**
- * The ExodiaAccessControlInitializable let's contract implement role based
+ * The ExodiaAccessControlInitializable let contract implement role based
  * permission using the ExodiaRoles contract.
  * It adds the Machine role on a per contract basis.
  * The Machine role is intended to be used if the contract can only be called from another

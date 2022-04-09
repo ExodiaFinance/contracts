@@ -9,6 +9,7 @@ import hre from "hardhat";
 import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
 import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
 import {
+    AllocationCalculator__factory,
     AssetAllocator__factory,
     MasterchefBalanceAdapter,
     MasterchefBalanceAdapter__factory,
@@ -23,7 +24,7 @@ import "./chai-setup";
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, deploy, getNamedAccounts, getUnnamedAccounts } = xhre;
 
-describe("TreasuryBalance", function () {
+describe("Treasury Tracker", function () {
     let ercFactory: MockContractFactory<MockToken__factory>;
     let rfvToken: MockContract<MockToken>;
     let varToken: MockContract<MockToken>;
@@ -158,7 +159,7 @@ describe("TreasuryBalance", function () {
 
     it("Should return the total balance with asset allocator", async function () {
         const assetAllocatorFactory = await smock.mock<AssetAllocator__factory>(
-            "AssetAllocator"
+            "MockAssetAllocator"
         );
         const assetAllocator = await assetAllocatorFactory.deploy();
         const allocatedBalance = parseUnits("10", "ether");

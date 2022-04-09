@@ -11,7 +11,6 @@ import "../../../interfaces/IBPoolV2.sol";
 import "../../../interfaces/IBVaultV2.sol";
 
 contract BalancerV2PriceOracle is IPriceOracle, ExodiaAccessControlInitializable {
-
     uint256 public constant VERSION = 2022022201;
     address public constant FTM = address(0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83);
 
@@ -193,8 +192,12 @@ contract BalancerV2PriceOracle is IPriceOracle, ExodiaAccessControlInitializable
         // price = balance1 / balance0 * weight0 / weight1 * usdPrice1
 
         // in denominated token price decimals
-        uint256 assetValue = (balance1 * pairTokenPrice) / (10**ERC20(address(token1)).decimals());
+        uint256 assetValue = (balance1 * pairTokenPrice) /
+            (10**ERC20(address(token1)).decimals());
         // in denominated token price decimals
-        return (assetValue * weight0 * (10**ERC20(address(token0)).decimals())) / weight1 / balance0;
+        return
+            (assetValue * weight0 * (10**ERC20(address(token0)).decimals())) /
+            weight1 /
+            balance0;
     }
 }

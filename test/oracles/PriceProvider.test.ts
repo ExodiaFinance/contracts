@@ -4,6 +4,7 @@ import hre from "hardhat";
 
 import { EXODIA_ROLES_DID } from "../../deploy/38_deployExodiaRoles";
 import { BALANCER_V2_PRICE_ORACLE_DID } from "../../deploy/42_deployBalancerV2PriceOracle";
+import { CHAINLINK_PRICE_ORACLE_DID } from "../../deploy/43_deployChainlinkPriceOracle";
 import { PRICE_PROVIDER_DID } from "../../deploy/44_deployPriceProvider";
 import { IExtendedHRE } from "../../packages/HardhatRegistryExtension/ExtendedHRE";
 import { externalAddressRegistry } from "../../packages/sdk/contracts";
@@ -50,43 +51,32 @@ describe("PriceProvider", function () {
             EXODIA_ROLES_DID,
             PRICE_PROVIDER_DID,
             BALANCER_V2_PRICE_ORACLE_DID,
+            CHAINLINK_PRICE_ORACLE_DID,
         ]);
+        const rolesDeployment = await get<ExodiaRoles__factory>("ExodiaRoles");
+        roles = await rolesDeployment.contract;
+        await roles.addArchitect(architect.address);
+
         const oracleDeployment = await get<BalancerV2PriceOracle__factory>(
             "BalancerV2PriceOracle"
         );
         balancerOracle = await oracleDeployment.contract;
-        const priceProviderDeployment = await get<PriceProvider__factory>(
-            "PriceProvider"
+        await balancerOracle.initialize(
+            roles.address,
+            addressRegistry.BEETHOVEN_VAULT,
+            MINIMUM_UPDATE_INTERVAL
         );
-        priceProvider = await priceProviderDeployment.contract;
-        const rolesDeployment = await get<ExodiaRoles__factory>("ExodiaRoles");
-        roles = await rolesDeployment.contract;
 
-        await roles.addArchitect(architect.address);
-
-        const chainLinkOracleDeployment = await deployments.deploy(
-            "ChainlinkPriceOracle",
-            {
-                args: [],
-                from: deployer.address,
-            }
+        const chainLinkOracleDeployment = await get<ChainlinkPriceOracle__factory>(
+            "ChainlinkPriceOracle"
         );
-        chainlinkOracle = ChainlinkPriceOracle__factory.connect(
-            chainLinkOracleDeployment.address,
-            deployer
-        );
+        chainlinkOracle = chainLinkOracleDeployment.contract;
         await chainlinkOracle.initialize(roles.address, addressRegistry.FTM_USD_FEED);
 
         // chainlink: DAI/FTM
         await chainlinkOracle
             .connect(architect)
             .setPriceFeed(addressRegistry.DAI, addressRegistry.DAI_USD_FEED);
-
-        await balancerOracle.initialize(
-            roles.address,
-            addressRegistry.BEETHOVEN_VAULT,
-            MINIMUM_UPDATE_INTERVAL
-        );
         // balancer: BEETS/FTM
         await balancerOracle
             .connect(architect)
@@ -99,6 +89,14 @@ describe("PriceProvider", function () {
         await balancerOracle
             .connect(architect)
             .setTokenOracle(WSSCR, WSSCR_DAI_POOL, chainlinkOracle.address);
+
+        const priceProviderDeployment = await deployments.deploy("PriceProvider", {
+            from: deployer.address,
+        });
+        priceProvider = PriceProvider__factory.connect(
+            priceProviderDeployment.address,
+            deployer
+        );
     });
 
     it("Can't initialize with zero addresses", async function () {

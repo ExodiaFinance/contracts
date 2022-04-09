@@ -65,7 +65,7 @@ describe("Absorption bond", function () {
             from: deployer.address,
         });
         bond = AbsorptionBond__factory.connect(deployment.address, deployer);
-        expect(bond.deposit(100, deployer.address)).to.be.revertedWith(
+        await expect(bond.deposit(100, deployer.address)).to.be.revertedWith(
             "Bond is not open yet"
         );
     });
@@ -227,13 +227,13 @@ describe("Absorption bond", function () {
 
             it("Should not let user bonds", async function () {
                 await increaseTime(xhre, 86400 * validForDays);
-                expect(bond.deposit(balance, deployer.address)).to.be.revertedWith(
+                await expect(bond.deposit(balance, deployer.address)).to.be.revertedWith(
                     "Bonding period is done"
                 );
             });
 
             it("Should not let recover token before time is up", async function () {
-                expect(bond.recoverUnclaimed()).to.be.revertedWith(
+                await expect(bond.recoverUnclaimed()).to.be.revertedWith(
                     "bonding period is not done"
                 );
             });

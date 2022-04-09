@@ -8,6 +8,7 @@ import {
     BackingPriceCalculator,
     BackingPriceCalculator__factory,
     BalancerV2PriceOracle,
+    BalancerV2PriceOracle__factory,
     BalancerV2WeightedPoolPriceOracle,
     BalancerV2WeightedPoolPriceOracle__factory,
     BPTMNLTBondDepository,
@@ -356,7 +357,7 @@ const mainOperaContract: IExodiaContractsRegistry = {
     ]),
     BalancerV2PriceOracle: new ContractVersions<BalancerV2PriceOracle>([
         version(
-            ChainlinkPriceOracle__factory.connect,
+            BalancerV2PriceOracle__factory.connect,
             "0x2E4C44F8cd770879BcE0A6C9ced1C4fd2031a577"
         ),
     ]),
@@ -531,7 +532,7 @@ const testNetOperaContract: IExodiaContractsRegistry = {
         version(TreasuryDepositor__factory.connect),
     ]),
     BalancerV2PriceOracle: new ContractVersions<BalancerV2PriceOracle>([
-        version(ChainlinkPriceOracle__factory.connect),
+        version(BalancerV2WeightedPoolPriceOracle__factory.connect),
     ]),
     BalancerV2WeightedPoolPriceOracle:
         new ContractVersions<BalancerV2WeightedPoolPriceOracle>([

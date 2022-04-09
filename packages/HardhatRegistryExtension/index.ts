@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { Deployment, DeployResult } from "hardhat-deploy/dist/types";
+import { DeployResult } from "hardhat-deploy/dist/types";
 import { DeployOptions } from "hardhat-deploy/types";
 import { extendEnvironment } from "hardhat/config";
 import { HttpNetworkConfig, NetworksConfig } from "hardhat/types";
@@ -66,7 +66,6 @@ const getContract = async <T, K>(
         contractName
     ] as unknown as ContractVersions<any>;
     const blockNumber = block || (await xhre.ethers.provider.getBlockNumber());
-    console.log(blockNumber);
     return contractVersions.atBlock(blockNumber) as IContract<K>;
 };
 

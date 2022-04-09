@@ -8,6 +8,8 @@ import { IExtendedHRE } from "../packages/HardhatRegistryExtension/ExtendedHRE";
 import { externalAddressRegistry } from "../packages/sdk/contracts";
 import { IExodiaContractsRegistry } from "../packages/sdk/contracts/exodiaContracts";
 import {
+    IMasterchef,
+    IMasterchef__factory,
     MasterchefBalanceAdapter,
     MasterchefBalanceAdapter__factory,
 } from "../packages/sdk/typechain";
@@ -24,7 +26,7 @@ describe("MasterchefBalanceAdapter", function () {
     let BEETS_MASTERCHEF: string;
     let THE_MONOLITH_POOL: string;
 
-    const daoLpBalance = BigNumber.from("16370285709400830752661");
+    let daoLpBalance: BigNumber;
 
     beforeEach(async function () {
         await deployments.fixture([]);
@@ -41,10 +43,16 @@ describe("MasterchefBalanceAdapter", function () {
             deployment.address,
             deployer
         );
+        const FARM_PID = BigNumber.from(37);
         await balanceAdapter.addFarm(THE_MONOLITH_POOL, {
             contractAddress: BEETS_MASTERCHEF,
-            pid: 37,
+            pid: FARM_PID,
         });
+        const userInfo = await IMasterchef__factory.connect(
+            BEETS_MASTERCHEF,
+            deployer
+        ).userInfo(FARM_PID, daoAddress);
+        daoLpBalance = userInfo.amount;
     });
 
     it("Should have one farm", async function () {

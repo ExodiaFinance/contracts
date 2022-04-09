@@ -65,7 +65,6 @@ describe("Balancer V2 Weighted Pool Price Oracle", function () {
         oracle = await oracleDeployment.contract;
         const rolesDeployment = await get<ExodiaRoles__factory>("ExodiaRoles");
         roles = await rolesDeployment.contract;
-
         await roles.addArchitect(architect.address);
     });
 
@@ -128,7 +127,7 @@ describe("Balancer V2 Weighted Pool Price Oracle", function () {
                     .whenCalledWith(USDC_ADDRESS)
                     .returns(parseUnits("0.75"));
                 priceProvider.getCurrentPrice
-                    .whenCalledWith(USDC_ADDRESS)
+                    .whenCalledWith(WFTM_ADDRESS)
                     .returns(parseUnits("0.75"));
 
                 bpt = await ethers.getContractAt("IBPoolV2", BALANCER_USDC_FTM);

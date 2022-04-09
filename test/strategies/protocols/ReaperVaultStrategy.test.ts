@@ -31,6 +31,7 @@ import {
     OlympusTreasury__factory,
     ReaperVaultStrategy,
     ReaperVaultStrategy__factory,
+    StrategyWhitelist__factory,
 } from "../../../packages/sdk/typechain";
 import "../../chai-setup";
 import {
@@ -90,6 +91,10 @@ describe("ReaperVault", function () {
             from: deployer,
             args: [],
         });
+        const { contract: whitelist } = await get<StrategyWhitelist__factory>(
+            "StrategyWhitelist"
+        );
+        await whitelist.add(deployment.address);
         const deployerSigner = await xhre.ethers.getSigner(deployer);
         reaperStrategy = ReaperVaultStrategy__factory.connect(
             deployment.address,
@@ -97,7 +102,8 @@ describe("ReaperVault", function () {
         );
         await reaperStrategy.initialize(assetAllocator.address, roles.address);
 
-        const daiHolder = "0xccd19310e8722e7095914febd4d0c0828fe74675";
+        const daiHolder = "0x7182a1b9cf88e87b83e936d3553c91f9e7bebdd7";
+        await deployerSigner.sendTransaction({ value: parseEther("1"), to: daiHolder });
         await hre.network.provider.request({
             method: "hardhat_impersonateAccount",
             params: [daiHolder],

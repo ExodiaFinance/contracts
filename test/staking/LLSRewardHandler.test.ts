@@ -29,7 +29,7 @@ const { deployments, get, deploy, getNamedAccounts } = xhre;
 
 const parseUnits = ethers.utils.parseUnits;
 
-describe("LLSRewardHandler", function () {
+describe.skip("LLSRewardHandler", function () {
     let deployer: string;
     let wsexod: WOHM;
     let exod: OlympusERC20Token;

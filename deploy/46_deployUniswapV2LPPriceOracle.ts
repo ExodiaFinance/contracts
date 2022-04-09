@@ -10,7 +10,7 @@ const deployUniswapV2LPPriceOracle: IExtendedDeployFunction<IExodiaContractsRegi
     async ({ deploy, getNetwork }: IExtendedHRE<IExodiaContractsRegistry>) => {
         const { contract: uniswapV2LPPriceOracle } =
             await deploy<UniswapV2LPPriceOracle__factory>("UniswapV2LPPriceOracle", []);
-        log("chainlink price oracle", uniswapV2LPPriceOracle.address);
+        log("UniswapV2LP price oracle", uniswapV2LPPriceOracle.address);
     };
 export default deployUniswapV2LPPriceOracle;
 deployUniswapV2LPPriceOracle.id = UNISWAPV2_LP_PRICE_ORACLE_DID;

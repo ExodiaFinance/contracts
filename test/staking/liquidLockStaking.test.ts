@@ -28,7 +28,7 @@ const { deployments, get, deploy, getNamedAccounts } = xhre;
 
 const parseUnits = ethers.utils.parseUnits;
 
-describe("LiquidLockStaking", function () {
+describe.skip("LiquidLockStaking", function () {
     let deployer: string;
     let wsexod: WOHM;
     let exod: OlympusERC20Token;

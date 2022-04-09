@@ -8,7 +8,6 @@ export const PRICE_PROVIDER_DID = "price_provider";
 
 const deployPriceProvider: IExtendedDeployFunction<IExodiaContractsRegistry> = async ({
     deploy,
-    getNetwork,
 }: IExtendedHRE<IExodiaContractsRegistry>) => {
     const { contract: priceProvider } = await deploy<PriceProvider__factory>(
         "PriceProvider",
