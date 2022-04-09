@@ -20,8 +20,10 @@ import {
     ExodiaRoles,
     ExodiaRoles__factory,
     IStrategy,
+    MockBaseStrategy__factory,
     MockCollectableProfitsStrategy,
     MockCollectableProfitsStrategy__factory,
+    MockFailingStrategy,
     MockGreedyStrategy,
     MockGreedyStrategy__factory,
     MockLoosingStrategy,
@@ -42,6 +44,7 @@ import {
     StrategyWhitelist__factory,
 } from "../../packages/sdk/typechain";
 import "../chai-setup";
+import { PAUSABLE_PAUSED } from "../errors";
 import { increaseTime } from "../testUtils";
 const xhre = hre as IExtendedHRE<IExodiaContractsRegistry>;
 const { deployments, get, getNamedAccounts, getUnnamedAccounts } = xhre;
@@ -1125,6 +1128,59 @@ describe("AssetAllocator", function () {
             await assetAllocator.allocate(tok0.address, 0);
             expect(await tok0.balanceOf(strat0.address)).to.eq(bal0);
             expect(await tok0.balanceOf(strat1.address)).to.eq(bal1);
+        });
+    });
+
+    describe.only("Handle failing strategy", function () {
+        let tok0: MockContract<MockToken>;
+        let strat: MockContract<MockFailingStrategy>;
+        const amount = parseEther("10");
+
+        const setupBaseStrat = deployments.createFixture(async (hh) => {
+            const { contract: roles } = await get<ExodiaRoles__factory>("ExodiaRoles");
+            await roles.addArchitect(deployer);
+            await roles.addStrategist(deployer);
+            tok0 = await mockTokenFactory.deploy(18);
+            const baseStratFactory = await smock.mock<MockBaseStrategy__factory>(
+                "MockFailingStrategy"
+            );
+            strat = await baseStratFactory.deploy();
+            await strategyWhitelist.add(strat.address);
+            await allocationCalculator.setAllocation(
+                tok0.address,
+                [strat.address],
+                [100_000]
+            );
+        });
+
+        beforeEach(async function () {
+            await setupBaseStrat();
+        });
+
+        it("Should support failing deployment", async function () {
+            await tok0.mint(deployer, amount);
+            await tok0.approve(assetAllocator.address, amount);
+            await expect(
+                assetAllocator.allocate(tok0.address, amount)
+            ).to.not.revertedWith(PAUSABLE_PAUSED);
+            expect(strat.deploy).to.have.been.called;
+        });
+
+        it("Should support failing withdraw", async function () {
+            await tok0.mint(strat.address, amount);
+            await allocationCalculator.setAllocation(tok0.address, [strat.address], [0]);
+            await expect(assetAllocator.rebalance(tok0.address, 0)).to.not.be.reverted;
+            expect(strat.withdrawTo).to.have.been.called;
+        });
+
+        it("Should support failing collect rewards", async function () {
+            await expect(assetAllocator.collectRewards(tok0.address)).to.not.be.reverted;
+            expect(strat.collectRewards).to.have.been.called;
+        });
+
+        it("Should support failing collect profits", async function () {
+            await expect(assetAllocator.collectProfits(tok0.address)).to.not.be.reverted;
+            expect(strat.collectProfits).to.have.been.called;
         });
     });
 });

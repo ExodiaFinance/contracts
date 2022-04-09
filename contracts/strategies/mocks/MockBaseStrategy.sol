@@ -52,6 +52,6 @@ contract MockBaseStrategy is BaseStrategy {
     function _exit(address _token) internal override {}
 
     function balance(address _token) external view override returns (uint256) {
-        return 0;
+        return IERC20(_token).balanceOf(address(this));
     }
 }

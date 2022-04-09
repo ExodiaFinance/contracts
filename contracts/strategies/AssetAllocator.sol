@@ -37,7 +37,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
     function collectProfits(address _token) external override onlyMachine {
         address[] memory strategies = _getStrategies(_token);
         for (uint256 i = 0; i < strategies.length; i++) {
-            IStrategy(strategies[i]).collectProfits(_token, address(this));
+            try IStrategy(strategies[i]).collectProfits(_token, address(this)) {} catch {}
         }
         _returnYields(_token);
     }
@@ -57,13 +57,13 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
     }
 
     function _collectRewardsForStrategy(address _token, address _strategy) internal {
-        address[] memory rewardTokens = IStrategy(_strategy).collectRewards(
-            _token,
-            address(this)
-        );
-        for (uint256 i = 0; i < rewardTokens.length; i++) {
-            _returnYields(rewardTokens[i]);
-        }
+        try IStrategy(_strategy).collectRewards(_token, address(this)) returns (
+            address[] memory rewardTokens
+        ) {
+            for (uint256 i = 0; i < rewardTokens.length; i++) {
+                _returnYields(rewardTokens[i]);
+            }
+        } catch {}
     }
 
     function rebalance(address _token, uint256 _amount)
@@ -123,11 +123,11 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
                 allocated += _balances[i] - amount;
                 expectedToWithdraw += amount;
                 _collectRewardsForStrategy(_token, _strategies[i]);
-                actuallyWithdrawn += IStrategy(_strategies[i]).withdrawTo(
-                    _token,
-                    amount,
-                    msg.sender
-                );
+                try
+                    IStrategy(_strategies[i]).withdrawTo(_token, amount, msg.sender)
+                returns (uint256 withdrawn) {
+                    actuallyWithdrawn += withdrawn;
+                } catch {}
             }
         }
         return (actuallyWithdrawn, expectedToWithdraw, allocated);
@@ -152,7 +152,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
                 allocated += _balances[i] + amount;
                 address strategyAddress = _strategies[i];
                 IERC20(_token).transferFrom(msg.sender, strategyAddress, amount);
-                IStrategy(strategyAddress).deploy(_token);
+                try IStrategy(strategyAddress).deploy(_token) {} catch {}
             }
         }
         return allocated;
