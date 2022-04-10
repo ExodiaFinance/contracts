@@ -15,6 +15,12 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
 
     address public treasuryDepositorAddress;
     address public allocationCalculator;
+    
+    event Withdraw(address indexed _token, uint amount, address _strategy);
+    event Deposited(address indexed _token, uint amount, address _strategy);
+    event Yields(address indexed _token, int amount, address _strategy);
+    event FailedDeployment(address indexed _token, uint amount, address _strategy);
+    event FailedWithdraw(address indexed _token, uint amount, address _strategy);
 
     function initialize(
         address _treasuryDepositor,
@@ -37,16 +43,19 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
     function collectProfits(address _token) external override onlyMachine {
         address[] memory strategies = _getStrategies(_token);
         for (uint256 i = 0; i < strategies.length; i++) {
-            try IStrategy(strategies[i]).collectProfits(_token, address(this)) {} catch {}
+            try IStrategy(strategies[i]).collectProfits(_token, address(this)) returns (int profits) {
+                emit Yields(_token, profits, strategies[i]);
+            } catch {}
         }
         _returnYields(_token);
     }
 
-    function _returnYields(address _token) internal {
+    function _returnYields(address _token) internal returns (uint) {
         IERC20 token = IERC20(_token);
         uint256 balance = token.balanceOf(address(this));
         token.approve(treasuryDepositorAddress, balance);
         _getTreasuryDepositor().returnWithProfits(_token, 0, balance);
+        return balance;
     }
 
     function collectRewards(address _token) external override onlyMachine {
@@ -61,7 +70,8 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
             address[] memory rewardTokens
         ) {
             for (uint256 i = 0; i < rewardTokens.length; i++) {
-                _returnYields(rewardTokens[i]);
+                uint yields = _returnYields(rewardTokens[i]);
+                emit Yields(_token, int(yields), _strategy);
             }
         } catch {}
     }
@@ -127,7 +137,10 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
                     IStrategy(_strategies[i]).withdrawTo(_token, amount, msg.sender)
                 returns (uint256 withdrawn) {
                     actuallyWithdrawn += withdrawn;
-                } catch {}
+                    emit Withdraw(_token, amount, _strategies[i]);
+                } catch {
+                    emit FailedWithdraw(_token, amount,_strategies[i]);
+                }
             }
         }
         return (actuallyWithdrawn, expectedToWithdraw, allocated);
@@ -152,7 +165,12 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
                 allocated += _balances[i] + amount;
                 address strategyAddress = _strategies[i];
                 IERC20(_token).transferFrom(msg.sender, strategyAddress, amount);
-                try IStrategy(strategyAddress).deploy(_token) {} catch {}
+                emit Deposited(_token, amount, strategyAddress);
+                try IStrategy(strategyAddress).deploy(_token) {
+                    
+                } catch {
+                    emit FailedDeployment(_token, amount, strategyAddress);
+                }
             }
         }
         return allocated;

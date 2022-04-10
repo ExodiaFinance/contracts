@@ -1131,7 +1131,7 @@ describe("AssetAllocator", function () {
         });
     });
 
-    describe.only("Handle failing strategy", function () {
+    describe("Handle failing strategy", function () {
         let tok0: MockContract<MockToken>;
         let strat: MockContract<MockFailingStrategy>;
         const amount = parseEther("10");
