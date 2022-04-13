@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "../IAssetAllocator.sol";
 import "../BaseStrategy.sol";
 import "../../interfaces/tarot/ISupplyVault.sol";
+import "../../interfaces/tarot/IBorrowable.sol";
 
 contract TarotVaultStrategy is BaseStrategy {
     mapping(address => address) public tokenVault;
@@ -91,8 +92,29 @@ contract TarotVaultStrategy is BaseStrategy {
     }
 
     function balance(address _token) public view override returns (uint256) {
+        ISupplyVault vault = ISupplyVault(tokenVault[_token]);
+        uint256 totalUnderlying = vault.underlying().balanceOf(tokenVault[_token]);
+
+        uint256 numBorrowables = vault.getBorrowablesLength();
+        for (uint256 i = 0; i < numBorrowables; i++) {
+            IBorrowable borrowable = vault.borrowables(i);
+            uint256 borrowableAmount = borrowable.balanceOf(tokenVault[_token]);
+
+            uint256 exchangeRate = 1e18;
+            uint256 _totalSupply = borrowable.totalSupply();
+            uint256 _totalBalance = borrowable.totalBalance();
+            if (_totalSupply != 0 && _totalBalance != 0) {
+                exchangeRate = (_totalBalance * 1e18) / _totalSupply;
+            }
+
+            totalUnderlying += (borrowableAmount * exchangeRate) / 1e18;
+        }
+
+        uint256 shareAmount = IERC20(tokenVault[_token]).balanceOf(address(this));
+        uint256 totalShares = IERC20(tokenVault[_token]).totalSupply();
         return
-            ISupplyVault(tokenVault[_token]).underlyingBalanceForAccount(address(this)) +
+            (totalUnderlying * shareAmount) /
+            totalShares +
             IERC20(_token).balanceOf(address(this));
     }
 
