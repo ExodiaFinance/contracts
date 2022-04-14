@@ -169,7 +169,10 @@ describe("ReaperVault", function () {
             BigNumber.from("0"),
             1e7
         );
-        expect(await reaperStrategy.callStatic.balance(DAI)).to.be.closeTo(BigNumber.from("0"), 1e7);
+        expect(await reaperStrategy.callStatic.balance(DAI)).to.be.closeTo(
+            BigNumber.from("0"),
+            1e7
+        );
         expect(await dai.balanceOf(assetAllocator.address)).to.eq(0);
         expect(await dai.balanceOf(farmer.address)).to.eq(0);
         expect(await dai.balanceOf(treasury.address)).to.gte(

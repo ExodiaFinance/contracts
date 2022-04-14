@@ -27,11 +27,7 @@ contract TreasuryTracker is ITreasuryTracker, Policy {
 
     constructor() {}
 
-    function balances()
-        external
-        override
-        returns (address[] memory, uint256[] memory)
-    {
+    function balances() external override returns (address[] memory, uint256[] memory) {
         uint256 length = assetsWithRisk.length() +
             riskFreeAssets.length() +
             bpts.length() +
