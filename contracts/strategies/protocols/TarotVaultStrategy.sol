@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 import "../IAssetAllocator.sol";
@@ -9,7 +10,11 @@ import "../BaseStrategy.sol";
 import "../../interfaces/tarot/ISupplyVault.sol";
 import "../../interfaces/tarot/IBorrowable.sol";
 
+import "hardhat/console.sol";
+
 contract TarotVaultStrategy is BaseStrategy {
+    using SafeERC20 for IERC20;
+
     mapping(address => address) public tokenVault;
     mapping(address => uint256) public override deposited;
 
@@ -38,9 +43,8 @@ contract TarotVaultStrategy is BaseStrategy {
         address vault = tokenVault[_token];
         uint256 amountOfShares = _amountToShares(vault, _amount);
         deposited[_token] -= _amountToDeposits(_token, _amount);
-        ISupplyVault(vault).leave(amountOfShares);
-        uint256 withdrawnAmount = IERC20(_token).balanceOf(address(this));
-        IERC20(_token).transfer(_to, _amount);
+        uint256 withdrawnAmount = ISupplyVault(vault).leave(amountOfShares);
+        IERC20(_token).transfer(_to, withdrawnAmount);
         return withdrawnAmount;
     }
 
@@ -52,7 +56,7 @@ contract TarotVaultStrategy is BaseStrategy {
         internal
         returns (uint256)
     {
-        return (_amount * 10**IERC20Metadata(_token).decimals()) / balance(_token);
+        return (_amount * deposited[_token]) / balance(_token);
     }
 
     function _emergencyWithdrawTo(address _token, address _to)
@@ -91,30 +95,9 @@ contract TarotVaultStrategy is BaseStrategy {
         return new address[](0);
     }
 
-    function balance(address _token) public view override returns (uint256) {
-        ISupplyVault vault = ISupplyVault(tokenVault[_token]);
-        uint256 totalUnderlying = vault.underlying().balanceOf(tokenVault[_token]);
-
-        uint256 numBorrowables = vault.getBorrowablesLength();
-        for (uint256 i = 0; i < numBorrowables; i++) {
-            IBorrowable borrowable = vault.borrowables(i);
-            uint256 borrowableAmount = borrowable.balanceOf(tokenVault[_token]);
-
-            uint256 exchangeRate = 1e18;
-            uint256 _totalSupply = borrowable.totalSupply();
-            uint256 _totalBalance = borrowable.totalBalance();
-            if (_totalSupply != 0 && _totalBalance != 0) {
-                exchangeRate = (_totalBalance * 1e18) / _totalSupply;
-            }
-
-            totalUnderlying += (borrowableAmount * exchangeRate) / 1e18;
-        }
-
-        uint256 shareAmount = IERC20(tokenVault[_token]).balanceOf(address(this));
-        uint256 totalShares = IERC20(tokenVault[_token]).totalSupply();
+    function balance(address _token) public override returns (uint256) {
         return
-            (totalUnderlying * shareAmount) /
-            totalShares +
+            ISupplyVault(tokenVault[_token]).underlyingBalanceForAccount(address(this)) +
             IERC20(_token).balanceOf(address(this));
     }
 

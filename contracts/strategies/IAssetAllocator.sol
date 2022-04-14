@@ -20,5 +20,5 @@ interface IAssetAllocator {
     function emergencyWithdrawFromStrategy(address[] calldata _tokens, address _strategy)
         external;
 
-    function allocatedBalance(address _token) external view returns (uint256);
+    function allocatedBalance(address _token) external returns (uint256);
 }

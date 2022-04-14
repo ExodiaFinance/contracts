@@ -225,7 +225,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
     }
 
     //TODO: add tests
-    function allocatedBalance(address _token) external view override returns (uint256) {
+    function allocatedBalance(address _token) external override returns (uint256) {
         (uint256 balance, ) = _balance(
             _token,
             IAllocationCalculator(allocationCalculator).getStrategies(_token)
@@ -235,7 +235,6 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
 
     function _balance(address _token, address[] memory _strategies)
         internal
-        view
         returns (uint256, uint256[] memory)
     {
         uint256 allocated = 0;
