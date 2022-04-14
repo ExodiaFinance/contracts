@@ -15,12 +15,12 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
 
     address public treasuryDepositorAddress;
     address public allocationCalculator;
-    
-    event Withdraw(address indexed _token, uint amount, address _strategy);
-    event Deposited(address indexed _token, uint amount, address _strategy);
-    event Yields(address indexed _token, int amount, address _strategy);
-    event FailedDeployment(address indexed _token, uint amount, address _strategy);
-    event FailedWithdraw(address indexed _token, uint amount, address _strategy);
+
+    event Withdraw(address indexed _token, uint256 amount, address _strategy);
+    event Deposited(address indexed _token, uint256 amount, address _strategy);
+    event Yields(address indexed _token, int256 amount, address _strategy);
+    event FailedDeployment(address indexed _token, uint256 amount, address _strategy);
+    event FailedWithdraw(address indexed _token, uint256 amount, address _strategy);
 
     function initialize(
         address _treasuryDepositor,
@@ -43,14 +43,16 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
     function collectProfits(address _token) external override onlyMachine {
         address[] memory strategies = _getStrategies(_token);
         for (uint256 i = 0; i < strategies.length; i++) {
-            try IStrategy(strategies[i]).collectProfits(_token, address(this)) returns (int profits) {
+            try IStrategy(strategies[i]).collectProfits(_token, address(this)) returns (
+                int256 profits
+            ) {
                 emit Yields(_token, profits, strategies[i]);
             } catch {}
         }
         _returnYields(_token);
     }
 
-    function _returnYields(address _token) internal returns (uint) {
+    function _returnYields(address _token) internal returns (uint256) {
         IERC20 token = IERC20(_token);
         uint256 balance = token.balanceOf(address(this));
         token.approve(treasuryDepositorAddress, balance);
@@ -70,8 +72,8 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
             address[] memory rewardTokens
         ) {
             for (uint256 i = 0; i < rewardTokens.length; i++) {
-                uint yields = _returnYields(rewardTokens[i]);
-                emit Yields(_token, int(yields), _strategy);
+                uint256 yields = _returnYields(rewardTokens[i]);
+                emit Yields(_token, int256(yields), _strategy);
             }
         } catch {}
     }
@@ -139,7 +141,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
                     actuallyWithdrawn += withdrawn;
                     emit Withdraw(_token, amount, _strategies[i]);
                 } catch {
-                    emit FailedWithdraw(_token, amount,_strategies[i]);
+                    emit FailedWithdraw(_token, amount, _strategies[i]);
                 }
             }
         }
@@ -166,9 +168,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
                 address strategyAddress = _strategies[i];
                 IERC20(_token).transferFrom(msg.sender, strategyAddress, amount);
                 emit Deposited(_token, amount, strategyAddress);
-                try IStrategy(strategyAddress).deploy(_token) {
-                    
-                } catch {
+                try IStrategy(strategyAddress).deploy(_token) {} catch {
                     emit FailedDeployment(_token, amount, strategyAddress);
                 }
             }
@@ -225,7 +225,7 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
     }
 
     //TODO: add tests
-    function allocatedBalance(address _token) external view override returns (uint256) {
+    function allocatedBalance(address _token) external override returns (uint256) {
         (uint256 balance, ) = _balance(
             _token,
             IAllocationCalculator(allocationCalculator).getStrategies(_token)
@@ -235,7 +235,6 @@ contract AssetAllocator is ExodiaAccessControl, IAssetAllocator {
 
     function _balance(address _token, address[] memory _strategies)
         internal
-        view
         returns (uint256, uint256[] memory)
     {
         uint256 allocated = 0;

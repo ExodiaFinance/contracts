@@ -28,5 +28,5 @@ interface IStrategy {
     function deposited(address _token) external view returns (uint256);
 
     // @return the balance of the strategy with gains
-    function balance(address _token) external view returns (uint256);
+    function balance(address _token) external returns (uint256);
 }

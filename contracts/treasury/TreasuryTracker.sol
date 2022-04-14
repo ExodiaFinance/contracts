@@ -27,12 +27,7 @@ contract TreasuryTracker is ITreasuryTracker, Policy {
 
     constructor() {}
 
-    function balances()
-        external
-        view
-        override
-        returns (address[] memory, uint256[] memory)
-    {
+    function balances() external override returns (address[] memory, uint256[] memory) {
         uint256 length = assetsWithRisk.length() +
             riskFreeAssets.length() +
             bpts.length() +
@@ -65,7 +60,7 @@ contract TreasuryTracker is ITreasuryTracker, Policy {
         return (tokens, balances);
     }
 
-    function _balance(address _asset) internal view returns (uint256) {
+    function _balance(address _asset) internal returns (uint256) {
         uint256 total = 0;
         for (uint256 i = 0; i < contracts.length(); i++) {
             total += IERC20(_asset).balanceOf(contracts.at(i));
@@ -82,7 +77,7 @@ contract TreasuryTracker is ITreasuryTracker, Policy {
         return total;
     }
 
-    function balance(address _address) external view returns (uint256) {
+    function balance(address _address) external returns (uint256) {
         return _balance(_address);
     }
 
